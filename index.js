@@ -29,7 +29,6 @@ client.on('messageCreate', async (msg) => {
         if (msg.author.id !== "1312903712238469170") {
             if (msg.content.includes('!') && msg.channel.id == "1312924103971438654") {
                 let command = msg.content.split('!')[1];
-                console.log(command);
                 if (command.toLowerCase().includes('consulta')) {
                     msg.channel.send("Pensando...");
                     let petitions = command.split('consulta')[1].trim();
