@@ -37,8 +37,10 @@ client.on('messageCreate', async (msg) => {
                 }
             }
             else {
-                msg.delete();
-                msg.channel.send("Comando No Valido, o Canal Incorrecto");
+                if(msg.channel.id != "1235165837317505075"){
+                    msg.delete();
+                    msg.channel.send("Comando No Valido, o Canal Incorrecto");
+                }
             }
         }
     } catch (error) {
