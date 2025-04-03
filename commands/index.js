@@ -4,7 +4,7 @@ const LibsCommands = require("./lib.js");
 const ServerDb = new Server();
 let libCommands = new LibsCommands();
 
-export const checkServer = async (guild) => {
+const checkServer = async (guild) => {
     let dataServer = (await ServerDb.GetById(guild.id));
     if (dataServer.length == 0) {
         dataServer = await ServerDb.Create(guild);
@@ -12,7 +12,7 @@ export const checkServer = async (guild) => {
     return dataServer;
 }
 
-export const commands = async (msg, Consulting, admin, isMod) => {
+const commands = async (msg, Consulting, admin, isMod) => {
 
     await checkServer(msg.guild);
 
@@ -31,3 +31,8 @@ export const commands = async (msg, Consulting, admin, isMod) => {
         // libCommands.setWelcome(msg.guild.id, msg.content.split('!setwelcome')[1].trim());
     }
 }
+
+module.exports = {
+    checkServer,
+    commands,
+};
