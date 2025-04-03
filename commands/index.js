@@ -1,4 +1,4 @@
-import { Server, SettingWelcome } from "../db/index.js";
+const { Server, SettingWelcome } = require("../db/index.js");
 import LibsCommands from "./lib.js";
 
 const ServerDb = new Server();
