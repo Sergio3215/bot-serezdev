@@ -1,5 +1,5 @@
 const { Server, SettingWelcome } = require("../db/index.js");
-import LibsCommands from "./lib.js";
+const LibsCommands = require("./lib.js");
 
 const ServerDb = new Server();
 let libCommands = new LibsCommands();
@@ -13,7 +13,7 @@ export const checkServer = async (guild) => {
 }
 
 export const commands = async (msg, Consulting, admin, isMod) => {
-    
+
     await checkServer(msg.guild);
 
     if (msg.content.includes('!consulta')) {
@@ -21,13 +21,13 @@ export const commands = async (msg, Consulting, admin, isMod) => {
     }
 
     if (msg.content.includes('!setwelcome')) {
-        if(admin && isMod){
+        if (admin && isMod) {
             libCommands.setWelcome(msg);
         }
-        else{
+        else {
             msg.reply('No tienes permisos para usar este comando.');
         }
-       
+
         // libCommands.setWelcome(msg.guild.id, msg.content.split('!setwelcome')[1].trim());
     }
 }
