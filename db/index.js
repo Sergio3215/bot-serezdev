@@ -18,11 +18,16 @@ class Server {
     }
 
     async GetById(id) {
-        return await prisma.Server.findMany({
-            where: {
-                serverId: id
-            }
-        });
+        try {
+            return await prisma.Server.findMany({
+                where: {
+                    serverId: id
+                }
+            });
+        } catch (error) {
+            console.log(error.message);
+
+        }
     }
 
     async Update(options) {
