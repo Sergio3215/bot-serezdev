@@ -1,7 +1,7 @@
 const { Server, SettingWelcome } = require("../db/index.js");
 const settingWelcome = new SettingWelcome();
 
-export default class LibsCommands {
+class LibsCommands {
 
     constructor() {
 
@@ -69,3 +69,4 @@ export default class LibsCommands {
     }
 
 }
+module.exports = LibsCommands;
