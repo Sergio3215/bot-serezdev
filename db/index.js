@@ -112,8 +112,7 @@ class SettingWelcome {
     }
 
     async Update(options) {
-
-        console.log(options);
+        // console.log(options);
         await prisma.settingWelcome.update({
             where: {
                 id: options.id

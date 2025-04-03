@@ -9,12 +9,11 @@ const checkServer = async (guild) => {
     if (dataServer.length == 0) {
         dataServer = await ServerDb.Create(guild);
     }
-    return dataServer;
 }
 
 const commands = async (msg, Consulting, admin, isMod) => {
 
-    await checkServer(msg.guild);
+    // await checkServer(msg.guild);
 
     if (msg.content.includes('!consulta')) {
         libCommands.ConsultingGemini(msg, Consulting);
