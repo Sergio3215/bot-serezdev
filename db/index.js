@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-export class Server {
+class Server {
     constructor() {
 
     }
@@ -38,7 +38,7 @@ export class Server {
 }
 
 
-export class buttonFollowing {
+class buttonFollowing {
     constructor() {
 
     }
@@ -79,7 +79,7 @@ export class buttonFollowing {
 }
 
 
-export class SettingWelcome {
+class SettingWelcome {
     constructor() {
 
     }
@@ -119,3 +119,9 @@ export class SettingWelcome {
         });
     }
 }
+
+module.exports = {
+    Server,
+    buttonFollowing,
+    SettingWelcome
+};
