@@ -31,14 +31,17 @@ client.on('ready', () => {
 
 client.on('messageCreate', async (msg) => {
     checkServer(msg.guild);
-
-    let admin = msg.member.permissions.has(PermissionsBitField.Flags.Administrator);
-    let isMod = msg.member.permissions.has(
-        PermissionsBitField.Flags.KickMembers,
-        PermissionsBitField.Flags.BanMembers,
-        PermissionsBitField.Flags.ManageMessages,
-        PermissionsBitField.Flags.ManageChannels
-      );
+    let admin = false;
+    let isMod = false;
+    if (msg != null) {
+        admin = msg.member.permissions.has(PermissionsBitField.Flags.Administrator);
+        isMod = msg.member.permissions.has(
+            PermissionsBitField.Flags.KickMembers,
+            PermissionsBitField.Flags.BanMembers,
+            PermissionsBitField.Flags.ManageMessages,
+            PermissionsBitField.Flags.ManageChannels
+        );
+    }
     commands(msg, Consulting, admin, isMod);
 });
 

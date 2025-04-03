@@ -26,7 +26,7 @@ class Server {
     }
 
     async Update(options) {
-        await prisma.buttonFollowing.update({
+        await prisma.Server.update({
             where: {
                 serverId: options.id
             },
