@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js')
 const { Consulting } = require('./gemini');
 const { commands, checkServer } = require('./commands/index.js');
 const { Server, SettingWelcome } = require('./db/index.js');
+const { ManageInteraction } = require('./interaction/index.js');
 require('dotenv').config();
 const token = process.env.token;
 
@@ -30,27 +31,31 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (msg) => {
-    checkServer(msg.guild);
-    let admin = false;
-    let isMod = false;
-    if (msg != null) {
-        admin = msg.member.permissions.has(PermissionsBitField.Flags.Administrator);
-        isMod = msg.member.permissions.has(
-            PermissionsBitField.Flags.KickMembers,
-            PermissionsBitField.Flags.BanMembers,
-            PermissionsBitField.Flags.ManageMessages,
-            PermissionsBitField.Flags.ManageChannels
-        );
+    try {
+        checkServer(msg.guild);
+        let admin = false;
+        let isMod = false;
+        if (msg != null) {
+            admin = msg.member.permissions.has(PermissionsBitField.Flags.Administrator);
+            isMod = msg.member.permissions.has(
+                PermissionsBitField.Flags.KickMembers,
+                PermissionsBitField.Flags.BanMembers,
+                PermissionsBitField.Flags.ManageMessages,
+                PermissionsBitField.Flags.ManageChannels
+            );
+        }
+        commands(client, msg, Consulting, admin, isMod);
+    } catch (error) {
+
     }
-    commands(msg, Consulting, admin, isMod);
+});
+
+client.on('interactionCreate', async (interaction) => {
+    ManageInteraction(interaction);
 });
 
 
 client.on('guildMemberAdd', async (member) => {
-    // const dataServer = (await ServerDb.GetById(member.guild.id))
-    // if (member.guild.id == '1235045954491781150') {
-    //     member.roles.add('1235247138787823646');
-    // }
 
     try {
         const settingWelcomeData = await settingWelcome.GetById(member.guild.id);

@@ -1,5 +1,8 @@
-const { Server, SettingWelcome } = require("../db/index.js");
+const { Server, SettingWelcome, buttonFollowing } = require("../db/index.js");
+const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+
 const settingWelcome = new SettingWelcome();
+const btnfollow = new buttonFollowing();
 
 class LibsCommands {
 
@@ -64,8 +67,58 @@ class LibsCommands {
         }
     }
 
-    async SettingsButton(msg) {
+    async SettingsButton(client, msg) {
+        const channelData = msg.content.split('!setfollowing')[1].trim();
+        if (channelData.includes('<#') && channelData.includes('>') && channelData.includes('<@&')) {
+            try {
+                let id = channelData.split('<#')[1].split('>')[0];
+                let label_id = channelData.split('<#')[2].split('>')[0];
 
+                let target_channel = await client.channels.fetch(id);
+
+                let following = new ButtonBuilder()
+                    .setCustomId('Following ' + label_id)
+                    .setLabel('Seguir Sección')
+                    .setStyle(ButtonStyle.Success);
+
+                let row = new ActionRowBuilder()
+                    .addComponents(following);
+
+                target_channel.send({
+                    content: `¿Deseas seguir el canal <#${label_id}>?`,
+                    components: [row]
+                });
+
+
+                let rol_id = channelData.split('<@&')[1].split('>')[0];
+
+                let options = {
+                    id: msg.guild.id,
+                    channel: label_id,
+                    role: rol_id,
+                }
+
+                let db_update = (await btnfollow.GetById(msg.guild.id)).length > 0;
+
+                if (!db_update) {
+                    btnfollow.Create(options);
+                    msg.reply(`El canal <#${label_id}> ha sido establecido como el canal a seguir.`);
+                }
+                else {
+                    btnfollow.Update(options);
+                    msg.reply(`El canal <#${label_id}> ha sido modificado como el canal a seguir.`);
+                }
+
+            }
+            catch (error) {
+                console.error(error);
+                msg.reply('Debe enviarse el comando con el canal [target] y el canal [label]');
+            }
+            // const channel = msg.guild.channels.cache.get(channelId);
+        }
+        else {
+            msg.reply('No es un canal o rol valido');
+        }
     }
 
 }

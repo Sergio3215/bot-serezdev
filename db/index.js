@@ -48,10 +48,12 @@ class buttonFollowing {
 
     }
 
-    async Create(guild) {
+    async Create(options) {
         return await prisma.buttonFollowing.create({
             data: {
-                serverId: guild.id,
+                serverId: options.id,
+                setChannel: options.channel,
+                setRole: options.role,
             }
 
         });
@@ -77,7 +79,6 @@ class buttonFollowing {
             data: {
                 setChannel: options.channel,
                 setRole: options.role,
-                mod: options.mod,
             }
         });
     }

@@ -15,21 +15,21 @@ datasource db {
 
 model buttonFollowing {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
-  serverId   String
+  serverId   String  @unique
   setRole    String?
   mod        String?
   setChannel String?
 }
 
-model settingWelcome{
-  id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  serverId          String
-  setRole           String
+model settingWelcome {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  serverId String @unique
+  setRole  String
 }
 
 model Server {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  serverId          String
+  serverId          String  @unique
   serverName        String
   buttonFollowingId String?
 }
