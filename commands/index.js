@@ -19,20 +19,28 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
         libCommands.ConsultingGemini(msg, Consulting);
     }
 
-    if (admin && isMod) {
-        if (msg.content.includes('!setwelcome')) {
+    if (msg.content.includes('!setwelcome')) {
+
+        if (admin && isMod) {
             libCommands.setWelcome(msg);
         }
-
-        if (msg.content.includes('!setfollowing')) {
-            libCommands.SettingsButton(client, msg);
+        else {
+            msg.reply('No tienes permisos para usar este comando.');
         }
     }
-    else {
-        // msg.reply('No tienes permisos para usar este comando.');
-    }
 
+    if (msg.content.includes('!setfollowing')) {
+
+        if (admin && isMod) {
+            libCommands.SettingsButton(client, msg);
+        }
+
+        else {
+            msg.reply('No tienes permisos para usar este comando.');
+        }
+    }
 }
+
 
 module.exports = {
     checkServer,
