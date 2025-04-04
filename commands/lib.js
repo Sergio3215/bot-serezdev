@@ -9,6 +9,11 @@ class LibsCommands {
     constructor() {
 
     }
+    
+    async MeMide(msg) {
+        let cm = Math.floor(Math.random() * 30);
+        msg.reply(`Te mide ${cm} cm`);
+    }
 
     async ConsultingGemini(msg, Consulting) {
         try {

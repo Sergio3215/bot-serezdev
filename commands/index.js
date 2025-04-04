@@ -19,6 +19,11 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
         libCommands.ConsultingGemini(msg, Consulting);
     }
 
+    if (msg.content.includes('!memide')) {
+
+        libCommands.MeMide(msg);
+    }
+
     if (msg.content.includes('!setwelcome')) {
 
         if (admin || isMod) {
