@@ -84,6 +84,50 @@ class buttonFollowing {
     }
 }
 
+class aceptRules {
+    constructor() {
+
+    }
+
+    async Create(options) {
+        return await prisma.aceptRules.create({
+            data: {
+                serverId: options.id,
+                setChannel: options.channel,
+                setRole: options.role,
+                removeRole: options.removeRole,
+            }
+
+        });
+    }
+
+    // async Get() {
+    //     return await prisma.profile.findMany();
+    // }
+
+    async GetById(id) {
+        return await prisma.aceptRules.findMany({
+            where: {
+                serverId: id
+            }
+        });
+    }
+
+    async Update(options) {
+        await prisma.aceptRules.update({
+            where: {
+                serverId: options.id
+            },
+            data: {
+                setChannel: options.channel,
+                setRole: options.role,
+                removeRole: options.removeRole,
+            }
+        });
+    }
+}
+
+
 
 class SettingWelcome {
     constructor() {
@@ -128,5 +172,6 @@ class SettingWelcome {
 module.exports = {
     Server,
     buttonFollowing,
-    SettingWelcome
+    SettingWelcome,
+    aceptRules,
 };

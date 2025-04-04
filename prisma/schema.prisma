@@ -21,6 +21,14 @@ model buttonFollowing {
   setChannel String?
 }
 
+model aceptRules {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId   String  @unique
+  setRole    String?
+  removeRole String?
+  setChannel String?
+}
+
 model settingWelcome {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   serverId String @unique

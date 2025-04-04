@@ -13,6 +13,17 @@ class interactionLib {
             ephemeral: true
         });
     }
+
+    async BtnRules(interaction, set_rolId, remove_roleId, label_id) {
+
+        interaction.member.roles.add(set_rolId);
+        interaction.member.roles.remove(remove_roleId);
+
+        interaction.reply({
+            content: `Has aceptado las reglas del canal <#${label_id}>`,
+            ephemeral: true
+        });
+    }
 }
 
 module.exports = {

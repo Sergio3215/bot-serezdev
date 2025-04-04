@@ -1,8 +1,9 @@
-const { Server, SettingWelcome, buttonFollowing } = require("../db/index.js");
+const { Server, SettingWelcome, buttonFollowing, aceptRules } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
+const acept_rules = new aceptRules();
 
 class LibsCommands {
 
@@ -118,6 +119,63 @@ class LibsCommands {
             catch (error) {
                 console.error(error);
                 msg.reply('Debe enviarse el comando con el canal [target] y el canal [label]');
+            }
+            // const channel = msg.guild.channels.cache.get(channelId);
+        }
+        else {
+            msg.reply('No es un canal o rol valido');
+        }
+    }
+
+    
+    async AceptRules(client, msg) {
+        const channelData = msg.content.split('!setrules')[1].trim();
+        if (channelData.includes('<#') && channelData.includes('>') && channelData.includes('<@&')) {
+            try {
+                let id = channelData.split('<#')[1].split('>')[0];
+                let label_id = channelData.split('<#')[2].split('>')[0];
+
+                let target_channel = await client.channels.fetch(id);
+
+                let btn_rules = new ButtonBuilder()
+                    .setCustomId('Rules ' + label_id)
+                    .setLabel('Aceptar las reglas!')
+                    .setStyle(ButtonStyle.Success);
+
+                let row = new ActionRowBuilder()
+                    .addComponents(btn_rules);
+
+                target_channel.send({
+                    content: `¿Deseas seguir el canal <#${label_id}>?`,
+                    components: [row]
+                });
+
+
+                let remove_roleId = channelData.split('<@&')[1].split('>')[0];
+                let set_roleId = channelData.split('<@&')[2].split('>')[0];
+
+                let options = {
+                    id: msg.guild.id,
+                    channel: label_id,
+                    role: set_roleId,
+                    removeRole: remove_roleId
+                }
+
+                let db_update = (await acept_rules.GetById(msg.guild.id)).length > 0;
+
+                if (!db_update) {
+                    acept_rules.Create(options);
+                    msg.reply(`El canal <#${label_id}> ha sido establecido como el canal para aceptar las reglas.`);
+                }
+                else {
+                    acept_rules.Update(options);
+                    msg.reply(`El canal <#${label_id}> ha sido modificado como el canal para aceptar las reglas.`);
+                }
+
+            }
+            catch (error) {
+                console.error(error);
+                msg.reply('Debe enviarse el comando con el canal [target] y el canal [label] y dos roles [remove] y [set]');
             }
             // const channel = msg.guild.channels.cache.get(channelId);
         }

@@ -20,7 +20,6 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
     }
 
     if (msg.content.includes('!memide')) {
-
         libCommands.MeMide(msg);
     }
 
@@ -38,6 +37,18 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
 
         if (admin || isMod) {
             libCommands.SettingsButton(client, msg);
+        }
+
+        else {
+            msg.reply('No tienes permisos para usar este comando.');
+        }
+    }
+
+    
+    if (msg.content.includes('!setrules')) {
+
+        if (admin || isMod) {
+            libCommands.AceptRules(client, msg);
         }
 
         else {
