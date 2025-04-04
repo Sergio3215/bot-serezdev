@@ -21,7 +21,7 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
 
     if (msg.content.includes('!setwelcome')) {
 
-        if (admin && isMod) {
+        if (admin || isMod) {
             libCommands.setWelcome(msg);
         }
         else {
@@ -31,7 +31,7 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
 
     if (msg.content.includes('!setfollowing')) {
 
-        if (admin && isMod) {
+        if (admin || isMod) {
             libCommands.SettingsButton(client, msg);
         }
 
