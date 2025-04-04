@@ -29,7 +29,7 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
         }
     }
     else {
-        msg.reply('No tienes permisos para usar este comando.');
+        // msg.reply('No tienes permisos para usar este comando.');
     }
 
 }
