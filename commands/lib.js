@@ -1,9 +1,10 @@
-const { Server, SettingWelcome, buttonFollowing, aceptRules } = require("../db/index.js");
+const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
 const acept_rules = new aceptRules();
+const set_ticket = new setTicket();
 
 class LibsCommands {
 
@@ -176,6 +177,58 @@ class LibsCommands {
             catch (error) {
                 console.error(error);
                 msg.reply('Debe enviarse el comando con el canal [target] y el canal [label] y dos roles [remove] y [set]');
+            }
+            // const channel = msg.guild.channels.cache.get(channelId);
+        }
+        else {
+            msg.reply('No es un canal o rol valido');
+        }
+    }
+
+    
+    async TicketButtton (client, msg) {
+        const channelData = msg.content.split('!settickets')[1].trim();
+        if (channelData.includes('<#') && channelData.includes('>')) {
+            try {
+                let id = channelData.split('<#')[1].split('>')[0];
+                let pending_id = channelData.split('<#')[2].split('>')[0];
+
+                let target_channel = await client.channels.fetch(id);
+
+                let btn_ticket = new ButtonBuilder()
+                    .setCustomId('Ticket')
+                    .setLabel('Crear Ticket')
+                    .setStyle(ButtonStyle.Secondary);
+
+                let row = new ActionRowBuilder()
+                    .addComponents(btn_ticket);
+
+                target_channel.send({
+                    content: `¿Deseas crear un ticket?`,
+                    components: [row]
+                });
+
+                let options = {
+                    id: msg.guild.id,
+                    requestChannel: id,
+                    pendingChannel: pending_id,
+                }
+
+                let db_update = (await set_ticket.GetById(msg.guild.id)).length > 0;
+
+                if (!db_update) {
+                    set_ticket.Create(options);
+                    msg.reply(`El canal <#${id}> ha sido establecido como creador de ticket.`);
+                }
+                else {
+                    set_ticket.Update(options);
+                    msg.reply(`El canal <#${id}> ha sido modificado como creador de ticket.`);
+                }
+
+            }
+            catch (error) {
+                console.error(error);
+                msg.reply('Debe enviarse el comando con el  request [request] y el canal [pending]');
             }
             // const channel = msg.guild.channels.cache.get(channelId);
         }

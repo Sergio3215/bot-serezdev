@@ -41,3 +41,31 @@ model Server {
   serverName        String
   buttonFollowingId String?
 }
+
+model counter_ticket {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  value Int    @default(0)
+}
+
+model Tickets {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId  String
+  userId    String
+  ticketId  Int     @unique @default(0)
+  message   String
+  messageId String
+  status    Boolean @default(true)
+}
+
+model statusTicket {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  ticketId Int    @unique @default(0)
+  status   String @default("Abierto")
+}
+
+model setTicket {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId       String  @unique
+  requestChannel String?
+  pendingChannel String?
+}

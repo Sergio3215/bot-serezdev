@@ -55,6 +55,18 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
             msg.reply('No tienes permisos para usar este comando.');
         }
     }
+
+    
+    if (msg.content.includes('!settickets')) {
+
+        if (admin || isMod) {
+            libCommands.TicketButtton(client, msg);
+        }
+
+        else {
+            msg.reply('No tienes permisos para usar este comando.');
+        }
+    }
 }
 
 
