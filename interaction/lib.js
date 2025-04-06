@@ -259,7 +259,7 @@ class interactionLib {
             const ticketId = parseInt(interaction.customId.split('-')[1]);
             const dto = (await ticket.GetById(ticketId))[0];
 
-            await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, 'close', interaction.user.globalName, interaction.guild.name, result);
+            await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, 'Cerrado', interaction.user.globalName, interaction.guild.name, result);
 
             const options = {
                 id: ticketId,
