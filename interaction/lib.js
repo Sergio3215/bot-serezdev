@@ -283,7 +283,7 @@ class interactionLib {
             // Opcional: puedes eliminar la respuesta silenciosa luego
             setTimeout(() => {
                 interaction.deleteReply().catch(() => { });
-            }, 500);
+            }, 800);
 
         } catch (error) {
             console.log(error);
