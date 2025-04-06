@@ -46,6 +46,7 @@ class interactionLib {
             .setCustomId('report_message')
             .setLabel('¿Que problema tienes?')
             .setStyle(TextInputStyle.Paragraph)
+            .setValue('')
             .setPlaceholder('Escribe aqui el problema que tienes');
 
         const row = new ActionRowBuilder().addComponents(report);
