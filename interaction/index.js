@@ -29,7 +29,7 @@ const ManageInteraction = async (client, interaction) => {
         }
     }
 
-    if (interaction.customId.includes('Ticket') && !interaction.customId.includes('closeTicket-')) {
+    if (interaction.customId.includes('Ticket') && !interaction.customId.includes('-')) {
         lib.BtnTicket(interaction);
     }
 
