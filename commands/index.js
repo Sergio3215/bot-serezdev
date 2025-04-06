@@ -67,6 +67,31 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
             msg.reply('No tienes permisos para usar este comando.');
         }
     }
+
+    //NEKOITINA Family Friendly
+    if (msg.content.toLowerCase().includes("!golpear")) {
+        libCommands.Golpear(client, msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!sonrojar")) {
+        libCommands.Sonrojar(client, msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!perseguir")) {
+        libCommands.Perseguir(client, msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!besar")) {
+        libCommands.Besar(client, msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!abrazar")) {
+        libCommands.Abrazar(client, msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!pareja")) {
+        libCommands.Pareja(client, msg);
+    }
 }
 
 

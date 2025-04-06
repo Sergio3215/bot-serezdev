@@ -11,7 +11,7 @@ class LibsCommands {
     constructor() {
 
     }
-    
+
     async MeMide(msg) {
         let cm = Math.floor(Math.random() * 30);
         msg.reply(`Te mide ${cm} cm`);
@@ -128,7 +128,7 @@ class LibsCommands {
         }
     }
 
-    
+
     async AceptRules(client, msg) {
         const channelData = msg.content.split('!setrules')[1].trim();
         if (channelData.includes('<#') && channelData.includes('>') && channelData.includes('<@&')) {
@@ -185,8 +185,8 @@ class LibsCommands {
         }
     }
 
-    
-    async TicketButtton (client, msg) {
+
+    async TicketButtton(client, msg) {
         const channelData = msg.content.split('!settickets')[1].trim();
         if (channelData.includes('<#') && channelData.includes('>')) {
             try {
@@ -234,6 +234,260 @@ class LibsCommands {
         }
         else {
             msg.reply('No es un canal o rol valido');
+        }
+    }
+
+
+    //Nekotina Family Friendly
+
+    #ColorRandom(Colors) {
+        let num = Math.floor(Math.random() * 4);
+
+        if (num == 0) {
+            num = 1;
+        }
+
+        switch (num) {
+            case 1:
+                return Colors.Red;
+                break;
+            case 2:
+                return Colors.Green;
+                break;
+            case 3:
+                return Colors.Blue;
+                break;
+            case 4:
+                return Colors.Black;
+                break;
+        }
+    }
+
+    async #PersonaRandom(client, msg) {
+        const guild = await client.guilds.cache.get(msg.guild.id);
+        let member = await guild.members.fetch();
+        // console.log(member);
+        let tempArr = [];
+        member.map(m => {
+            tempArr.push(m);
+        })
+
+        let oneMember = Math.floor(Math.random() * tempArr.length);
+
+        // console.log(tempArr[oneMember].nickname);
+        // console.log(tempArr[oneMember].user.globalName);
+
+        return tempArr[oneMember]
+    }
+
+    async Golpear(client, msg) {
+        try {
+            let golpe = Math.floor(Math.random() * 7);
+            if (golpe == 0) {
+                golpe = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/golpe/${golpe}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = msg.content.split('<@')[1].split('>')[0];
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} le ha dado un golpe a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Perseguir(client, msg) {
+        try {
+            let perseguir = Math.floor(Math.random() * 4);
+            if (perseguir == 0) {
+                perseguir = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/perseguir/${perseguir}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = msg.content.split('<@')[1].split('>')[0];
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} le esta persiguiendo a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Sonrojar(client, msg) {
+        let sonrojar = Math.floor(Math.random() * 9);
+        if (sonrojar == 0) {
+            sonrojar = 1;
+        }
+        let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/sonrojar/${sonrojar}.gif`;
+
+        const guild = await client.guilds.cache.get(msg.guild.id);
+        let member = await guild.members.fetch(msg.author.id);
+
+        let color = this.#ColorRandom(Colors);
+
+        let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+        const embed = new EmbedBuilder()
+            .setTitle(`${memberName} se ha sonrojado`)
+            // .setDescription("list of all commands")
+            .setColor(color)
+            .setImage(dir)
+        // .addFields(
+        //     comandos_helper
+        // )
+        await msg.reply({
+            embeds: [embed]
+        });
+    }
+
+    async Besar(client, msg) {
+        try {
+            let perseguir = Math.floor(Math.random() * 9);
+            if (perseguir == 0) {
+                perseguir = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/besar/${perseguir}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = msg.content.split('<@')[1].split('>')[0];
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} le dio un beso a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Abrazar(client, msg) {
+        try {
+            let perseguir = Math.floor(Math.random() * 7);
+            if (perseguir == 0) {
+                perseguir = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/abrazo/${perseguir}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = msg.content.split('<@')[1].split('>')[0];
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} le abrazó a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Pareja(client, msg) {
+        try {
+            let memberOne = await this.#PersonaRandom(client, msg);
+            // console.log(memberOne)
+
+            let beso = Math.floor(Math.random() * 7);
+            if (beso == 0) {
+                beso = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/besar/${beso}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = memberOne.user.id;
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            if (reciverName == "null") {
+                return this.Pareja(client, msg, EmbedBuilder, Colors);
+            }
+
+            const embed = new EmbedBuilder()
+                .setTitle(`La pareja de ${memberName} es ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+
+            // msg.reply(`<@${memberOne.user.id}>`);
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
         }
     }
 
