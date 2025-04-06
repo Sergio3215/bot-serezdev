@@ -15,6 +15,10 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
 
     // await checkServer(msg.guild);
 
+    if(msg.content.includes('!comandos')){
+        libCommands.Comandos(isMod, admin, msg);
+    }
+
     if (msg.content.includes('!consulta')) {
         libCommands.ConsultingGemini(msg, Consulting);
     }

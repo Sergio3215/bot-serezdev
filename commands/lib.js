@@ -237,6 +237,48 @@ class LibsCommands {
         }
     }
 
+    async Comandos(isMod, isAdmin, msg) {
+        let comandos_helper = [
+            { name: '!memide', value: "Dice la cantidad que te mide." },
+            { name: '!golpear', value: "Tu golpeas a alguien cuando lo etiquetas. Ejemplo !golpear <name>" },
+            { name: '!sonrojar', value: "Accion de sonrojarse" },
+            { name: '!perseguir', value: "Tu persigues a alguien cuando lo etiquetas. Ejemplo !perseguir <name>" },
+            { name: '!besar', value: "Tu besas a alguien cuando lo etiquetas. Ejemplo !besar <name>" },
+            { name: '!abrazar', value: "Tu abrazas a alguien cuando lo etiquetas. Ejemplo !abrazar <name>" },
+            { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
+            { name: '!consulta', value: "Podes preguntarle a Gemini (Version google de chat gpt) lo que sea de programacion, por ahora." },
+        ];
+
+        let commands_admins = [
+            { name: '!setwelcome', value: "Establece sobre el rol que se les da a los que llegan al servidor Ejemplo: !setwelcome @Miembros" },
+            { name: '!setfollowing', value: "Establece que canal van a seguir, poniendole un rol donde se puede anunciar, Ejemplo: !setfollowing [canal objetivo a colocar boton] [canal del cual va a ser seguido] [rol que se usara en los anuncios]" },
+            { name: '!setrules', value: "Es igual que !setfollowing pero con las reglas, Ejemplo: !setrules [canal objetivo a colocar boton] [canal del cual estan las reglas] [rol que acepto las reglas]" },
+            { name: '!settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]" },
+        ]
+
+        let arrTemp = comandos_helper;
+
+        if (isMod || isAdmin) {
+            commands_admins.map(c => {
+                arrTemp.push(c);
+            })
+        }
+
+
+        if (msg.content.toLowerCase() === '!comandos' || msg.content.toLowerCase() === '!help') {
+            const embed = new EmbedBuilder()
+                .setTitle("Lista de Comandos")
+                // .setDescription("list of all commands")
+                .setColor(Colors.Red)
+                .addFields(
+                    comandos_helper
+                )
+            await msg.reply({
+                embeds: [embed]
+            });
+        }
+    }
+
 
     //Nekotina Family Friendly
 
@@ -452,11 +494,31 @@ class LibsCommands {
             let memberOne = await this.#PersonaRandom(client, msg);
             // console.log(memberOne)
 
-            let beso = Math.floor(Math.random() * 7);
-            if (beso == 0) {
-                beso = 1;
+            let seccionRand = Math.floor(Math.random() * 3);
+
+            let seccion = seccionRand == 1 ?
+                "abrazo"
+                :
+                seccionRand == 2 ?
+                    "besar"
+                    :
+                    seccionRand == 3 ?
+                        "perseguir"
+                        :
+                        "besar"
+
+
+            let count = seccion == "abrazo" ? 7
+                :
+                seccion == "besar" ?
+                    9 : 4;
+
+            let actionCount = Math.floor(Math.random() * count);
+            if (actionCount == 0) {
+                actionCount = 1;
             }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/besar/${beso}.gif`;
+
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${seccion}/${actionCount}.gif`;
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -469,12 +531,14 @@ class LibsCommands {
             let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
             let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
-            if (reciverName == "null") {
+            if (reciverName == "null" || reciverName == null) {
                 return this.Pareja(client, msg, EmbedBuilder, Colors);
             }
 
+            // console.log(reciverName);
+
             const embed = new EmbedBuilder()
-                .setTitle(`La pareja de ${memberName} es ${reciverName}`)
+                .setTitle(`${memberName} es 100% compatible con ${reciverName}`)
                 // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir)
