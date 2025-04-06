@@ -102,11 +102,9 @@ class interactionLib {
             });
         } catch (error) {
             console.log(error);
-            let messageDfer = await interaction.deferReply({ content: `Se ha creado un ticket con el número ${ticketId}` });
-            setTimeout(() => {
-                messageDfer.delete().catch(()=>{})
-            }, 2000)
         }
+
+        return `Se ha creado un ticket con el número ${ticketId}`;
 
     }
 

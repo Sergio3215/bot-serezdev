@@ -32,6 +32,7 @@ const ManageInteraction = async (client, interaction) => {
 
         if (interaction.customId.includes('open_ticket')) {
             lib.BtnTicket(interaction);
+            // await apagarInteraccion(interaction);
         }
 
         if (interaction.customId.includes('Tkt-')) {
@@ -45,14 +46,58 @@ const ManageInteraction = async (client, interaction) => {
             lib.closeTicket(client, interaction);
         }
         if (interaction.customId === 'ticket_form') {
-            lib.TicketForm(interaction);
+            const msj = lib.TicketForm(interaction);
+            await apagarInteraccion(interaction, msj, true);
         }
     }
 
     if (interaction.customId.includes('dropdown_ticket-')) {
         lib.setTicketStatus(client, interaction);
     }
+
 }
+
+const apagarInteraccion = async (interaction, mensaje = null, limpiarComponentes = false) => {
+    try {
+        // Si no se ha respondido aún
+        if (!interaction.replied && !interaction.deferred) {
+            if (interaction.isMessageComponent()) {
+                // Para botones o dropdowns
+                await interaction.update({
+                    content: mensaje || interaction.message.content,
+                    components: limpiarComponentes ? [] : interaction.message.components,
+                });
+            } else {
+                // Para slash commands o modales
+                await interaction.reply({
+                    content: mensaje || '✅ Acción completada.',
+                    ephemeral: true,
+                });
+            }
+        } else {
+            // Ya fue respondida o deferida
+            if (mensaje) {
+                if (interaction.deferred) {
+                    await interaction.editReply({ content: mensaje });
+                } else {
+                    await interaction.followUp({
+                        content: mensaje,
+                        ephemeral: true
+                    });
+                }
+            }
+
+            // Borra el mensaje efímero si quieres
+            if (interaction.ephemeral && interaction.deleteReply) {
+                setTimeout(() => {
+                    interaction.deleteReply().catch(() => {});
+                }, 3000); // espera opcional
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ No se pudo apagar la interacción:', error);
+    }
+};
 
 module.exports = {
     ManageInteraction,
