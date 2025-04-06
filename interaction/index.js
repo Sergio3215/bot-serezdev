@@ -33,19 +33,19 @@ const ManageInteraction = async (client, interaction) => {
         lib.BtnTicket(interaction);
     }
 
-    if (interaction.isModalSubmit() && interaction.customId.includes('ticket_form')) {
+    if (interaction.isModalSubmit() && interaction.customId === 'ticket_form') {
         lib.TicketForm(interaction);
     }
 
     if (interaction.isButton() && interaction.customId.includes('Tkt-')) {
         lib.TicketShowed(client, interaction);
     }
-
-    if (interaction.customId.includes('dropdown_ticket-')) {
+    
+    if(interaction.customId.includes('dropdown_ticket-')){
         lib.setTicketStatus(client, interaction);
     }
 
-
+    
     if (interaction.isModalSubmit() && interaction.customId.includes('closeTicket-')) {
         lib.closeTicket(client, interaction);
     }
