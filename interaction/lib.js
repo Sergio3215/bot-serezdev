@@ -32,6 +32,12 @@ class interactionLib {
     }
 
     async BtnTicket(interaction) {
+
+        if (interaction.replied || interaction.deferred) {
+            console.warn("❌ Esta interacción ya fue respondida. No se puede mostrar el modal.");
+            return;
+        }
+
         const modal = new ModalBuilder()
             .setCustomId('ticket_form')
             .setTitle('Formulario de Ticket');

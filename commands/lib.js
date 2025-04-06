@@ -196,7 +196,7 @@ class LibsCommands {
                 let target_channel = await client.channels.fetch(id);
 
                 let btn_ticket = new ButtonBuilder()
-                    .setCustomId('Ticket')
+                    .setCustomId('open_ticket')
                     .setLabel('Crear Ticket')
                     .setStyle(ButtonStyle.Secondary);
 
