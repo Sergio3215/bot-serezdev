@@ -6,7 +6,7 @@ const btnfollow = new buttonFollowing();
 const acept_rules = new aceptRules();
 
 
-const ManageInteraction = async (interaction) => {
+const ManageInteraction = async (client, interaction) => {
     let lib = new interactionLib();
 
     if (interaction.customId.includes('Following')) {
@@ -27,6 +27,27 @@ const ManageInteraction = async (interaction) => {
         if (interaction.customId.includes('Rules ' + label_id)) {
             lib.BtnRules(interaction, dto.setRole, dto.removeRole, label_id);
         }
+    }
+
+    if (interaction.customId.includes('Ticket') && !interaction.customId.includes('closeTicket-')) {
+        lib.BtnTicket(interaction);
+    }
+
+    if (interaction.isModalSubmit() && interaction.customId === 'ticket_form') {
+        lib.TicketForm(interaction);
+    }
+
+    if (interaction.isButton() && interaction.customId.includes('Tkt-')) {
+        lib.TicketShowed(client, interaction);
+    }
+    
+    if(interaction.customId.includes('dropdown_ticket-')){
+        lib.setTicketStatus(client, interaction);
+    }
+
+    
+    if (interaction.isModalSubmit() && interaction.customId.includes('closeTicket-')) {
+        lib.closeTicket(client, interaction);
     }
 
 

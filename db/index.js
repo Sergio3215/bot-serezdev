@@ -270,7 +270,7 @@ class Ticket {
     }
 
     async #CreateCounterTicket(ticketId) {
-        return await prisma.counter_ticket.update({
+        return await prisma.counter_ticket.create({
             data: {
                 value: ticketId,
             }
@@ -296,7 +296,6 @@ class Ticket {
                 userId: options.userId,
                 ticketId: ticketId,
                 message: options.message,
-                messageId: options.messageId,
             }
 
         });
@@ -320,7 +319,7 @@ class Ticket {
                 ticketId: options.id,
             },
             data: {
-                status: options.status,
+                messageId: options.messageId,
             }
         });
     }

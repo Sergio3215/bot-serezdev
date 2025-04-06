@@ -44,7 +44,7 @@ model Server {
 
 model counter_ticket {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
-  value Int    @default(0)
+  value Int    @default(0) @unique
 }
 
 model Tickets {
@@ -53,14 +53,14 @@ model Tickets {
   userId    String
   ticketId  Int     @unique @default(0)
   message   String
-  messageId String
+  messageId String?
   status    Boolean @default(true)
 }
 
 model statusTicket {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   ticketId Int    @unique @default(0)
-  status   String @default("Abierto")
+  status   String @default("open")
 }
 
 model setTicket {

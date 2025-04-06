@@ -51,7 +51,7 @@ client.on('messageCreate', async (msg) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-    ManageInteraction(interaction);
+    ManageInteraction(client, interaction);
 });
 
 
