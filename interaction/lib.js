@@ -55,47 +55,52 @@ class interactionLib {
     }
 
     async TicketForm(interaction) {
-        const message = interaction.fields.getTextInputValue('report_message');
 
-        const pendding_channel = (await set_ticket.GetById(interaction.guild.id))[0].pendingChannel;
-        const channel = await interaction.guild.channels.fetch(pendding_channel);
+        try {
+            const message = interaction.fields.getTextInputValue('report_message');
 
-        let options = {
-            id: interaction.guild.id,
-            userId: interaction.user.id,
-            message: message,
+            const pendding_channel = (await set_ticket.GetById(interaction.guild.id))[0].pendingChannel;
+            const channel = await interaction.guild.channels.fetch(pendding_channel);
+
+            let options = {
+                id: interaction.guild.id,
+                userId: interaction.user.id,
+                message: message,
+            }
+
+            const dto = await ticket.Create(options);
+            let ticketId = dto.ticketId;
+
+            let btn_ticket = new ButtonBuilder()
+                .setCustomId('Tkt-' + ticketId)
+                .setLabel('Abrir Ticket')
+                .setStyle(ButtonStyle.Success);
+
+            let row = new ActionRowBuilder()
+                .addComponents(btn_ticket);
+
+            const messageId = (await channel.send({
+                content: `¿Deseas crear un ticket?`,
+                components: [row]
+            })).id;
+
+            options = {
+                id: ticketId,
+                userId: interaction.user.id,
+                message: message,
+                messageId: messageId
+            }
+
+
+            await ticket.Update(options);
+
+            interaction.reply({
+                content: `Se ha creado un ticket con el número ${ticketId}`,
+                ephemeral: true
+            });
+        } catch (error) {
+            console.log(error);
         }
-
-        const dto = await ticket.Create(options);
-        let ticketId = dto.ticketId;
-
-        let btn_ticket = new ButtonBuilder()
-            .setCustomId('Tkt-' + ticketId)
-            .setLabel('Abrir Ticket')
-            .setStyle(ButtonStyle.Success);
-
-        let row = new ActionRowBuilder()
-            .addComponents(btn_ticket);
-
-        const messageId = (await channel.send({
-            content: `¿Deseas crear un ticket?`,
-            components: [row]
-        })).id;
-
-        options = {
-            id: ticketId,
-            userId: interaction.user.id,
-            message: message,
-            messageId: messageId
-        }
-
-
-        await ticket.Update(options);
-
-        interaction.reply({
-            content: `Se ha creado un ticket con el número ${ticketId}`,
-            ephemeral: true
-        });
 
     }
 
