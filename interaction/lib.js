@@ -193,7 +193,7 @@ class interactionLib {
         await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, "Abrierto", interaction.user.globalName, interaction.guild.name, "");
 
         interaction.update({
-            content: `Ticket #${ticketId} \n ${dto.message} \n Estado del ticket`,
+            content: `Ticket #${ticketId} \n Ticket generado por: <@${dto.userId}> \n ${dto.message} \n Estado del ticket`,
             components: [row],
         });
     }
@@ -227,7 +227,7 @@ class interactionLib {
                 .addComponents(dropdown);
 
             interaction.update({
-                content: `Ticket #${ticketId} \n ${dto.message} \n Estado del ticket`,
+                content: `Ticket #${ticketId} \n Ticket generado por: <@${dto.userId}> \n ${dto.message} \n Estado del ticket`,
                 components: [row],
             });
         }
