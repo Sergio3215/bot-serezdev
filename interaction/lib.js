@@ -94,7 +94,7 @@ class interactionLib {
 
             await ticket.Update(options);
 
-            interaction.reply({
+            await interaction.reply({
                 content: `Se ha creado un ticket con el número ${ticketId}`,
                 ephemeral: true
             });
