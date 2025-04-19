@@ -60,8 +60,7 @@ client.on('guildMemberAdd', async (member) => {
     try {
         const settingWelcomeData = await settingWelcome.GetById(member.guild.id);
         if (settingWelcomeData.length > 0) {
-            const roleId = settingWelcomeData[0].roleId;
-            console.log(roleId)
+            const roleId = settingWelcomeData[0].setRole;
             member.roles.add(roleId);
         }
     } catch (error) {
