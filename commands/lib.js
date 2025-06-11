@@ -17,24 +17,42 @@ class LibsCommands {
         msg.reply(`Te mide ${cm} cm`);
     }
 
-    async ConsultingGemini(msg, Consulting) {
+    async ConsultingGemini(msg, Consulting, userIsSubOrBooster) {
         try {
-            if (msg.author.id !== "1312903712238469170") {
-                if (msg.content.includes('!') && msg.channel.id == "1312924103971438654") {
-                    let command = msg.content.split('!')[1];
-                    if (command.toLowerCase().includes('consulta')) {
-                        msg.channel.send("Pensando...");
-                        let petitions = command.split('consulta')[1].trim();
-                        let messageGemini = await Consulting(petitions);
-                        msg.reply(messageGemini);
+            
+            const member = await msg.guild.members.fetch(msg.author.id);
+
+            if (!(await userIsSubOrBooster(member))) {
+                return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
+            }
+
+            let command = msg.content.split('!')[1];
+            if (command.toLowerCase().includes('consulta')) {
+                let msgChat = await msg.channel.send("Pensando");
+                let petitions = command.split('consulta')[1].trim();
+
+                let messageAI = '';
+
+                const frases = ["Pensando.", "Pensando..", "Pensando..."];
+                let idx = 0;
+
+                const interval = setInterval(async () => {
+                    idx = (idx + 1) % frases.length;
+                    try {
+                        if (messageAI !== '') {
+                            await msgChat.edit(messageAI);
+                            clearInterval(interval);
+                        }
+                        else {
+                            await msgChat.edit(frases[idx]);
+                        }
                     }
-                }
-                else {
-                    if (msg.channel.id != "1235165837317505075") {
-                        msg.delete();
-                        msg.channel.send("Comando No Valido, o Canal Incorrecto");
+                    catch {
+
                     }
-                }
+                }, 500);
+
+                messageAI = await Consulting(petitions);
             }
         } catch (error) {
             console.log(error.message);

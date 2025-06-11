@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
 const { Consulting } = require('./gemini');
+const { ConsultingOpenAI } = require('./openai');
 const { commands, checkServer } = require('./commands/index.js');
 const { Server, SettingWelcome } = require('./db/index.js');
 const { ManageInteraction } = require('./interaction/index.js');
@@ -44,7 +45,7 @@ client.on('messageCreate', async (msg) => {
                 PermissionsBitField.Flags.ManageChannels
             );
         }
-        commands(client, msg, Consulting, admin, isMod);
+        commands(client, msg, ConsultingOpenAI, admin, isMod, userIsSubOrBooster);
     } catch (error) {
 
     }
@@ -68,5 +69,17 @@ client.on('guildMemberAdd', async (member) => {
     }
 });
 
+async function userIsSubOrBooster(member) {
+    // 1. Server booster (rol con .tags.premium_subscriber === true)
+    const isBooster = member.roles.cache.some(role => role.tags?.premium_subscriber);
+
+    // 2. Twitch sub: busca rol que empiece con "Twitch Subscriber:" o "Suscriptor de Twitch:"
+    const isTwitchSub = member.roles.cache.some(role =>
+        role.name.startsWith("Twitch Subscriber:") ||
+        role.name.startsWith("Suscriptor de Twitch:")
+    );
+
+    return isBooster || isTwitchSub;
+}
 
 client.login(token);

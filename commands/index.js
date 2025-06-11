@@ -11,7 +11,7 @@ const checkServer = async (guild) => {
     }
 }
 
-const commands = async (client, msg, Consulting, admin, isMod) => {
+const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster) => {
 
     // await checkServer(msg.guild);
 
@@ -20,7 +20,7 @@ const commands = async (client, msg, Consulting, admin, isMod) => {
     }
 
     if (msg.content.includes('!consulta')) {
-        libCommands.ConsultingGemini(msg, Consulting);
+        libCommands.ConsultingGemini(msg, Consulting, userIsSubOrBooster);
     }
 
     if (msg.content.includes('!memide')) {
