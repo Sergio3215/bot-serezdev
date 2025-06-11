@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
 const { Consulting } = require('./gemini');
-const { ConsultingOpenAI } = require('./openai');
+const { ConsultingOpenAI } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
 const { Server, SettingWelcome } = require('./db/index.js');
 const { ManageInteraction } = require('./interaction/index.js');
