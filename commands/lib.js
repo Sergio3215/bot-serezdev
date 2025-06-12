@@ -516,7 +516,7 @@ class LibsCommands {
             }
             let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar < 10? "0"+llorar : llorar}.gif`;
 
-            console.log(llorar);
+            // console.log(llorar);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
