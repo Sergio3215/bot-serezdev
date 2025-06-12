@@ -265,6 +265,7 @@ class LibsCommands {
             { name: '!abrazar', value: "Tu abrazas a alguien cuando lo etiquetas. Ejemplo !abrazar <name>" },
             { name: '!miedo', value: "Tu le temes al que etiquetes o tienes miedo. Ejemplo !miedo <name>" },
             { name: '!intimidar', value: "Tu intimidas a alguien cuando lo etiquetas. Ejemplo !intimidar <name>" },
+            { name: '!nalguear', value: "Tu nalgueas a alguien cuando lo etiquetas. Ejemplo !nalguear <name>" },
             { name: '!llorar', value: "Tu lloras" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
@@ -571,6 +572,41 @@ class LibsCommands {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} quiere intimidar a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+    
+    async Nalguear(client, msg) {
+        try {
+            let perseguir = Math.floor(Math.random() * 14);
+            if (perseguir == 0) {
+                perseguir = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/nalguear/${perseguir}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = msg.content.split('<@')[1].split('>')[0];
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} ha nalgueado a ${reciverName}`)
                 // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir)
