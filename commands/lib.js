@@ -263,8 +263,9 @@ class LibsCommands {
             { name: '!perseguir', value: "Tu persigues a alguien cuando lo etiquetas. Ejemplo !perseguir <name>" },
             { name: '!besar', value: "Tu besas a alguien cuando lo etiquetas. Ejemplo !besar <name>" },
             { name: '!abrazar', value: "Tu abrazas a alguien cuando lo etiquetas. Ejemplo !abrazar <name>" },
+            { name: '!llorar', value: "Tu lloras" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
-            { name: '!consulta', value: "Podes preguntarle a Gemini (Version google de chat gpt) lo que sea de programacion, por ahora." },
+            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
         ];
 
         let commands_admins = [
@@ -493,6 +494,37 @@ class LibsCommands {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} le abrazó a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Llorar(client, msg) {
+        try {
+            let llorar = Math.floor(Math.random() * 14);
+            if (llorar == 0) {
+                llorar = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} empezo a llorar`)
                 // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir)

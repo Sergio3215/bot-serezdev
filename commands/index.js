@@ -92,6 +92,10 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.toLowerCase().includes("!abrazar")) {
         libCommands.Abrazar(client, msg);
     }
+    
+    if (msg.content.toLowerCase().includes("!llorar")) {
+        libCommands.Llorar(client, msg);
+    }
 
     if (msg.content.toLowerCase().includes("!pareja")) {
         libCommands.Pareja(client, msg);
