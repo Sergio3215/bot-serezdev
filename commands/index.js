@@ -93,6 +93,14 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.Abrazar(client, msg);
     }
     
+    if (msg.content.toLowerCase().includes("!miedo")) {
+        libCommands.Miedo(client, msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!intimidar")) {
+        libCommands.Asustar(client, msg);
+    }
+
     if (msg.content.toLowerCase().includes("!llorar")) {
         libCommands.Llorar(client, msg);
     }

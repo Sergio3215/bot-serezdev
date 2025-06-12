@@ -19,7 +19,7 @@ class LibsCommands {
 
     async ConsultingGemini(msg, Consulting, userIsSubOrBooster) {
         try {
-            
+
             const member = await msg.guild.members.fetch(msg.author.id);
 
             if (!(await userIsSubOrBooster(member))) {
@@ -263,6 +263,8 @@ class LibsCommands {
             { name: '!perseguir', value: "Tu persigues a alguien cuando lo etiquetas. Ejemplo !perseguir <name>" },
             { name: '!besar', value: "Tu besas a alguien cuando lo etiquetas. Ejemplo !besar <name>" },
             { name: '!abrazar', value: "Tu abrazas a alguien cuando lo etiquetas. Ejemplo !abrazar <name>" },
+            { name: '!miedo', value: "Tu le temes al que etiquetes o tienes miedo. Ejemplo !miedo <name>" },
+            { name: '!intimidar', value: "Tu intimidas a alguien cuando lo etiquetas. Ejemplo !intimidar <name>" },
             { name: '!llorar', value: "Tu lloras" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
@@ -508,13 +510,88 @@ class LibsCommands {
         }
     }
 
+    async Miedo(client, msg) {
+        try {
+            let perseguir = Math.floor(Math.random() * 16);
+            if (perseguir == 0) {
+                perseguir = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/miedo/${perseguir}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = `${memberName} tiene miedo`;
+
+            if (msg.content.includes('<@')) {
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+                str = `${memberName} tiene miedo de ${reciverName}`;
+            }
+
+            const embed = new EmbedBuilder()
+                .setTitle(str)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Asustar(client, msg) {
+        try {
+            let perseguir = Math.floor(Math.random() * 14);
+            if (perseguir == 0) {
+                perseguir = 1;
+            }
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/asustar/${perseguir}.gif`;
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let reciverID = msg.content.split('<@')[1].split('>')[0];
+            let reciver = await guild.members.fetch(reciverID);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+            let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${memberName} quiere intimidar a ${reciverName}`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
     async Llorar(client, msg) {
         try {
             let llorar = Math.floor(Math.random() * 14);
             if (llorar == 0) {
                 llorar = 1;
             }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar < 10? "0"+llorar : llorar}.gif`;
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar < 10 ? "0" + llorar : llorar}.gif`;
 
             // console.log(llorar);
 
