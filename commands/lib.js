@@ -588,7 +588,7 @@ class LibsCommands {
     
     async Nalguear(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 14);
+            let perseguir = Math.floor(Math.random() * 8);
             if (perseguir == 0) {
                 perseguir = 1;
             }
