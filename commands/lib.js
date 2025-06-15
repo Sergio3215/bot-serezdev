@@ -266,7 +266,8 @@ class LibsCommands {
             { name: '!miedo', value: "Tu le temes al que etiquetes o tienes miedo. Ejemplo !miedo <name>" },
             { name: '!intimidar', value: "Tu intimidas a alguien cuando lo etiquetas. Ejemplo !intimidar <name>" },
             { name: '!nalguear', value: "Tu nalgueas a alguien cuando lo etiquetas. Ejemplo !nalguear <name>" },
-            { name: '!llorar', value: "Tu lloras" },
+            { name: '!llorar', value: "Tu lloras o lloras por alguien ejemplo !llorar <name>" },
+            { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
         ];
@@ -585,7 +586,7 @@ class LibsCommands {
             await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
         }
     }
-    
+
     async Nalguear(client, msg) {
         try {
             let perseguir = Math.floor(Math.random() * 8);
@@ -640,6 +641,60 @@ class LibsCommands {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} empezo a llorar`)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    async Pensar(client, msg) {
+        try {
+            let pensar = Math.floor(Math.random() * 28);
+
+            if (pensar == 0) {
+                pensar = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = `${memberName} esta pensando`;
+
+            let folder = "pensar"
+
+            if (msg.content.includes('<@')) {
+                pensar = Math.floor(Math.random() * 15);
+
+                if (pensar == 0) {
+                    pensar = 1;
+                }
+
+                folder = "pensar-alguien"
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+                str = pensar > 5?`${memberName} esta pensando en ${reciverName}` : `${memberName} esta pensando en su toxic@ ${reciverName}`;
+            }
+
+            
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${pensar}.gif`;
+
+            const embed = new EmbedBuilder()
+                .setTitle(str)
                 // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir)

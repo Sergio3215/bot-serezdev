@@ -104,6 +104,10 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.toLowerCase().includes("!nalguear")) {
         libCommands.Nalguear(client, msg);
     }
+    
+    if (msg.content.toLowerCase().includes("!pensar")) {
+        libCommands.Pensar(client, msg);
+    }
 
     if (msg.content.toLowerCase().includes("!llorar")) {
         libCommands.Llorar(client, msg);
