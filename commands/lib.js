@@ -60,6 +60,131 @@ class LibsCommands {
         }
     }
 
+    async Personaje(msg, createCharacter, userIsSubOrBooster) {
+        try {
+
+            // const member = await msg.guild.members.fetch(msg.author.id);
+
+            // if (!(await userIsSubOrBooster(member))) {
+            //     return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
+            // }
+
+            let msgChat = await msg.channel.send("Pensando");
+
+
+
+            const frases = ["Pensando.", "Pensando..", "Pensando..."];
+
+            const frases2 = ["Cargando.", "Cargando..", "Cargando..."];
+            let idx = 0;
+
+            const pensando = setInterval(async () => {
+                try {
+                    idx = (idx + 1) % frases.length;
+                    await msgChat.edit(frases[idx]);
+                }
+                catch {
+                    clearInterval(pensando);
+                    // return msgChat.edit("no se creo el pj");
+                }
+            }, 500);
+
+            const { nombre, raza, clase, nivel, mision, estadisticas, historia, imagen, error } = await createCharacter();
+
+            clearInterval(pensando);
+
+            await msgChat.edit("Cargando")
+
+            idx = 0;
+
+            const cargando = setInterval(async () => {
+                try {
+                    idx = (idx + 1) % frases2.length;
+                    await msgChat.edit(frases2[idx]);
+                }
+                catch {
+                    clearInterval(cargando);
+                    // return msgChat.edit("no se creo el pj");
+                }
+            }, 100);
+
+            if (error !== '' && error !== undefined) {
+                console.log('error')
+                clearInterval(cargando);
+                return await msgChat.edit(error);
+            }
+
+            console.log(estadisticas)
+
+            let color = this.#ColorRandom(Colors);
+
+            const embed = new EmbedBuilder()
+                .setTitle(`Personaje ${nombre}`)
+                .setDescription(`
+                                Nivel:
+                                ${nivel}
+
+                                Estadisticas:
+                                Fuerza: ${estadisticas.fuerza}
+                                Destreza: ${estadisticas.destreza}
+                                Constitucion: ${estadisticas.constitucion}
+                                Inteligencia: ${estadisticas.inteligencia}
+                                Sabiduria: ${estadisticas.sabiduria}
+                                Carisma: ${estadisticas.carisma}
+
+                                Clase:
+                                ${clase}
+
+                                Raza:
+                                ${raza}
+
+                                mision:
+                                ${mision}
+
+                                Historia:
+                                ${historia}
+                            `)
+                .setColor(color)
+                .setImage(imagen)
+            // .addFields(
+            //     comandos_helper
+            // )
+
+            // await msg.reply({
+            //     embeds: [embed]
+            // });
+
+            clearInterval(cargando);
+
+            await msgChat.edit({
+                content: null,
+                embeds: [embed]
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async Nivel(msg, userIsSubOrBooster) {
+
+        // const member = await msg.guild.members.fetch(msg.author.id);
+
+        // if (!(await userIsSubOrBooster(member))) {
+        //     return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
+        // }
+
+        const estadisticas = this.#SubirNivel();
+
+        msg.reply(`
+Fuerza: ${estadisticas.fuerza}
+Destreza: ${estadisticas.destreza}
+Constitucion: ${estadisticas.constitucion}
+Inteligencia: ${estadisticas.inteligencia}
+Sabiduria: ${estadisticas.sabiduria}
+Carisma: ${estadisticas.carisma}`)
+    }
+
     async setWelcome(msg) {
         const roleData = msg.content.split('!setwelcome')[1].trim();
         if (roleData.includes('<@') && roleData.includes('>')) {
@@ -269,6 +394,8 @@ class LibsCommands {
             { name: '!llorar', value: "Tu lloras o lloras por alguien ejemplo !llorar <name>" },
             { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
+            { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
+            { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
         ];
 
@@ -299,6 +426,19 @@ class LibsCommands {
             await msg.reply({
                 embeds: [embed]
             });
+        }
+    }
+
+    //Role Play
+    #SubirNivel = () => {
+        let maxLevel = 10;
+        return {
+            fuerza: Math.floor(Math.random() * maxLevel),
+            destreza: Math.floor(Math.random() * maxLevel),
+            constitucion: Math.floor(Math.random() * maxLevel),
+            inteligencia: Math.floor(Math.random() * maxLevel),
+            sabiduria: Math.floor(Math.random() * maxLevel),
+            carisma: Math.floor(Math.random() * maxLevel),
         }
     }
 
@@ -687,10 +827,10 @@ class LibsCommands {
                 let reciver = await guild.members.fetch(reciverID);
                 let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
-                str = pensar > 5?`${memberName} esta pensando en ${reciverName}` : `${memberName} esta pensando en su toxic@ ${reciverName}`;
+                str = pensar > 5 ? `${memberName} esta pensando en ${reciverName}` : `${memberName} esta pensando en su toxic@ ${reciverName}`;
             }
 
-            
+
             let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${pensar}.gif`;
 
             const embed = new EmbedBuilder()

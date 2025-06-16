@@ -11,7 +11,7 @@ const checkServer = async (guild) => {
     }
 }
 
-const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster) => {
+const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster, createCharacter) => {
 
     // await checkServer(msg.guild);
 
@@ -21,6 +21,14 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
 
     if (msg.content.includes('!consulta')) {
         libCommands.ConsultingGemini(msg, Consulting, userIsSubOrBooster);
+    }
+    
+    if (msg.content.toLowerCase().includes("!rolplay")) {
+        libCommands.Personaje(msg, createCharacter, userIsSubOrBooster);
+    }
+
+    if (msg.content.toLowerCase().includes("!rolnivel")) {
+        libCommands.Nivel(msg, userIsSubOrBooster);
     }
 
     if (msg.content.includes('!memide')) {

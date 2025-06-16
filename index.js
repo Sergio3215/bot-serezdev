@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
 const { Consulting } = require('./gemini');
-const { ConsultingOpenAI } = require('./openaiScript.js');
+const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
 const { Server, SettingWelcome } = require('./db/index.js');
 const { ManageInteraction } = require('./interaction/index.js');
@@ -45,7 +45,7 @@ client.on('messageCreate', async (msg) => {
                 PermissionsBitField.Flags.ManageChannels
             );
         }
-        commands(client, msg, ConsultingOpenAI, admin, isMod, userIsSubOrBooster);
+        commands(client, msg, ConsultingOpenAI, admin, isMod, userIsSubOrBooster, createCharacter);
     } catch (error) {
 
     }
