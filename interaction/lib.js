@@ -52,10 +52,9 @@ class interactionLib {
         const row = new ActionRowBuilder().addComponents(report);
         modal.addComponents(row);
         await interaction.showModal(modal);
-
     }
 
-    async TicketForm(interaction) {
+    async TicketForm(client, interaction) {
 
         const message = interaction.fields.getTextInputValue('report_message');
 
@@ -80,7 +79,7 @@ class interactionLib {
             .addComponents(btn_ticket);
 
         const messageId = (await channel.send({
-            content: `¿Deseas crear un ticket?`,
+            content: `¿Deseas abrir un ticket?`,
             components: [row]
         })).id;
 
@@ -100,8 +99,16 @@ class interactionLib {
                 content: `Se ha creado un ticket con el número ${ticketId}`,
                 ephemeral: true
             });
+
+            await this.#sendUserMessageTicket(client, options.userId, ticketId, options.message, "Creado", interaction.user.globalName, interaction.guild.name, "");
         } catch (error) {
-            console.log(error);
+            console.error("❌ Error al enviar ticket al usuario:", error);
+            if (!interaction.replied) {
+                await interaction.reply({
+                    content: "❌ Hubo un error al crear el ticket. Intenta más tarde.",
+                    ephemeral: true
+                });
+            }
         }
 
         return `Se ha creado un ticket con el número ${ticketId}`;
@@ -295,7 +302,13 @@ class interactionLib {
             }, 800);
 
         } catch (error) {
-            console.log(error);
+            console.error("❌ Error al enviar ticket al usuario:", error);
+            if (!interaction.replied) {
+                await interaction.reply({
+                    content: "❌ Hubo un error al crear el ticket. Intenta más tarde.",
+                    ephemeral: true
+                });
+            }
         }
     }
 }

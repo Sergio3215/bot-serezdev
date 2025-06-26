@@ -46,7 +46,7 @@ const ManageInteraction = async (client, interaction) => {
             lib.closeTicket(client, interaction);
         }
         if (interaction.customId === 'ticket_form') {
-            const msj = lib.TicketForm(interaction);
+            const msj = lib.TicketForm(client, interaction);
             await apagarInteraccion(interaction, msj, true);
         }
     }
@@ -69,23 +69,23 @@ const apagarInteraccion = async (interaction, mensaje = null, limpiarComponentes
                 });
             } else {
                 // Para slash commands o modales
-                await interaction.reply({
-                    content: mensaje || '✅ Acción completada.',
-                    ephemeral: true,
-                });
+                // await interaction.reply({
+                //     content: mensaje || '✅ Acción completada.',
+                //     ephemeral: true,
+                // });
             }
         } else {
             // Ya fue respondida o deferida
-            if (mensaje) {
-                if (interaction.deferred) {
-                    await interaction.editReply({ content: mensaje });
-                } else {
-                    await interaction.followUp({
-                        content: mensaje,
-                        ephemeral: true
-                    });
-                }
-            }
+            // if (mensaje) {
+            //     if (interaction.deferred) {
+            //         await interaction.editReply({ content: mensaje });
+            //     } else {
+            //         await interaction.followUp({
+            //             content: mensaje,
+            //             ephemeral: true
+            //         });
+            //     }
+            // }
 
             // Borra el mensaje efímero si quieres
             if (interaction.ephemeral && interaction.deleteReply) {
