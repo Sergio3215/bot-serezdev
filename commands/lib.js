@@ -395,7 +395,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
             { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
-            { name: '!bye', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
+            { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !hi <name>" },
             { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
             { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
