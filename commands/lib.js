@@ -394,6 +394,8 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!llorar', value: "Tu lloras o lloras por alguien ejemplo !llorar <name>" },
             { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
+            { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
+            { name: '!bye', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
             { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
             { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
@@ -795,6 +797,112 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
+    async Saludar (client, msg) {
+        try {
+            let saludar = Math.floor(Math.random() * 22);
+
+            if (saludar == 0) {
+                saludar = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = `${memberName} esta **saludando a todos**`;
+
+            let folder = "saludar"
+
+            if (msg.content.includes('<@')) {
+                saludar = Math.floor(Math.random() * 15);
+
+                if (saludar == 0) {
+                    saludar = 1;
+                }
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+                str = `${memberName} esta saludando a ${reciverName}`;
+            }
+
+
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${saludar}.gif`;
+
+            const embed = new EmbedBuilder()
+                .setTitle(str)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    
+    async Despedirse(client, msg) {
+        try {
+            let despedirse = Math.floor(Math.random() * 28);
+
+            if (despedirse == 0) {
+                despedirse = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = `${memberName} se esta **despidiendo de todos**`;
+
+            let folder = "despedirse"
+
+            if (msg.content.includes('<@')) {
+                despedirse = Math.floor(Math.random() * 15);
+
+                if (despedirse == 0) {
+                    despedirse = 1;
+                }
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+                str = `${memberName} esta despidiendose de ${reciverName}`;
+            }
+
+
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${despedirse}.gif`;
+
+            const embed = new EmbedBuilder()
+                .setTitle(str)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    
     async Pensar(client, msg) {
         try {
             let pensar = Math.floor(Math.random() * 28);
@@ -848,6 +956,7 @@ Carisma: ${estadisticas.carisma}`)
             await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
         }
     }
+
 
     async Pareja(client, msg) {
         try {

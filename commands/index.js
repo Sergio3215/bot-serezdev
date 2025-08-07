@@ -120,6 +120,13 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.toLowerCase().includes("!llorar")) {
         libCommands.Llorar(client, msg);
     }
+    
+    if (msg.content.toLowerCase().includes("!hi")) {
+        libCommands.Saludar(client, msg);
+    }
+    if (msg.content.toLowerCase().includes("!bye")) {
+        libCommands.Despedirse(client, msg);
+    }
 
     if (msg.content.toLowerCase().includes("!pareja")) {
         libCommands.Pareja(client, msg);
