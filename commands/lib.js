@@ -395,7 +395,8 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
             { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
             { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
-            { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !hi <name>" },
+            { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
+            { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
             { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
             { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
@@ -797,7 +798,7 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
-    async Saludar (client, msg) {
+    async Saludar(client, msg) {
         try {
             let saludar = Math.floor(Math.random() * 22);
 
@@ -849,7 +850,7 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
-    
+
     async Despedirse(client, msg) {
         try {
             let despedirse = Math.floor(Math.random() * 28);
@@ -902,7 +903,7 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
-    
+
     async Pensar(client, msg) {
         try {
             let pensar = Math.floor(Math.random() * 28);
@@ -957,6 +958,64 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
+    async FelizCumple(client, msg) {
+        try {
+            let fc = Math.floor(Math.random() * 36);
+
+            if (fc == 0) {
+                fc = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = ``;
+
+            let folder = "FelizCumple"
+
+            if (msg.content.includes('<@')) {
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+                let atrasado = "";
+
+                if(msg.content.includes("--")){
+                    if(msg.content.split("--")[1].trim().toLowerCase().includes("atrasado")){
+                        atrasado = "(atrasado)";
+                    }
+                }
+
+                str = `${memberName} desea un 🎉¡Feliz cumpleaños ${atrasado} a ${reciverName}! 🎂`;
+
+                let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${fc}.gif`;
+
+                const embed = new EmbedBuilder()
+                    .setTitle(str)
+                    // .setDescription("list of all commands")
+                    .setColor(color)
+                    .setImage(dir)
+                // .addFields(
+                //     comandos_helper
+                // )
+                await msg.reply({
+                    embeds: [embed]
+                });
+            }
+            else {
+                await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+            }
+
+
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
 
     async Pareja(client, msg) {
         try {
