@@ -130,6 +130,9 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.toLowerCase().includes("!fc")) {
         libCommands.FelizCumple(client, msg);
     }
+    if (msg.content.toLowerCase().includes("!dame5")) {
+        libCommands.Choca5(client, msg);
+    }
 
     if (msg.content.toLowerCase().includes("!pareja")) {
         libCommands.Pareja(client, msg);

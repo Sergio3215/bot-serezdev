@@ -397,6 +397,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
             { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
             { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
+            { name: '!dame5', value: "Chocas los 5 con un amigo. Ejemplo !dame5 <name>" },
             { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
             { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
@@ -994,6 +995,57 @@ Carisma: ${estadisticas.carisma}`)
                 str = `${memberName} desea un 🎉¡Feliz cumpleaños ${atrasado} a ${reciverName}! 🎂`;
 
                 let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${fc}.gif`;
+
+                const embed = new EmbedBuilder()
+                    .setTitle(str)
+                    // .setDescription("list of all commands")
+                    .setColor(color)
+                    .setImage(dir)
+                // .addFields(
+                //     comandos_helper
+                // )
+                await msg.reply({
+                    embeds: [embed]
+                });
+            }
+            else {
+                await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+            }
+
+
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+    
+    async Choca5(client, msg) {
+        try {
+            let chocar5 = Math.floor(Math.random() * 9);
+
+            if (chocar5 == 0) {
+                chocar5 = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = ``;
+
+            let folder = "chocar5"
+
+            if (msg.content.includes('<@')) {
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+                str = `${memberName} choco los 5 con ${reciverName}`;
+
+                let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${chocar5}.gif`;
 
                 const embed = new EmbedBuilder()
                     .setTitle(str)
