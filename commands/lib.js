@@ -397,7 +397,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
             { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
             { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
-            { name: '!dame5', value: "Chocas los 5 con un amigo. Ejemplo !dame5 <name>" },
+            { name: '!choquelos5', value: "Chocas los 5 con un amigo. Ejemplo !choquelos5 <name>" },
             { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
             { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
