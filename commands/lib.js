@@ -1091,7 +1091,7 @@ Carisma: ${estadisticas.carisma}`)
 
             if (msg.content.includes('<@')) {
 
-                let winner = Math.floor(Math.random() * 2);
+                let winner = Math.floor(Math.random() * 10);
 
                 if (winner == 0) {
                     winner = 1;
@@ -1102,7 +1102,7 @@ Carisma: ${estadisticas.carisma}`)
                 let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
 
-                let winner_pj = winner == 1 ?
+                let winner_pj = winner %2 == 0 ?
                     memberName
                     :
                     reciverName;
