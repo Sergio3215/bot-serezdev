@@ -1152,10 +1152,10 @@ Carisma: ${estadisticas.carisma}`)
                         "besar"
 
 
-            let count = seccion == "abrazo" ? 7
+            let count = seccion == "abrazo" ? 32
                 :
                 seccion == "besar" ?
-                    9 : 4;
+                    26 : 4;
 
             let actionCount = Math.floor(Math.random() * count);
             if (actionCount == 0) {
