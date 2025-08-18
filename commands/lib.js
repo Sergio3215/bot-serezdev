@@ -491,7 +491,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Golpear(client, msg) {
         try {
-            let golpe = Math.floor(Math.random() * 7);
+            let golpe = Math.floor(Math.random() * 30);
             if (golpe == 0) {
                 golpe = 1;
             }
@@ -588,7 +588,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Besar(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 9);
+            let perseguir = Math.floor(Math.random() * 26);
             if (perseguir == 0) {
                 perseguir = 1;
             }
@@ -623,7 +623,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Abrazar(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 7);
+            let perseguir = Math.floor(Math.random() * 32);
             if (perseguir == 0) {
                 perseguir = 1;
             }
@@ -1020,7 +1020,7 @@ Carisma: ${estadisticas.carisma}`)
     
     async Choca5(client, msg) {
         try {
-            let chocar5 = Math.floor(Math.random() * 9);
+            let chocar5 = Math.floor(Math.random() * 20);
 
             if (chocar5 == 0) {
                 chocar5 = 1;
