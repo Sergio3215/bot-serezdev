@@ -134,6 +134,11 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.Choca5(client, msg);
     }
 
+    
+    if (msg.content.toLowerCase().includes("!duelo")) {
+        libCommands.Choca5(client, msg);
+    }
+
     if (msg.content.toLowerCase().includes("!pareja")) {
         libCommands.Pareja(client, msg);
     }

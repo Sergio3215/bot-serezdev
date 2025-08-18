@@ -986,8 +986,8 @@ Carisma: ${estadisticas.carisma}`)
 
                 let atrasado = "";
 
-                if(msg.content.includes("--")){
-                    if(msg.content.split("--")[1].trim().toLowerCase().includes("atrasado")){
+                if (msg.content.includes("--")) {
+                    if (msg.content.split("--")[1].trim().toLowerCase().includes("atrasado")) {
                         atrasado = "(atrasado)";
                     }
                 }
@@ -1017,7 +1017,7 @@ Carisma: ${estadisticas.carisma}`)
             await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
         }
     }
-    
+
     async Choca5(client, msg) {
         try {
             let chocar5 = Math.floor(Math.random() * 20);
@@ -1046,6 +1046,70 @@ Carisma: ${estadisticas.carisma}`)
                 str = `${memberName} choco los 5 con ${reciverName}`;
 
                 let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${chocar5}.gif`;
+
+                const embed = new EmbedBuilder()
+                    .setTitle(str)
+                    // .setDescription("list of all commands")
+                    .setColor(color)
+                    .setImage(dir)
+                // .addFields(
+                //     comandos_helper
+                // )
+                await msg.reply({
+                    embeds: [embed]
+                });
+            }
+            else {
+                await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+            }
+
+
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+
+    async Duelo(client, msg) {
+        try {
+            let duelo = Math.floor(Math.random() * 22);
+
+            if (duelo == 0) {
+                duelo = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = ``;
+
+            let folder = "duelo"
+
+            if (msg.content.includes('<@')) {
+
+                let winner = Math.floor(Math.random() * 2);
+
+                if (winner == 0) {
+                    winner = 1;
+                }
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+
+                let winner_pj = winner == 1 ?
+                    memberName
+                    :
+                    reciverName;
+
+                str = `${memberName} desafio un duelo a ${reciverName} \n Y el ganador es ${winner_pj}`;
+
+                let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${duelo}.gif`;
 
                 const embed = new EmbedBuilder()
                     .setTitle(str)
