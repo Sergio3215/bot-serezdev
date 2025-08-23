@@ -44,7 +44,7 @@ model Server {
 
 model counter_ticket {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
-  value Int    @default(0) @unique
+  value Int    @unique @default(0)
 }
 
 model Tickets {
@@ -68,4 +68,11 @@ model setTicket {
   serverId       String  @unique
   requestChannel String?
   pendingChannel String?
+}
+
+model MetricCommands {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId    String  @unique
+  numberUsed  Int
+  commandUsed String
 }

@@ -325,6 +325,44 @@ class Ticket {
     }
 }
 
+class MetricCommands {
+    constructor() {
+
+    }
+
+    async Create(option) {
+        await prisma.metricCommands.create({
+            data: {
+                serverId: option.serverId,
+                numberUsed: 1,
+                commandUsed: option.command
+            }
+
+        });
+    }
+
+    async Update(serverId, option) {
+        await prisma.metricCommands.update({
+            where: {
+                serverId: serverId
+            },
+            data: {
+                serverId: serverId,
+                numberUsed: option.number,
+                commandUsed: option.command
+            }
+        });
+    }
+
+    async GetById(serverId) {
+        return await prisma.metricCommands.findMany({
+            where: {
+                serverId: serverId
+            }
+        });
+    }
+}
+
 module.exports = {
     Server,
     buttonFollowing,
@@ -333,4 +371,5 @@ module.exports = {
     setTicket,
     statusTicket,
     Ticket,
+    MetricCommands
 };
