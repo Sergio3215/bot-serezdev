@@ -334,6 +334,7 @@ class MetricCommands {
         await prisma.metricCommands.create({
             data: {
                 serverId: option.serverId,
+                serverName: option.Name,
                 numberUsed: 1,
                 commandUsed: option.command
             }
@@ -341,23 +342,25 @@ class MetricCommands {
         });
     }
 
-    async Update(serverId, option) {
+    async Update(id, option) {
         await prisma.metricCommands.update({
             where: {
-                serverId: serverId
+                id: id
             },
             data: {
-                serverId: serverId,
+                serverId: option.serverId,
+                serverName: option.Name,
                 numberUsed: option.number,
                 commandUsed: option.command
             }
         });
     }
 
-    async GetById(serverId) {
+    async GetById(serverId, command) {
         return await prisma.metricCommands.findMany({
             where: {
-                serverId: serverId
+                serverId: serverId,
+                commandUsed: command
             }
         });
     }

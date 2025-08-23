@@ -72,7 +72,8 @@ model setTicket {
 
 model MetricCommands {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  serverId    String  @unique
+  serverId    String  
+  serverName    String  
   numberUsed  Int
   commandUsed String
 }

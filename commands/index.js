@@ -14,15 +14,18 @@ const checkServer = async (guild) => {
 
 const setMetric = async (command, msg) => {
     if (process.env.DEV !== "TRUE") {
-        const metricaCollection = await metrica_commands.GetById(msg.guild.id);
+        const metricaCollection = await metrica_commands.GetById(msg.guild.id, command);
         if (metricaCollection.length === 0) {
             await metrica_commands.Create({
                 serverId: msg.guild.id,
+                Name: msg.guild.name,
                 command: command
             });
         }
         else {
-            await metrica_commands.Update(msg.guild.id, {
+            await metrica_commands.Update(metricaCollection[0].id, {
+                serverId:msg.guild.id,
+                Name: msg.guild.name,
                 number: metricaCollection[0].numberUsed + 1,
                 command: command
             })
