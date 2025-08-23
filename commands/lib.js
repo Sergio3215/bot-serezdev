@@ -12,6 +12,80 @@ class LibsCommands {
 
     }
 
+
+    //Role Play
+    #SubirNivel = () => {
+        let maxLevel = 10;
+        return {
+            fuerza: Math.floor(Math.random() * maxLevel),
+            destreza: Math.floor(Math.random() * maxLevel),
+            constitucion: Math.floor(Math.random() * maxLevel),
+            inteligencia: Math.floor(Math.random() * maxLevel),
+            sabiduria: Math.floor(Math.random() * maxLevel),
+            carisma: Math.floor(Math.random() * maxLevel),
+        }
+    }
+
+    #getCommentAndReciver(msg, percent, message) {
+        let reciver = msg.author.id;
+        let comment = '';
+
+        if (percent > 50) {
+            comment = message;
+        }
+
+        if (msg.content.includes('<@')) {
+            reciver = msg.content.split('<@')[1].split('>')[0];
+        }
+
+        return {
+            reciver,
+            comment
+        }
+    }
+
+    //Nekotina Family Friendly
+
+    #ColorRandom(Colors) {
+        let num = Math.floor(Math.random() * 4);
+
+        if (num == 0) {
+            num = 1;
+        }
+
+        switch (num) {
+            case 1:
+                return Colors.Red;
+                break;
+            case 2:
+                return Colors.Green;
+                break;
+            case 3:
+                return Colors.Blue;
+                break;
+            case 4:
+                return Colors.Black;
+                break;
+        }
+    }
+
+    async #PersonaRandom(client, msg) {
+        const guild = await client.guilds.cache.get(msg.guild.id);
+        let member = await guild.members.fetch();
+        // console.log(member);
+        let tempArr = [];
+        member.map(m => {
+            tempArr.push(m);
+        })
+
+        let oneMember = Math.floor(Math.random() * tempArr.length);
+
+        // console.log(tempArr[oneMember].nickname);
+        // console.log(tempArr[oneMember].user.globalName);
+
+        return tempArr[oneMember]
+    }
+
     async MeMide(msg) {
         let cm = Math.floor(Math.random() * 30);
         msg.reply(`Te mide ${cm} cm`);
@@ -59,6 +133,38 @@ class LibsCommands {
             msg.reply('No entendi tu pedido');
         }
     }
+
+    async Gay(msg, userIsSubOrBooster) {
+        const member = await msg.guild.members.fetch(msg.author.id);
+
+        if (!(await userIsSubOrBooster(member)) && msg.guild.id !== "748652112485023854") {
+            return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
+        }
+
+        let percent = Math.floor(Math.random() * 100);
+
+        const { reciver, comment } = this.#getCommentAndReciver(msg, percent, '¡Onda se la re come!');
+
+        msg.reply(`<@${reciver}> tiene un ${percent}% de ser re gay. ${comment}`);
+    }
+
+
+    async Gaga(msg, userIsSubOrBooster) {
+
+        const member = await msg.guild.members.fetch(msg.author.id);
+
+        if (!(await userIsSubOrBooster(member)) && msg.guild.id !== "748652112485023854") {
+            return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
+        }
+
+        let percent = Math.floor(Math.random() * 100);
+
+        const { reciver, comment } = this.#getCommentAndReciver(msg, percent, '¡Onda le re falla al flac@!');
+
+
+        msg.reply(`<@${reciver}> tiene un ${percent}% de gaga. ${comment}`);
+    }
+
 
     async Personaje(msg, createCharacter, userIsSubOrBooster) {
         try {
@@ -400,8 +506,14 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!choquelos5', value: "Chocas los 5 con un amigo. Ejemplo !choquelos5 <name>" },
             { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
             { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
-            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
         ];
+
+        let command_boosters = [
+            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
+            {name:'!gay', value:'Podes consultar que tan gay sos o que tan gay es alguien. Ejemplo !gay <name>"'},
+            {name:'!gaga', value:'Podes consultar que tan gaga sos o que tan gaga es alguien. Ejemplo !gaga <name>"'},
+
+        ]
 
         let commands_admins = [
             { name: '!setwelcome', value: "Establece sobre el rol que se les da a los que llegan al servidor Ejemplo: !setwelcome @Miembros" },
@@ -410,83 +522,43 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]" },
         ]
 
-        let arrTemp = comandos_helper;
-
-        if (isMod || isAdmin) {
-            commands_admins.map(c => {
-                arrTemp.push(c);
-            })
-        }
-
-
         if (msg.content.toLowerCase() === '!comandos' || msg.content.toLowerCase() === '!help') {
-            const embed = new EmbedBuilder()
-                .setTitle("Lista de Comandos")
+
+            const embed_user = new EmbedBuilder()
+                .setTitle("Lista de Comandos para Usuarios")
+                // .setDescription("list of all commands")
+                .setColor(Colors.DarkAqua)
+                .addFields(
+                    comandos_helper
+                );
+
+            const embed_boosters = new EmbedBuilder()
+                .setTitle("Lista de Comandos para Subscriptores de Twitch y Server Boosters")
+                // .setDescription("list of all commands")
+                .setColor(Colors.Gold)
+                .addFields(
+                    command_boosters
+                );
+
+            const embed_mod_admin = new EmbedBuilder()
+                .setTitle("Lista de Comandos para Administradores y Moderadores")
                 // .setDescription("list of all commands")
                 .setColor(Colors.Red)
                 .addFields(
-                    comandos_helper
-                )
+                    commands_admins
+                );
+
+            let embedAll = [embed_user, embed_boosters];
+
+            if (isMod || isAdmin) {
+                embedAll.push(embed_mod_admin)
+            }
+
+
             await msg.reply({
-                embeds: [embed]
+                embeds: embedAll
             });
         }
-    }
-
-    //Role Play
-    #SubirNivel = () => {
-        let maxLevel = 10;
-        return {
-            fuerza: Math.floor(Math.random() * maxLevel),
-            destreza: Math.floor(Math.random() * maxLevel),
-            constitucion: Math.floor(Math.random() * maxLevel),
-            inteligencia: Math.floor(Math.random() * maxLevel),
-            sabiduria: Math.floor(Math.random() * maxLevel),
-            carisma: Math.floor(Math.random() * maxLevel),
-        }
-    }
-
-
-    //Nekotina Family Friendly
-
-    #ColorRandom(Colors) {
-        let num = Math.floor(Math.random() * 4);
-
-        if (num == 0) {
-            num = 1;
-        }
-
-        switch (num) {
-            case 1:
-                return Colors.Red;
-                break;
-            case 2:
-                return Colors.Green;
-                break;
-            case 3:
-                return Colors.Blue;
-                break;
-            case 4:
-                return Colors.Black;
-                break;
-        }
-    }
-
-    async #PersonaRandom(client, msg) {
-        const guild = await client.guilds.cache.get(msg.guild.id);
-        let member = await guild.members.fetch();
-        // console.log(member);
-        let tempArr = [];
-        member.map(m => {
-            tempArr.push(m);
-        })
-
-        let oneMember = Math.floor(Math.random() * tempArr.length);
-
-        // console.log(tempArr[oneMember].nickname);
-        // console.log(tempArr[oneMember].user.globalName);
-
-        return tempArr[oneMember]
     }
 
     async Golpear(client, msg) {
@@ -1102,7 +1174,7 @@ Carisma: ${estadisticas.carisma}`)
                 let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
 
-                let winner_pj = winner %2 == 0 ?
+                let winner_pj = winner % 2 == 0 ?
                     memberName
                     :
                     reciverName;

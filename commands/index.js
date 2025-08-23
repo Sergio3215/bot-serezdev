@@ -22,6 +22,12 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.includes('!consulta')) {
         libCommands.ConsultingGemini(msg, Consulting, userIsSubOrBooster);
     }
+    if (msg.content.includes('!gay')) {
+        libCommands.Gay(msg, userIsSubOrBooster);
+    }
+    if (msg.content.includes('!gaga')) {
+        libCommands.Gaga(msg, userIsSubOrBooster);
+    }
     
     if (msg.content.toLowerCase().includes("!rolplay")) {
         libCommands.Personaje(msg, createCharacter, userIsSubOrBooster);
