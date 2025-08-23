@@ -159,7 +159,7 @@ class LibsCommands {
 
         let percent = Math.floor(Math.random() * 100);
 
-        const { reciver, comment } = this.#getCommentAndReciver(msg, percent, '¡Onda le re falla al flac@!');
+        const { reciver, comment } = this.#getCommentAndReciver(msg, percent, '¡Onda le re falla al flaco o a la flaca!');
 
 
         msg.reply(`<@${reciver}> tiene un ${percent}% de gaga. ${comment}`);
