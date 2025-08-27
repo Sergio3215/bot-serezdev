@@ -527,7 +527,7 @@ Carisma: ${estadisticas.carisma}`)
         ]
 
         let command_boosters = [
-            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" }, cc
+            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
 
         ]
 
