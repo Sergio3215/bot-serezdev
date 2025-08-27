@@ -324,6 +324,21 @@ Carisma: ${estadisticas.carisma}`)
     }
 
     async SettingsButton(client, msg) {
+
+        /**
+         * Get all roles
+         * 
+            let roles = []
+            msg.guild.roles.cache.map((r, ii) => {
+                roles.push({
+                    id: r.id,
+                    name: r.name
+                });
+            });
+    
+            console.log(roles);
+         */
+
         const channelData = msg.content.split('!setfollowing')[1].trim();
         if (channelData.includes('<#') && channelData.includes('>') && channelData.includes('<@&')) {
             try {
@@ -504,14 +519,15 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
             { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
             { name: '!choquelos5', value: "Chocas los 5 con un amigo. Ejemplo !choquelos5 <name>" },
-            { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
-            { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
         ];
 
+        let command_rolplay = [
+            { name: '!rolplay', value: "Creas tu personaje aleatorio para rolplay" },
+            { name: '!rolnivel', value: "Si tu personaje sube de nivel con este comando sabras que att subirle" },
+        ]
+
         let command_boosters = [
-            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
-            {name:'!gay', value:'Podes consultar que tan gay sos o que tan gay es alguien. Ejemplo !gay <name>"'},
-            {name:'!gaga', value:'Podes consultar que tan gaga sos o que tan gaga es alguien. Ejemplo !gaga <name>"'},
+            { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" }, cc
 
         ]
 
@@ -532,6 +548,14 @@ Carisma: ${estadisticas.carisma}`)
                     comandos_helper
                 );
 
+            const embed_rolplay = new EmbedBuilder()
+                .setTitle("Lista de Comandos para RolPlay")
+                // .setDescription("list of all commands")
+                .setColor(Colors.DarkNavy)
+                .addFields(
+                    command_rolplay
+                );
+
             const embed_boosters = new EmbedBuilder()
                 .setTitle("Lista de Comandos para Subscriptores de Twitch y Server Boosters")
                 // .setDescription("list of all commands")
@@ -548,7 +572,7 @@ Carisma: ${estadisticas.carisma}`)
                     commands_admins
                 );
 
-            let embedAll = [embed_user, embed_boosters];
+            let embedAll = [embed_user, embed_rolplay, embed_boosters];
 
             if (isMod || isAdmin) {
                 embedAll.push(embed_mod_admin)
