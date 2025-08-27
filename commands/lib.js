@@ -553,7 +553,7 @@ Carisma: ${estadisticas.carisma}`)
             const embed_rol = new EmbedBuilder()
                 .setTitle("Lista de Comandos para Rol Play")
                 // .setDescription("list of all commands")
-                .setColor(Colors.Navy)
+                .setColor(Colors.DarkBlue)
                 .addFields(
                     command_rolplay
                 );
