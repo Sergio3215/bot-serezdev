@@ -528,8 +528,8 @@ Carisma: ${estadisticas.carisma}`)
 
         let command_boosters = [
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
-            { command: '!gay', value: 'Podes consultar que tan gay sos o que tan gay es alguien. Ejemplo !gay <name>" (Exclusivo para Subscripción de Twitch y Server Boosters)' },
-            { command: '!gaga', value: 'Podes consultar que tan gaga sos o que tan gaga es alguien. Ejemplo !gaga <name>" (Exclusivo para Subscripción de Twitch y Server Boosters)' },
+            { name: '!gay', value: 'Podes consultar que tan gay sos o que tan gay es alguien. Ejemplo !gay <name>"' },
+            { name: '!gaga', value: 'Podes consultar que tan gaga sos o que tan gaga es alguien. Ejemplo !gaga <name>"' },
 
         ]
 
@@ -550,10 +550,10 @@ Carisma: ${estadisticas.carisma}`)
                     comandos_helper
                 );
 
-            const embed_rolplay = new EmbedBuilder()
-                .setTitle("Lista de Comandos para RolPlay")
+            const embed_rol = new EmbedBuilder()
+                .setTitle("Lista de Comandos para Rol Play")
                 // .setDescription("list of all commands")
-                .setColor(Colors.DarkNavy)
+                .setColor(Colors.Navy)
                 .addFields(
                     command_rolplay
                 );
@@ -574,7 +574,7 @@ Carisma: ${estadisticas.carisma}`)
                     commands_admins
                 );
 
-            let embedAll = [embed_user, embed_rolplay, embed_boosters];
+            let embedAll = [embed_user, embed_rol, embed_boosters];
 
             if (isMod || isAdmin) {
                 embedAll.push(embed_mod_admin)
