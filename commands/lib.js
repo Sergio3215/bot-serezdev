@@ -528,6 +528,8 @@ Carisma: ${estadisticas.carisma}`)
 
         let command_boosters = [
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
+            { command: '!gay', value: 'Podes consultar que tan gay sos o que tan gay es alguien. Ejemplo !gay <name>" (Exclusivo para Subscripción de Twitch y Server Boosters)' },
+            { command: '!gaga', value: 'Podes consultar que tan gaga sos o que tan gaga es alguien. Ejemplo !gaga <name>" (Exclusivo para Subscripción de Twitch y Server Boosters)' },
 
         ]
 
