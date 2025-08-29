@@ -1168,13 +1168,13 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
-    
+
     async Enojar(client, msg) {
         try {
-            let pensar = Math.floor(Math.random() * 55);
+            let enojarse = Math.floor(Math.random() * 55);
 
-            if (pensar == 0) {
-                pensar = 1;
+            if (enojarse == 0) {
+                enojarse = 1;
             }
 
             const guild = await client.guilds.cache.get(msg.guild.id);
@@ -1184,26 +1184,26 @@ Carisma: ${estadisticas.carisma}`)
 
             let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
 
-            let str = `${memberName} esta enojad@ con todos!`;
+            let str = enojarse > 34 ? `${memberName} esta enojad@ con todos!` : `${memberName} esta tan enojad@ que esta pensando en matar a todos!`;
 
             let folder = "enojo"
 
             if (msg.content.includes('<@')) {
-                pensar = Math.floor(Math.random() * 55);
+                enojarse = Math.floor(Math.random() * 55);
 
-                if (pensar == 0) {
-                    pensar = 1;
+                if (enojarse == 0) {
+                    enojarse = 1;
                 }
 
                 let reciverID = msg.content.split('<@')[1].split('>')[0];
                 let reciver = await guild.members.fetch(reciverID);
                 let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
-                str = pensar > 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarlo!`;
+                str = enojarse > 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarlo!`;
             }
 
 
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${pensar}.gif`;
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${enojarse}.gif`;
 
             const embed = new EmbedBuilder()
                 .setTitle(str)
@@ -1217,7 +1217,8 @@ Carisma: ${estadisticas.carisma}`)
                 embeds: [embed]
             });
         } catch (error) {
-            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+            console.log(error);
+            await msg.reply("Hubo un error, contacta al creador del bot");
         }
     }
 
