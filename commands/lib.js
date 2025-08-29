@@ -1199,7 +1199,7 @@ Carisma: ${estadisticas.carisma}`)
                 let reciver = await guild.members.fetch(reciverID);
                 let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
-                str = enojarse < 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarlo!`;
+                str = enojarse < 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarle!`;
             }
 
 
