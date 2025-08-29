@@ -1184,7 +1184,7 @@ Carisma: ${estadisticas.carisma}`)
 
             let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
 
-            let str = enojarse > 34 ? `${memberName} esta enojad@ con todos!` : `${memberName} esta tan enojad@ que esta pensando en matar a todos!`;
+            let str = enojarse < 34 ? `${memberName} esta enojad@ con todos!` : `${memberName} esta tan enojad@ que esta pensando en matar a todos!`;
 
             let folder = "enojo"
 
@@ -1199,7 +1199,7 @@ Carisma: ${estadisticas.carisma}`)
                 let reciver = await guild.members.fetch(reciverID);
                 let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
-                str = enojarse > 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarlo!`;
+                str = enojarse < 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarlo!`;
             }
 
 
