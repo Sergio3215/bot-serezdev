@@ -519,7 +519,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
             { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
             { name: '!choquelos5', value: "Chocas los 5 con un amigo. Ejemplo !choquelos5 <name>" },
-            { name: '!enojado', value: "Te enojas con todos o con alguien en especifico. Ejemplo !enojado <name>" },
+            { name: '!enojarse', value: "Te enojas con todos o con alguien en especifico. Ejemplo !enojarse <name>" },
         ];
 
         let command_rolplay = [
