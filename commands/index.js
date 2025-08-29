@@ -186,6 +186,10 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.Choca5(client, msg);
         setMetric("!choquelos5", msg);
     }
+    if (msg.content.toLowerCase().includes("!enojado")) {
+        libCommands.Enojar(client, msg);
+        setMetric("!enojado", msg);
+    }
 
 
     if (msg.content.toLowerCase().includes("!duelo")) {

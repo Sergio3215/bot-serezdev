@@ -519,6 +519,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
             { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
             { name: '!choquelos5', value: "Chocas los 5 con un amigo. Ejemplo !choquelos5 <name>" },
+            { name: '!enojado', value: "Te enojas con todos o con alguien en especifico. Ejemplo !enojado <name>" },
         ];
 
         let command_rolplay = [
@@ -1162,6 +1163,59 @@ Carisma: ${estadisticas.carisma}`)
             }
 
 
+        } catch (error) {
+            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+    
+    async Enojar(client, msg) {
+        try {
+            let pensar = Math.floor(Math.random() * 55);
+
+            if (pensar == 0) {
+                pensar = 1;
+            }
+
+            const guild = await client.guilds.cache.get(msg.guild.id);
+            let member = await guild.members.fetch(msg.author.id);
+
+            let color = this.#ColorRandom(Colors);
+
+            let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
+
+            let str = `${memberName} esta enojad@ con todos!`;
+
+            let folder = "enojo"
+
+            if (msg.content.includes('<@')) {
+                pensar = Math.floor(Math.random() * 55);
+
+                if (pensar == 0) {
+                    pensar = 1;
+                }
+
+                let reciverID = msg.content.split('<@')[1].split('>')[0];
+                let reciver = await guild.members.fetch(reciverID);
+                let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
+
+                str = pensar > 34 ? `${memberName} esta enojad@ con ${reciverName}!` : `${memberName} tiene tanto enojo con ${reciverName} que esta pensando en matarlo!`;
+            }
+
+
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${pensar}.gif`;
+
+            const embed = new EmbedBuilder()
+                .setTitle(str)
+                // .setDescription("list of all commands")
+                .setColor(color)
+                .setImage(dir)
+            // .addFields(
+            //     comandos_helper
+            // )
+            await msg.reply({
+                embeds: [embed]
+            });
         } catch (error) {
             await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
         }
