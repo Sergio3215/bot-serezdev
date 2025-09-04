@@ -24,7 +24,7 @@ const setMetric = async (command, msg) => {
         }
         else {
             await metrica_commands.Update(metricaCollection[0].id, {
-                serverId:msg.guild.id,
+                serverId: msg.guild.id,
                 Name: msg.guild.name,
                 number: metricaCollection[0].numberUsed + 1,
                 command: command
@@ -35,7 +35,23 @@ const setMetric = async (command, msg) => {
 
 const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster, createCharacter) => {
 
-    // await checkServer(msg.guild);
+
+    //Set Rules
+
+    //💀 LA MORGUE 💀
+
+    //console.log(msg.channel.id); id: '1413026508276236351', name: '😆video-reaccion-en-stream😆'
+    //console.log(msg.guild); id: '748652112485023854', name: '💀 LA MORGUE 💀'
+
+    if (msg.guild.id == "748652112485023854") {
+        if (msg.channel.id == "1413026508276236351") {
+            if (!msg.content.includes("https://www.youtube.com/") && !msg.content.includes("https://youtu.be")) {
+                msg.delete();
+            }
+        }
+    }
+
+    // Set Commands
 
     if (msg.content.includes('!comandos')) {
         libCommands.Comandos(isMod, admin, msg);
