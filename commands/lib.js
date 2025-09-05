@@ -601,6 +601,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!consulta', value: "Podes preguntarle lo que sea al chat gpt" },
             { name: '!gay', value: 'Podes consultar que tan gay sos o que tan gay es alguien. Ejemplo !gay <name>"' },
             { name: '!gaga', value: 'Podes consultar que tan gaga sos o que tan gaga es alguien. Ejemplo !gaga <name>"' },
+            { name: '!meme', value: 'Podes generar un meme con un prompt o consulta. Ejemplo !gaga <prompt>"' },
 
         ]
 
