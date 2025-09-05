@@ -39,7 +39,7 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
 
     //Set Rules
 
-    Rules();
+    Rules(msg);
 
     // Set Commands
 

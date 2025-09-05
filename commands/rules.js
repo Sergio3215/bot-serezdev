@@ -1,5 +1,5 @@
 
-const Rules = () => {
+const Rules = (msg) => {
 
     //💀 LA MORGUE 💀
 
