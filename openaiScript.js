@@ -71,38 +71,38 @@ const historiasBase = [
 ];
 
 const nombresRP = [
-  "Kael", "Aelion", "Thorne", "Isolde", "Vaelis", "Eron", "Mira", "Zarek", "Lirael", "Sylwen",
-  "Thalor", "Nyx", "Dravok", "Aerin", "Korvax", "Velira", "Maelis", "Seraphis", "Nalara", "Rhyven",
-  "Alaric", "Elira", "Tavion", "Bryn", "Orin", "Selene", "Calen", "Feyra", "Lucan", "Zephyr",
-  "Varek", "Ilyana", "Dorian", "Ashira", "Riven", "Kaida", "Thalric", "Nerys", "Faelan", "Ysera",
-  "Talon", "Eira", "Jareth", "Kairen", "Liora", "Valken", "Sorin", "Myla", "Gideon", "Arielle",
-  "Nerion", "Alira", "Korin", "Selya", "Elros", "Thalara", "Vaen", "Malric", "Shaela", "Rowan",
-  "Zorion", "Anira", "Theron", "Lyra", "Cassian", "Elowen", "Dain", "Ylva", "Kaelen", "Meira",
-  "Torin", "Amara", "Zenya", "Dakar", "Luneth", "Sylas", "Orielle", "Fenric", "Velena",
-  "Jorund", "Iris", "Branik", "Sephira", "Arden", "Kalia", "Morric", "Naela", "Vael", "Evania",
-  "Kaelor", "Syra", "Tirion", "Elaena", "Lucien", "Aenya", "Caius", "Neraya", "Auren", "Liora"
+    "Kael", "Aelion", "Thorne", "Isolde", "Vaelis", "Eron", "Mira", "Zarek", "Lirael", "Sylwen",
+    "Thalor", "Nyx", "Dravok", "Aerin", "Korvax", "Velira", "Maelis", "Seraphis", "Nalara", "Rhyven",
+    "Alaric", "Elira", "Tavion", "Bryn", "Orin", "Selene", "Calen", "Feyra", "Lucan", "Zephyr",
+    "Varek", "Ilyana", "Dorian", "Ashira", "Riven", "Kaida", "Thalric", "Nerys", "Faelan", "Ysera",
+    "Talon", "Eira", "Jareth", "Kairen", "Liora", "Valken", "Sorin", "Myla", "Gideon", "Arielle",
+    "Nerion", "Alira", "Korin", "Selya", "Elros", "Thalara", "Vaen", "Malric", "Shaela", "Rowan",
+    "Zorion", "Anira", "Theron", "Lyra", "Cassian", "Elowen", "Dain", "Ylva", "Kaelen", "Meira",
+    "Torin", "Amara", "Zenya", "Dakar", "Luneth", "Sylas", "Orielle", "Fenric", "Velena",
+    "Jorund", "Iris", "Branik", "Sephira", "Arden", "Kalia", "Morric", "Naela", "Vael", "Evania",
+    "Kaelor", "Syra", "Tirion", "Elaena", "Lucien", "Aenya", "Caius", "Neraya", "Auren", "Liora"
 ];
 const apellidosRP = [
-  "Sombrasol", "Corazónfuego", "Luzeterna", "Hojaoscura", "Tempestira", "Nieblaquieta", "Runasangre", "Vientoluz",
-  "Furiaeterna", "Espinanegra", "Ojoalba", "Florumbra", "Puñonegro", "Sombrahelada", "Grisacerada", "Susurropiedra",
-  "Danzaeco", "Almaserena", "Truenoseco", "Cenizaclara", "Ecooculto", "Filoardiente", "Espíritofrío", "Manolunar",
-  "Guardanocturno", "Destelloinmortal", "Pielbruma", "Sombraviva", "Selloquebrado", "Nieblaeterna",
-  "Escudoardiente", "Relámpagonegro", "Rugidooscuro", "Torregrana", "Centelladorada", "Nublanegra",
-  "Duelomortal", "Silenciopétreo", "Oscuroriente", "Fulgorvacío", "Estelagrave", "Picoazur", "Luzmuda",
-  "Solnaciente", "Cazadormístico", "Fauceseco", "Vigíaerrante", "Fragmentoluz", "Lágrimanegra", "Tronofrío",
-  "Sombraígnea", "Garraumbría", "Ruinaeterna", "Piedrallameante", "Susurrotemido", "Luztrémula", "Tempestadgélida",
-  "Ecoardiente", "Ecofinal", "Flamatorcida", "Danzaoculta", "Nieblaáspera", "Centinelasombra", "Dienteviento",
-  "Anzuelooscuro", "Zarpaetérea", "Ecoenvenenado", "Alaolvidada", "Sombracarmesí", "Filooculto", "Alatempestad",
-  "Maldicióneterna", "Hojaviva", "Almadesol", "Pielardiente", "Piedracalma", "Espinaceleste", "Cenizanevada",
-  "Sueñofrío", "Fulgorperdido", "Cielodivino", "Trazonegro", "Centellalunar", "Murmulloeterno", "Caminoceniza",
-  "Espinagélida", "Voluntadférrea", "Ojomudo", "Letrafantasma", "Vientoetéreo", "Silenciolunar", "Ecofurioso",
-  "Manodeacero", "Rastrofantasma", "Broteluz", "Jadefiero", "Cenizaverde", "Florroja", "Cruzaseda", "Guardiánonírico"
+    "Sombrasol", "Corazónfuego", "Luzeterna", "Hojaoscura", "Tempestira", "Nieblaquieta", "Runasangre", "Vientoluz",
+    "Furiaeterna", "Espinanegra", "Ojoalba", "Florumbra", "Puñonegro", "Sombrahelada", "Grisacerada", "Susurropiedra",
+    "Danzaeco", "Almaserena", "Truenoseco", "Cenizaclara", "Ecooculto", "Filoardiente", "Espíritofrío", "Manolunar",
+    "Guardanocturno", "Destelloinmortal", "Pielbruma", "Sombraviva", "Selloquebrado", "Nieblaeterna",
+    "Escudoardiente", "Relámpagonegro", "Rugidooscuro", "Torregrana", "Centelladorada", "Nublanegra",
+    "Duelomortal", "Silenciopétreo", "Oscuroriente", "Fulgorvacío", "Estelagrave", "Picoazur", "Luzmuda",
+    "Solnaciente", "Cazadormístico", "Fauceseco", "Vigíaerrante", "Fragmentoluz", "Lágrimanegra", "Tronofrío",
+    "Sombraígnea", "Garraumbría", "Ruinaeterna", "Piedrallameante", "Susurrotemido", "Luztrémula", "Tempestadgélida",
+    "Ecoardiente", "Ecofinal", "Flamatorcida", "Danzaoculta", "Nieblaáspera", "Centinelasombra", "Dienteviento",
+    "Anzuelooscuro", "Zarpaetérea", "Ecoenvenenado", "Alaolvidada", "Sombracarmesí", "Filooculto", "Alatempestad",
+    "Maldicióneterna", "Hojaviva", "Almadesol", "Pielardiente", "Piedracalma", "Espinaceleste", "Cenizanevada",
+    "Sueñofrío", "Fulgorperdido", "Cielodivino", "Trazonegro", "Centellalunar", "Murmulloeterno", "Caminoceniza",
+    "Espinagélida", "Voluntadférrea", "Ojomudo", "Letrafantasma", "Vientoetéreo", "Silenciolunar", "Ecofurioso",
+    "Manodeacero", "Rastrofantasma", "Broteluz", "Jadefiero", "Cenizaverde", "Florroja", "Cruzaseda", "Guardiánonírico"
 ];
 
 function getNombreCompletoAleatorio() {
-  const nombre = nombresRP[Math.floor(Math.random() * nombresRP.length)];
-  const apellido = apellidosRP[Math.floor(Math.random() * apellidosRP.length)];
-  return `${nombre} ${apellido}`;
+    const nombre = nombresRP[Math.floor(Math.random() * nombresRP.length)];
+    const apellido = apellidosRP[Math.floor(Math.random() * apellidosRP.length)];
+    return `${nombre} ${apellido}`;
 }
 
 const generarEstadisticas = () => ({
@@ -149,12 +149,7 @@ const createCharacter = async () => {
 
         const promptImagen = `Un ${raza.toLowerCase()} ${clase.toLowerCase()}, estilo arte de fantasía medieval, con vestimenta y armas típicas, en un entorno épico, detalle realista, usado para el rolplay`;
 
-        const image = await openai.images.generate({
-            prompt: promptImagen,
-            model: "dall-e-3",
-            n: 1,
-            size: "1024x1024"
-        });
+        const image = await generateImage(promptImagen);
 
         return {
             nombre,
@@ -174,7 +169,20 @@ const createCharacter = async () => {
     }
 }
 
+const generateImage = async (prompt, number, model) => {
+
+    const image = await openai.images.generate({
+        prompt: prompt,
+        model: model || "dall-e-3",
+        n: number || 1,
+        size: "1024x1024"
+    });
+
+    return image;
+}
+
 module.exports = {
     ConsultingOpenAI,
-    createCharacter
+    createCharacter,
+    generateImage
 };

@@ -1,5 +1,6 @@
 const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { generateImage } = require("../openaiScript.js");
 
 const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
@@ -163,6 +164,75 @@ class LibsCommands {
 
 
         msg.reply(`<@${reciver}> tiene un ${percent}% de gaga. ${comment}`);
+    }
+
+    async Meme(msg, userIsSubOrBooster) {
+
+        const member = await msg.guild.members.fetch(msg.author.id);
+
+        if (!(await userIsSubOrBooster(member)) && msg.guild.id !== "748652112485023854") {
+            return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
+        }
+
+        let msgChat = await msg.channel.send("Pensando");
+
+        const frases = ["Pensando.", "Pensando..", "Pensando..."];
+
+        const frases2 = ["Cargando.", "Cargando..", "Cargando..."];
+        let idx = 0;
+
+
+        const pensando = setInterval(async () => {
+            try {
+                idx = (idx + 1) % frases.length;
+                await msgChat.edit(frases[idx]);
+            }
+            catch (err) {
+                console.log(err);
+                await msgChat.edit({
+                    content: "La imagen solicitada no pudo ser generada",
+                });
+                clearInterval(pensando);
+                // return msgChat.edit("no se creo el pj");
+            }
+        }, 500);
+
+
+        try {
+
+            let str = msg.content.split('!meme')[1];
+
+            let prompt = `Crea una imagen estilo meme de internet en lenguaje español.
+            Un meme divertido sobre ${str} en lenguaje español.
+            Memes de ${str}, que sea gracioso en lenguaje español.
+            Evitar memes en ingles u otros idiomas.
+            Si tiene un contenido no permitido, evitalo y pon una imagen que exprese dicho contenido sin mostrarlo.
+            Imagenes con 90% de exactitud.`;
+
+            const img = await generateImage(prompt);
+
+            clearInterval(pensando);
+
+            let color = this.#ColorRandom(Colors);
+
+            const embed_meme = new EmbedBuilder()
+                .setTitle("Meme generado por IA")
+                .setColor(color)
+                .setImage(img.data[0].url);
+
+            await msgChat.edit({
+                content: null,
+                embeds: [embed_meme]
+            });
+
+        } catch (error) {
+            clearInterval(pensando);
+            console.log(error);
+
+            await msgChat.edit({
+                content: "La imagen solicitada no pudo ser generada",
+            });
+        }
     }
 
 

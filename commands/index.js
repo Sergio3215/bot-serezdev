@@ -1,5 +1,6 @@
 const { Server, SettingWelcome, MetricCommands } = require("../db/index.js");
 const LibsCommands = require("./lib.js");
+const { Rules } = require("./rules.js");
 
 const ServerDb = new Server();
 let libCommands = new LibsCommands();
@@ -38,18 +39,7 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
 
     //Set Rules
 
-    //💀 LA MORGUE 💀
-
-    //console.log(msg.channel.id); id: '1413026508276236351', name: '😆video-reaccion-en-stream😆'
-    //console.log(msg.guild); id: '748652112485023854', name: '💀 LA MORGUE 💀'
-
-    if (msg.guild.id == "748652112485023854") {
-        if (msg.channel.id == "1413026508276236351") {
-            if (!msg.content.includes("https://www.youtube.com/") && !msg.content.includes("https://youtu.be")) {
-                msg.delete();
-            }
-        }
-    }
+    Rules();
 
     // Set Commands
 
@@ -69,6 +59,10 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.includes('!gaga')) {
         libCommands.Gaga(msg, userIsSubOrBooster);
         setMetric("!gaga", msg);
+    }
+    if (msg.content.includes('!meme')) {
+        libCommands.Meme(msg, userIsSubOrBooster);
+        setMetric("!meme", msg);
     }
 
     if (msg.content.toLowerCase().includes("!rolplay")) {
