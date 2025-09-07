@@ -4,10 +4,8 @@ require("dotenv").config();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const ConsultingOpenAI = async (prompt) => {
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{
-            role: "user", content: `
+
+    let promptText = `
                     La siguiente consulta debe responderse en un máximo de 1900 caracteres.
                     - Sé directo, omite relleno.
                     - Resumi cualquier respuesta en algo concreto.
@@ -16,8 +14,9 @@ const ConsultingOpenAI = async (prompt) => {
                     - Usa frases cortas.
                     - No uses listas largas.
                     Consulta: ${prompt}
-        ` }],
-    });
+        `;
+
+    const response = await generateTexto(promptText);
 
     const reply = response.choices[0].message.content;
     return reply;
@@ -139,11 +138,7 @@ const createCharacter = async () => {
         Hazlo breve (máx 1900 caracteres), directo y con una personalidad única.
         `;
 
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o',
-            messages: [{ role: 'user', content: promptHistoria }],
-            temperature: 0.7,
-        });
+        const completion = await generateTexto(promptHistoria);
 
         const historia = completion.choices[0].message.content;
 
@@ -167,6 +162,17 @@ const createCharacter = async () => {
         console.error(err);
         return { error: 'Error al generar personaje' };
     }
+}
+
+
+const generateTexto = async (promptText) => {
+
+    return await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{
+            role: "user", content: promptText
+        }],
+    });
 }
 
 const generateImage = async (prompt, number, model) => {
