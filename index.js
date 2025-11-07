@@ -57,7 +57,9 @@ client.on('messageCreate', async (msg) => {
 client.on('interactionCreate', async (interaction) => {
     // console.log('Comando de barra invocado:', interaction.commandName);
     // console.log('Comando invocado:', interaction.isChatInputCommand());
-    if (interaction.isChatInputCommand()) {
+    if (interaction.isChatInputCommand() ||
+        interaction.isUserContextMenuCommand() ||
+        interaction.isMessageContextMenuCommand()) {
         try {
             let admin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator),
                 isMod = interaction.member.permissions.has(
