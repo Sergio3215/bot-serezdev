@@ -612,51 +612,48 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]" },
         ]
 
-        if (msg.content.toLowerCase() === '!comandos' || msg.content.toLowerCase() === '!help') {
+        const embed_user = new EmbedBuilder()
+            .setTitle("Lista de Comandos para Usuarios")
+            // .setDescription("list of all commands")
+            .setColor(Colors.DarkAqua)
+            .addFields(
+                comandos_helper
+            );
 
-            const embed_user = new EmbedBuilder()
-                .setTitle("Lista de Comandos para Usuarios")
-                // .setDescription("list of all commands")
-                .setColor(Colors.DarkAqua)
-                .addFields(
-                    comandos_helper
-                );
+        const embed_rol = new EmbedBuilder()
+            .setTitle("Lista de Comandos para Rol Play")
+            // .setDescription("list of all commands")
+            .setColor(Colors.DarkBlue)
+            .addFields(
+                command_rolplay
+            );
 
-            const embed_rol = new EmbedBuilder()
-                .setTitle("Lista de Comandos para Rol Play")
-                // .setDescription("list of all commands")
-                .setColor(Colors.DarkBlue)
-                .addFields(
-                    command_rolplay
-                );
+        const embed_boosters = new EmbedBuilder()
+            .setTitle("Lista de Comandos para Subscriptores de Twitch y Server Boosters")
+            // .setDescription("list of all commands")
+            .setColor(Colors.Gold)
+            .addFields(
+                command_boosters
+            );
 
-            const embed_boosters = new EmbedBuilder()
-                .setTitle("Lista de Comandos para Subscriptores de Twitch y Server Boosters")
-                // .setDescription("list of all commands")
-                .setColor(Colors.Gold)
-                .addFields(
-                    command_boosters
-                );
+        const embed_mod_admin = new EmbedBuilder()
+            .setTitle("Lista de Comandos para Administradores y Moderadores")
+            // .setDescription("list of all commands")
+            .setColor(Colors.Red)
+            .addFields(
+                commands_admins
+            );
 
-            const embed_mod_admin = new EmbedBuilder()
-                .setTitle("Lista de Comandos para Administradores y Moderadores")
-                // .setDescription("list of all commands")
-                .setColor(Colors.Red)
-                .addFields(
-                    commands_admins
-                );
+        let embedAll = [embed_user, embed_rol, embed_boosters];
 
-            let embedAll = [embed_user, embed_rol, embed_boosters];
-
-            if (isMod || isAdmin) {
-                embedAll.push(embed_mod_admin)
-            }
-
-
-            await msg.reply({
-                embeds: embedAll
-            });
+        if (isMod || isAdmin) {
+            embedAll.push(embed_mod_admin)
         }
+
+
+        await msg.reply({
+            embeds: embedAll
+        });
     }
 
     async Golpear(client, msg) {

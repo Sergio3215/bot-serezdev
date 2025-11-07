@@ -4,6 +4,8 @@ const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
 const { Server, SettingWelcome } = require('./db/index.js');
 const { ManageInteraction } = require('./interaction/index.js');
+const { SlashCommands } = require('./slash command/index.js');
+const { SlashLib } = require('./slash command/lib.js');
 require('dotenv').config();
 const token = process.env.token;
 
@@ -29,6 +31,7 @@ const client = new Client({
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    SlashCommands(client);
 });
 
 client.on('messageCreate', async (msg) => {
@@ -52,7 +55,25 @@ client.on('messageCreate', async (msg) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-    ManageInteraction(client, interaction);
+    // console.log('Comando de barra invocado:', interaction.commandName);
+    // console.log('Comando invocado:', interaction.isChatInputCommand());
+    if (interaction.isChatInputCommand()) {
+        try {
+            let admin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator),
+                isMod = interaction.member.permissions.has(
+                    PermissionsBitField.Flags.KickMembers,
+                    PermissionsBitField.Flags.BanMembers,
+                    PermissionsBitField.Flags.ManageMessages,
+                    PermissionsBitField.Flags.ManageChannels
+                );
+            SlashLib(client, isMod, admin, interaction);
+        } catch (error) {
+            console.error('Error al ejecutar el comando de barra:', error);
+        }
+    }
+    else {
+        ManageInteraction(client, interaction);
+    }
 });
 
 

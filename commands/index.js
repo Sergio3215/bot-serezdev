@@ -217,4 +217,5 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
 module.exports = {
     checkServer,
     commands,
+    setMetric
 };
