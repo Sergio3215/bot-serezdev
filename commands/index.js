@@ -1,6 +1,8 @@
-const { Server, SettingWelcome, MetricCommands } = require("../db/index.js");
+const { Server, SettingWelcome, MetricCommands, ContadorCommand } = require("../db/index.js");
 const LibsCommands = require("./lib.js");
 const { Rules } = require("./rules.js");
+
+const contador_command = new ContadorCommand();
 
 const ServerDb = new Server();
 let libCommands = new LibsCommands();
@@ -37,9 +39,14 @@ const setMetric = async (command, msg) => {
 const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster, createCharacter) => {
 
 
+    const ruleContador = await contador_command.GetById(msg.guild.id);
     //Set Rules
 
     Rules(msg);
+
+    if (ruleContador.length !== 0) {
+        if (ruleContador[0].channelId === msg.channel.id) return;
+    }
 
     // Set Commands
 
