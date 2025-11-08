@@ -69,7 +69,7 @@ const Rules = async (msg) => {
         }
     }
 
-    if (msg.channel.name.includes('anuncio') || msg.channel.name.includes('stream')) {
+    if (msg.channel.name.includes('anuncio') || msg.channel.name.includes('stream') || msg.channel.name.includes('twitch')|| msg.channel.name.includes('tiktok')|| msg.channel.name.includes('kick')) {
         return;
     }
 
