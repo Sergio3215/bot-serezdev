@@ -67,6 +67,7 @@ const Rules = async (msg) => {
             } catch (error) {
                 console.log("Error en la regla del contador de comandos:", error.message);
                 await msg.delete();
+                return;
             }
         }
     }
