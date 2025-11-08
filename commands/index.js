@@ -48,6 +48,11 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         if (ruleContador[0].channelId === msg.channel.id) return;
     }
 
+    
+    if (msg.channel.name.includes('anuncio') || msg.channel.name.includes('stream') || msg.channel.name.includes('twitch')|| msg.channel.name.includes('tiktok')|| msg.channel.name.includes('kick')) {
+        return;
+    }
+
     // Set Commands
 
     if (msg.content.includes('!comandos')) {
