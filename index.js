@@ -6,6 +6,7 @@ const { Server, SettingWelcome } = require('./db/index.js');
 const { ManageInteraction } = require('./interaction/index.js');
 const { SlashCommands } = require('./slash command/index.js');
 const { SlashLib } = require('./slash command/lib.js');
+const { LibAutocomplete } = require('./slash command/lib-autocomplete.js');
 require('dotenv').config();
 const token = process.env.token;
 
@@ -55,26 +56,37 @@ client.on('messageCreate', async (msg) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-    // console.log('Comando de barra invocado:', interaction.commandName);
-    // console.log('Comando invocado:', interaction.isChatInputCommand());
-    if (interaction.isChatInputCommand() ||
-        interaction.isUserContextMenuCommand() ||
-        interaction.isMessageContextMenuCommand()) {
-        try {
-            let admin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator),
-                isMod = interaction.member.permissions.has(
-                    PermissionsBitField.Flags.KickMembers,
-                    PermissionsBitField.Flags.BanMembers,
-                    PermissionsBitField.Flags.ManageMessages,
-                    PermissionsBitField.Flags.ManageChannels
-                );
-            SlashLib(client, isMod, admin, interaction);
-        } catch (error) {
-            console.error('Error al ejecutar el comando de barra:', error);
+    try {
+        let admin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator),
+            isMod = interaction.member.permissions.has(
+                PermissionsBitField.Flags.KickMembers,
+                PermissionsBitField.Flags.BanMembers,
+                PermissionsBitField.Flags.ManageMessages,
+                PermissionsBitField.Flags.ManageChannels
+            );
+        // console.log('Comando de barra invocado:', interaction.commandName);
+        // console.log('Comando invocado:', interaction.isChatInputCommand());
+        if (interaction.isChatInputCommand() ||
+            interaction.isUserContextMenuCommand() ||
+            interaction.isMessageContextMenuCommand()) {
+            console.log('Comando chat  invocado:', interaction.isChatInputCommand());
+            try {
+                SlashLib(client, isMod, admin, interaction);
+            } catch (error) {
+                console.error('Error al ejecutar el comando de barra:', error);
+            }
         }
-    }
-    else {
-        ManageInteraction(client, interaction);
+
+        if (interaction.isButton() || interaction.isSelectMenu()) {
+            ManageInteraction(client, interaction);
+        }
+
+        if (interaction.isAutocomplete()) {
+            LibAutocomplete(client, interaction, isMod, admin);
+        }
+
+    } catch (error) {
+        console.error('Error al manejar la interacción:', error);
     }
 });
 

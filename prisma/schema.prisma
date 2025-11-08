@@ -77,3 +77,13 @@ model MetricCommands {
   numberUsed  Int
   commandUsed String
 }
+
+model ContadorCommand{
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId    String  @unique
+  serverName  String
+  channelId   String  
+  count       Int     @default(0)
+  modifiedBy  String
+  modifiedOn  DateTime @default(now())
+}

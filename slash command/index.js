@@ -3,11 +3,7 @@ const { SlashCommandBuilder, REST, Routes, ContextMenuCommandBuilder, Applicatio
 function SlashCommands(client) {
 
     const commands = [
-        {
-            data: new SlashCommandBuilder()
-                .setName('ping')
-                .setDescription('Responde pong!')
-        },
+        //------- CONTEXT SLASH COMMANDS -------
         {
             data: new SlashCommandBuilder()
                 .setName('server')
@@ -18,6 +14,18 @@ function SlashCommands(client) {
                 .setName('comandos')
                 .setDescription('Muestra los comandos disponibles.')
         },
+        {
+            data: new SlashCommandBuilder()
+                .setName('contador')
+                .setDescription('Establece el contador para un canal específico. Y a disfrutar!')
+                .addStringOption(opt => {
+                    return opt.setName('canal')
+                        .setDescription('Canal donde se establecerá el contador')
+                        .setRequired(true)
+                        .setAutocomplete(true);
+                }),
+        },
+
         // ---- CONTEXT MENU: USER (aparece en Apps al click derecho sobre un usuario)
         {
             data: new ContextMenuCommandBuilder()

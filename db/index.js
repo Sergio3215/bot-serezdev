@@ -366,6 +366,46 @@ class MetricCommands {
     }
 }
 
+class ContadorCommand {
+    constructor() {
+
+    }
+
+    async Create(option) {
+        await prisma.ContadorCommand.create({
+            data: {
+                serverId: option.serverId,
+                serverName: option.serverName,
+                modifiedBy: option.modifiedBy,
+                channelId: option.channelId,
+            }
+
+        });
+    }
+
+    async Update(serverId, option) {
+        await prisma.ContadorCommand.update({
+            where: {
+                serverId: serverId,
+            },
+            data: {
+                count: option.count,
+                channelId: option.channelId,
+                modifiedBy: option.modifiedBy,
+                modifiedOn: new Date(),
+            }
+        });
+    }
+
+    async GetById(serverId) {
+        return await prisma.ContadorCommand.findMany({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+}
+
 module.exports = {
     Server,
     buttonFollowing,
@@ -374,5 +414,6 @@ module.exports = {
     setTicket,
     statusTicket,
     Ticket,
-    MetricCommands
+    MetricCommands,
+    ContadorCommand
 };

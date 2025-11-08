@@ -1,4 +1,4 @@
-const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket } = require("../db/index.js");
+const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { generateImage } = require("../openaiScript.js");
 
@@ -6,6 +6,7 @@ const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
 const acept_rules = new aceptRules();
 const set_ticket = new setTicket();
+const contador_command = new ContadorCommand();
 
 class LibsCommands {
 
@@ -1417,6 +1418,36 @@ Carisma: ${estadisticas.carisma}`)
             // msg.reply(`<@${memberOne.user.id}>`);
         } catch (error) {
             await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+        }
+    }
+
+
+    async ContadorCommand(client, msg){
+        try {
+            const dataExisted = await contador_command.GetById(msg.guild.id);
+            console.log(dataExisted, msg.options._hoistedOptions[0].value);
+
+            if(dataExisted.length == 0){
+                const newData = {
+                    serverId: msg.guild.id,
+                    serverName: msg.guild.name,
+                    modifiedBy: '',
+                    channelId: msg.options._hoistedOptions[0].value,
+                };
+                await contador_command.Create(newData);
+               await msg.reply("Canal de contador de comandos establecido correctamente.");
+            }
+            else {
+                const updateData = {
+                    channelId: msg.options._hoistedOptions[0].value,
+                    modifiedBy: dataExisted[0].modifiedBy,
+                    count: dataExisted[0].count,
+                };
+                await contador_command.Update(msg.guild.id, updateData);
+                await msg.reply("Canal de contador de comandos actualizado correctamente.");
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 
