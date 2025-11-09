@@ -404,6 +404,10 @@ class ContadorCommand {
             }
         });
     }
+
+    async Get(){
+        return await prisma.ContadorCommand.findMany();
+    }
 }
 
 module.exports = {

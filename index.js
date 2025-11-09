@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js')
 const { Consulting } = require('./gemini');
 const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
-const { Server, SettingWelcome } = require('./db/index.js');
+const { Server, SettingWelcome, ContadorCommand } = require('./db/index.js');
 const { ManageInteraction } = require('./interaction/index.js');
 const { SlashCommands } = require('./slash command/index.js');
 const { SlashLib } = require('./slash command/lib.js');
@@ -13,6 +13,7 @@ const token = process.env.token;
 
 const ServerDb = new Server();
 const settingWelcome = new SettingWelcome();
+const counterDb = new ContadorCommand();
 
 const client = new Client({
     intents: [
@@ -30,9 +31,33 @@ const client = new Client({
     ]
 });
 
+//Send the message
+async function sendMessage() {
+    const count = await counterDb.Get();
+    count.map(async co => {
+        const lastDay = Math.floor((new Date() - co.modifiedOn) / (1000 * 60 * 60 * 24));
+
+        if (lastDay >= 30) {
+            const updateData = {
+                channelId: co.channelId,
+                modifiedBy: '',
+                count: 0,
+            };
+            await contador_command.Update(co.serverId, updateData);
+
+            await msg.channel.send("Se ha terminado la racha del contador por inactividad de 30 dias.");
+        }
+    });
+}
+
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     SlashCommands(client);
+
+    let dayMillseconds = 3600000 * 24;
+    setInterval(function () {
+        sendMessage();
+    }, dayMillseconds);
 });
 
 client.on('messageCreate', async (msg) => {

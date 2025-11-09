@@ -20,6 +20,7 @@ const Rules = async (msg) => {
     // Rule para el contador de comandos
     const ruleContador = await contador_command.GetById(msg.guild.id);
     if (ruleContador.length !== 0) {
+
         if (ruleContador[0].channelId === msg.channel.id) {
             try {
                 let number = parseInt(msg.content);
