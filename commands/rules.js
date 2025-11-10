@@ -1,6 +1,8 @@
 const { ContadorCommand } = require("../db");
+const LibsCommands = require("./lib");
 
 const contador_command = new ContadorCommand();
+const lib = new LibsCommands();
 
 const Rules = async (msg) => {
 
@@ -16,6 +18,8 @@ const Rules = async (msg) => {
             }
         }
     }
+
+    const streakTime = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300];
 
     // Rule para el contador de comandos
     const ruleContador = await contador_command.GetById(msg.guild.id);
@@ -60,6 +64,13 @@ const Rules = async (msg) => {
                             count: ruleContador[0].count + 1,
                         };
                         await contador_command.Update(msg.guild.id, updateData);
+
+                        streakTime.forEach(async (strk) => {
+                            if (number === strk) {
+                                const messageStrk = `¡Racha de ${strk} números Desbloqueado! 🎉`;
+                                lib.StreakCounter(msg, messageStrk);
+                            }
+                        });
                     }
                 }
 

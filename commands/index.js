@@ -223,6 +223,12 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.Pareja(client, msg);
         setMetric("!pareja", msg);
     }
+
+
+    //test 
+    if (msg.content.toLowerCase().includes("!test")) {
+        libCommands.Test(client, msg);
+    }
 }
 
 

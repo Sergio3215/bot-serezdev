@@ -1422,12 +1422,12 @@ Carisma: ${estadisticas.carisma}`)
     }
 
 
-    async ContadorCommand(client, msg){
+    async ContadorCommand(client, msg) {
         try {
             const dataExisted = await contador_command.GetById(msg.guild.id);
             console.log(dataExisted, msg.options._hoistedOptions[0].value);
 
-            if(dataExisted.length == 0){
+            if (dataExisted.length == 0) {
                 const newData = {
                     serverId: msg.guild.id,
                     serverName: msg.guild.name,
@@ -1435,7 +1435,7 @@ Carisma: ${estadisticas.carisma}`)
                     channelId: msg.options._hoistedOptions[0].value,
                 };
                 await contador_command.Create(newData);
-               await msg.reply("Canal de contador de comandos establecido correctamente.");
+                await msg.reply("Canal de contador de comandos establecido correctamente.");
             }
             else {
                 const updateData = {
@@ -1449,6 +1449,37 @@ Carisma: ${estadisticas.carisma}`)
         } catch (error) {
             console.log(error);
         }
+    }
+
+    async StreakCounter(msg, txt) {
+        let color = this.#ColorRandom(Colors);
+
+        const prompt = `Un solo monstruo coleccionable estilo anime chibi kawaii, completamente visible y centrado en la imagen.
+No agregues texto, marcos, bordes, fichas, íconos, ni otras criaturas.
+Fondo simple o degradado suave.
+El monstruo debe tener colores vibrantes y detalles llamativos, con una expresión tierna adorable que enamore al verlo.
+Diseño único y diferente en cada generación, nunca repetir el arte.
+Formato 16:9, alta resolución, enfoque limpio solo en el monstruo.
+Que sea wallpaper para el celular o computadora.
+        `;
+
+        const img = await generateImage(prompt);
+
+        const embed = new EmbedBuilder()
+            .setTitle(txt)
+            // .setDescription("list of all commands")
+            .setColor(color)
+            .setImage(img.data[0].url)
+
+        await msg.reply({
+            content: `¡<@${msg.author.id}> ha desbloqueado un wallpaper exclusivo! (Generado por IA)`,
+            embeds: [embed]
+        });
+    }
+
+    async Test(client, msg) {
+        // this.StreakCounter(msg, `¡Racha de ${20} números Desbloqueado! 🎉`);
+        return;
     }
 
 }
