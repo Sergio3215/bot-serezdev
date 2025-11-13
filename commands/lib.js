@@ -72,20 +72,34 @@ class LibsCommands {
     }
 
     async #PersonaRandom(client, msg) {
+
+        let letter = 'a';
+        let arrLetter = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+
+        letter = arrLetter[Math.floor(Math.random() * arrLetter.length)];
+        console.log(letter);
+
         const guild = await client.guilds.cache.get(msg.guild.id);
-        let member = await guild.members.fetch();
-        // console.log(member);
-        let tempArr = [];
-        member.map(m => {
-            tempArr.push(m);
-        })
+        // console.log(guild);
+        let member = await guild.members.search({ query: letter, limit: 100 });
+        console.log(member.size);
 
-        let oneMember = Math.floor(Math.random() * tempArr.length);
+        if (member.size !== 0) {
+            let tempArr = [];
+            member.filter(m => m.user.globalName !== null).map(m => {
+                tempArr.push(m);
+            })
 
-        // console.log(tempArr[oneMember].nickname);
-        // console.log(tempArr[oneMember].user.globalName);
+            let oneMember = Math.floor(Math.random() * tempArr.length);
 
-        return tempArr[oneMember]
+            // console.log(tempArr[oneMember].nickname);
+            // console.log(tempArr[oneMember].user.globalName);
+
+            return tempArr[oneMember]
+        }
+        else {
+            return this.#PersonaRandom(client, msg);
+        }
     }
 
     async MeMide(msg) {
@@ -1358,7 +1372,7 @@ Carisma: ${estadisticas.carisma}`)
     async Pareja(client, msg) {
         try {
             let memberOne = await this.#PersonaRandom(client, msg);
-            // console.log(memberOne)
+            console.log(memberOne.user.globalName)
 
             let seccionRand = Math.floor(Math.random() * 3);
 
@@ -1397,9 +1411,9 @@ Carisma: ${estadisticas.carisma}`)
             let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
             let reciverName = (reciver.nickname == null) ? reciver.user.globalName : reciver.nickname;
 
-            if (reciverName == "null" || reciverName == null) {
-                return this.Pareja(client, msg, EmbedBuilder, Colors);
-            }
+            // if (reciverName == "null" || reciverName == null) {
+            //     return this.Pareja(client, msg, EmbedBuilder, Colors);
+            // }
 
             // console.log(reciverName);
 
@@ -1417,7 +1431,8 @@ Carisma: ${estadisticas.carisma}`)
 
             // msg.reply(`<@${memberOne.user.id}>`);
         } catch (error) {
-            await msg.reply("Necesitas etiquetar a un amigo o usuario del servidor");
+            console.log(error);
+            await msg.reply("Error al buscar pareja, intenta de nuevo.");
         }
     }
 
