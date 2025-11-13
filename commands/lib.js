@@ -83,10 +83,16 @@ class LibsCommands {
         // console.log(guild);
         let member = await guild.members.search({ query: letter, limit: 100 });
         console.log(member.size);
+        console.log(member.filter(m => m.user.bot !== true));
 
         if (member.size !== 0) {
             let tempArr = [];
-            member.filter(m => m.user.globalName !== null).map(m => {
+            member.filter(m => m.user.bot !== true).map(m => {
+
+                if(m.user.globalName == null){
+                    m.user.globalName = m.user.username;
+                }
+
                 tempArr.push(m);
             })
 
