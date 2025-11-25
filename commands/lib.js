@@ -77,13 +77,13 @@ class LibsCommands {
         let arrLetter = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
 
         letter = arrLetter[Math.floor(Math.random() * arrLetter.length)];
-        console.log(letter);
+        // console.log(letter);
 
         const guild = await client.guilds.cache.get(msg.guild.id);
         // console.log(guild);
         let member = await guild.members.search({ query: letter, limit: 100 });
-        console.log(member.size);
-        console.log(member.filter(m => m.user.bot !== true));
+        // console.log(member.size);
+        // console.log(member.filter(m => m.user.bot !== true));
 
         if (member.size !== 0) {
             let tempArr = [];
@@ -1378,7 +1378,7 @@ Carisma: ${estadisticas.carisma}`)
     async Pareja(client, msg) {
         try {
             let memberOne = await this.#PersonaRandom(client, msg);
-            console.log(memberOne.user.globalName)
+            // console.log(memberOne.user.globalName)
 
             let seccionRand = Math.floor(Math.random() * 3);
 
