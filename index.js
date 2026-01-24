@@ -61,6 +61,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (msg) => {
+    console.log(`Message received: ${msg.content} from ${msg.guild.name}`);
     try {
         checkServer(msg.guild);
         let admin = false;

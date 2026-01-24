@@ -405,8 +405,85 @@ class ContadorCommand {
         });
     }
 
-    async Get(){
+    async Get() {
         return await prisma.ContadorCommand.findMany();
+    }
+}
+
+class BirthdaySetup {
+    constructor() {
+
+    }
+
+    async Create(option) {
+        await prisma.BirthdaySetUp.create({
+            data: {
+                serverId: option.serverId,
+                serverName: option.serverName,
+                channelId: option.channelId,
+            }
+
+        });
+    }
+
+    async Update(serverId, option) {
+        await prisma.BirthdaySetUp.update({
+            where: {
+                serverId: serverId,
+            },
+            data: {
+                channelId: option.channelId,
+            }
+        });
+    }
+
+    async GetById(serverId) {
+        return await prisma.BirthdaySetUp.findMany({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+}
+
+class Birthday {
+    constructor() {
+
+    }
+
+    async Create(option) {
+        await prisma.Birthday.create({
+            data: {
+                serverId: option.serverId,
+                serverName: option.serverName,
+                userId: option.userId,
+                age: option.age == "" ? 0 : parseInt(option.age),
+                day: option.day,
+                month: option.month,
+            }
+
+        });
+    }
+
+    async Update(serverId, option) {
+        await prisma.Birthday.update({
+            where: {
+                serverId: serverId,
+            },
+            data: {
+                age: option.age == "" ? 0 : parseInt(option.age),
+                day: option.day,
+                month: option.month,
+            }
+        });
+    }
+
+    async GetById(serverId) {
+        return await prisma.Birthday.findMany({
+            where: {
+                serverId: serverId,
+            }
+        });
     }
 }
 
@@ -419,5 +496,7 @@ module.exports = {
     statusTicket,
     Ticket,
     MetricCommands,
-    ContadorCommand
+    ContadorCommand,
+    BirthdaySetup,
+    Birthday
 };

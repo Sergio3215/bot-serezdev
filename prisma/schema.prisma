@@ -71,19 +71,36 @@ model setTicket {
 }
 
 model MetricCommands {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  serverId    String  
-  serverName    String  
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  serverId    String
+  serverName  String
   numberUsed  Int
   commandUsed String
 }
 
-model ContadorCommand{
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  serverId    String  @unique
-  serverName  String
-  channelId   String  
-  count       Int     @default(0)
-  modifiedBy  String
-  modifiedOn  DateTime @default(now())
+model ContadorCommand {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  serverId   String   @unique
+  serverName String
+  channelId  String
+  count      Int      @default(0)
+  modifiedBy String
+  modifiedOn DateTime @default(now())
+}
+
+model BirthdaySetUp {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  serverId   String @unique
+  serverName String
+  channelId  String
+}
+
+model Birthday {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  serverId   String @unique
+  serverName String
+  userId     String
+  age        Int    @default(0)
+  day        String
+  month      String
 }

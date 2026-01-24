@@ -196,18 +196,22 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.Saludar(client, msg);
         setMetric("!hi", msg);
     }
+    
     if (msg.content.toLowerCase().includes("!bye")) {
         libCommands.Despedirse(client, msg);
         setMetric("!bye", msg);
     }
+
     if (msg.content.toLowerCase().includes("!fc")) {
         libCommands.FelizCumple(client, msg);
         setMetric("!fc", msg);
     }
+
     if (msg.content.toLowerCase().includes("!choquelos5")) {
         libCommands.Choca5(client, msg);
         setMetric("!choquelos5", msg);
     }
+
     if (msg.content.toLowerCase().includes("!enojarse")) {
         libCommands.Enojar(client, msg);
         setMetric("!enojarse", msg);

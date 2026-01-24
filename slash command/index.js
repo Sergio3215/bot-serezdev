@@ -25,6 +25,36 @@ function SlashCommands(client) {
                         .setAutocomplete(true);
                 }),
         },
+        {
+            data: new SlashCommandBuilder()
+                .setName('setup-birthday')
+                .setDescription('Configuración para los cumpleaños en el canal.')
+                .addStringOption(opt => {
+                    return opt.setName('mensaje-personalizado')
+                        .setDescription('Mensaje de cumpleaños personalizado. variables que se pueden usar: $nombre $edad')
+                        .setRequired(false)
+                })
+        },
+        {
+            data: new SlashCommandBuilder()
+                .setName('birthday')
+                .setDescription('Añade tu cumpleaños.')
+                .addStringOption(opt => {
+                    return opt.setName('dia')
+                        .setDescription('Dia de tu cumpleaños')
+                        .setRequired(true)
+                })
+                .addStringOption(opt => {
+                    return opt.setName('mes')
+                        .setDescription('Mes de tu cumpleaños')
+                        .setRequired(true)
+                })
+                .addStringOption(opt => {
+                    return opt.setName('edad')
+                        .setDescription('Edad de tu cumpleaños')
+                        .setRequired(false)
+                })
+        },
 
         // ---- CONTEXT MENU: USER (aparece en Apps al click derecho sobre un usuario)
         {
