@@ -64,8 +64,9 @@ client.on('ready', () => {
     }, dayMillseconds);
 
     let date = new Date();
+    console.log(date.getHours(), date.getMinutes());
 
-    if (date.getHours() == 2 && date.getMinutes() == 20) {
+    if (date.getHours() == 5 && date.getMinutes() == 24) {
         library.birthday_runtime(client);
     }
 
