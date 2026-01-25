@@ -434,6 +434,7 @@ class BirthdaySetup {
             },
             data: {
                 channelId: option.channelId,
+                message: option.message
             }
         });
     }

@@ -81,10 +81,10 @@ class RUNTIME_BOT {
     async birthday_runtime(client) {
         // const bd_servers = await birthday_setup.Get();
 
-        bd_servers.map(async (bds) => {
-            // const guild = await client.guilds.fetch(bds.serverId);
-            console.log(guild);
-        })
+        // bd_servers.map(async (bds) => {
+        //     const guild = await client.guilds.fetch(bds.serverId);
+        //     console.log(guild);
+        // })
 
 
     }

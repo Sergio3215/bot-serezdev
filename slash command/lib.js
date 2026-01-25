@@ -103,6 +103,7 @@ const BirthdayLib = async (client, interaction) => {
 
 const SetupBirthdays = async (client, interaction) => {
     let message = interaction.options.getString('mensaje-personalizado');
+    console.log(message)
     if (message == "" || message == null || message == undefined) {
         message = "$nombre Felicidades por cumplir años🎉, los $edad son bastantes. Que cumplas muchos mas. ¡Pasala muy bonito con tus seres queridos!🎉";
     }
@@ -115,10 +116,12 @@ const SetupBirthdays = async (client, interaction) => {
 
         if (bd.length > 0) {
 
-            const channel = await interaction.guild.channels.fetch(bd[0].channelId).catch(() => null);
+            let channelId = bd[0].channelId;
+
+            const chnl = await interaction.guild.channels.fetch(bd[0].channelId).catch(() => null);
 
             //crear canal si no existe
-            if (!channel) {
+            if (!chnl) {
                 const { channel } = await lib.CreateChannelWithCategory(interaction, '🎂Feliz Cumpleaños🎂', '🎂Mensajes de cumpleaños🎂', 'Canal para recibir la felicitación de cumpleaños de los usuarios', 'Creación de la categoría de cumpleaños', 'Creación del canal de cumpleaños', [
                     {
                         id: guild.id,
@@ -126,13 +129,14 @@ const SetupBirthdays = async (client, interaction) => {
                     },
                 ], ChannelType.GuildText, ChannelType.GuildCategory);
 
-                await birthday_setup.Update(guild.id, {
-                    channelId: channel.id,
-                });
+                channelId = channel.id;
+
             }
 
+            console.log(message)
             //Si existe el canal solo guardar el mensaje
             await birthday_setup.Update(guild.id, {
+                channelId: channelId,
                 message: message,
             });
 
