@@ -47,7 +47,7 @@ async function SlashLib(client, isMod, isAdmin, interaction) {
 const BirthdayLib = async (client, interaction) => {
     const day = interaction.options.getString('dia');
     const month = interaction.options.getString('mes');
-    const age = interaction.options.getString('edad');
+    let age = interaction.options.getString('edad');
     const user = interaction.user;
 
     if (age == '' || age == null || age == undefined) {
