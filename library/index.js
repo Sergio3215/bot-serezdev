@@ -79,14 +79,30 @@ class RUNTIME_BOT {
     }
 
     async birthday_runtime(client) {
-        // const bd_servers = await birthday_setup.Get();
+        const bd_servers = await birthday_setup.Get();
 
-        // bd_servers.map(async (bds) => {
-        //     const guild = await client.guilds.fetch(bds.serverId);
-        //     console.log(guild);
-        // })
-
-
+        bd_servers.map(async (bds) => {
+            const guild = await client.guilds.fetch(bds.serverId);
+            // console.log(typeof (guild));
+            let users = await birthday.GetById(guild.id);
+            console.log(users);
+            users.map(async (user) => {
+                console.log('start');
+                const { day, month, userId, age } = user;
+                const dateUser = new Date(`2025-${month}-${day}T00:00:00Z`);
+                const date = new Date();
+                console.log(dateUser.getDate() + 1, date.getDate());
+                if (dateUser.getDate() + 1 == date.getDate() && dateUser.getMonth() == date.getMonth()) {
+                    // const member = await guild.members.fetch(userId);
+                    const channel = await guild.channels.fetch(bds.channelId);
+                    channel.send(bds.message.replace('$nombre', ` <@${userId}> `).replace('$edad', age == 0 ? '**' : age));
+                    console.log(bds);
+                }
+                else {
+                    console.log('not match')
+                }
+            })
+        })
     }
 }
 
