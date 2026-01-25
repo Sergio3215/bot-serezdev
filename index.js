@@ -9,6 +9,8 @@ const { SlashLib } = require('./slash command/lib.js');
 const { LibAutocomplete } = require('./slash command/lib-autocomplete.js');
 const { RUNTIME_BOT } = require('./library/index.js');
 
+const { CronJob } = require('cron');
+
 require('dotenv').config();
 const token = process.env.token;
 
@@ -65,15 +67,27 @@ client.on('ready', async () => {
 
     let date = new Date();
 
-    setTimeout(function () {
-        let dayMillseconds = 60000
-        setInterval(function () {
-            if (date.getHours() == 6 && date.getMinutes() == 15) {
-                console.log('Start runtime');
-                library.birthday_runtime(client);
-            }
-        }, dayMillseconds)
-    }, 2000)
+    // setTimeout(function () {
+    //     let dayMillseconds = 60000
+    //     setInterval(function () {
+    //         if (date.getHours() == 6 && date.getMinutes() == 15) {
+    //             console.log('Start runtime');
+    //             library.birthday_runtime(client);
+    //         }
+    //     }, dayMillseconds)
+    // }, 2000)
+
+
+    const cron = new CronJob('0 */1 * * * *',
+        () => {
+            // if (date.getHours() == 3 && date.getMinutes() == 43) {
+            console.log('Start runtime');
+            library.birthday_runtime(client);
+            // }
+        },
+        null,
+        true,
+        'America/Argentina/Buenos_Aires');
 
 
 
