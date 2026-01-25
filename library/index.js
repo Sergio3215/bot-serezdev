@@ -80,6 +80,7 @@ class RUNTIME_BOT {
 
     async birthday_runtime(client) {
         const bd_servers = await birthday_setup.Get();
+        console.log("Start runtime");
 
         bd_servers.map(async (bds) => {
             const guild = await client.guilds.fetch(bds.serverId);
