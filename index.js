@@ -65,7 +65,7 @@ client.on('ready', async () => {
 
     let date = new Date();
 
-    if (date.getHours() == 5 && date.getMinutes() == 59) {
+    if (date.getHours() == 6 && date.getMinutes() == 8) {
         console.log('Start runtime');
         await library.birthday_runtime(client);
     }
