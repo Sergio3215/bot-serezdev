@@ -7,6 +7,7 @@ let libCommands = new LibsCommands();
 
 let birthday_setup = new BirthdaySetup();
 let birthday = new Birthday();
+let lib = new Library();
 
 async function SlashLib(client, isMod, isAdmin, interaction) {
 
@@ -105,31 +106,13 @@ const SetupBirthdays = async (client, interaction) => {
 
             //crear canal si no existe
             if (!channel) {
-                const category = await interaction.guild.channels.create({
-                    name: '🎂Feliz Cumpleaños🎂',
-                    type: ChannelType.GuildCategory,
-                    permissionOverwrites: [
-                        {
-                            id: guild.id,
-                            deny: [PermissionFlagsBits.SendMessages],
-                        },
-                    ],
-                    reason: 'Creación de la categoría de cumpleaños',
-                });
+                const { channel } = await lib.CreateChannelWithCategory(interaction, '🎂Feliz Cumpleaños🎂', '🎂Mensajes de cumpleaños🎂', 'Canal para recibir la felicitación de cumpleaños de los usuarios', 'Creación de la categoría de cumpleaños', 'Creación del canal de cumpleaños', [
+                    {
+                        id: guild.id,
+                        deny: [PermissionFlagsBits.SendMessages],
+                    },
+                ], ChannelType.GuildText);
 
-                const channel = await interaction.guild.channels.create({
-                    name: '🎂Mensajes de cumpleaños🎂',
-                    type: ChannelType.GuildText,
-                    parent: category.id,
-                    topic: 'Canal para recibir la felicitación de cumpleaños de los usuarios',
-                    permissionOverwrites: [
-                        {
-                            id: guild.id,
-                            deny: [PermissionFlagsBits.SendMessages],
-                        },
-                    ],
-                    reason: 'Creación del canal de cumpleaños',
-                });
                 await birthday_setup.Update(guild.id, {
                     channelId: channel.id,
                 });
@@ -144,31 +127,12 @@ const SetupBirthdays = async (client, interaction) => {
         }
         else {
 
-            const category = await interaction.guild.channels.create({
-                name: '🎂Feliz Cumpleaños🎂',
-                type: ChannelType.GuildCategory,
-                permissionOverwrites: [
-                    {
-                        id: guild.id,
-                        deny: [PermissionFlagsBits.SendMessages],
-                    },
-                ],
-                reason: 'Creación de la categoría de cumpleaños',
-            });
-
-            const channel = await interaction.guild.channels.create({
-                name: '🎂Mensajes de cumpleaños🎂',
-                type: ChannelType.GuildText,
-                parent: category.id,
-                topic: 'Canal para recibir la felicitación de cumpleaños de los usuarios',
-                permissionOverwrites: [
-                    {
-                        id: guild.id,
-                        deny: [PermissionFlagsBits.SendMessages],
-                    },
-                ],
-                reason: 'Creación del canal de cumpleaños',
-            });
+            const { channel } = await lib.CreateChannelWithCategory(interaction, '🎂Feliz Cumpleaños🎂', '🎂Mensajes de cumpleaños🎂', 'Canal para recibir la felicitación de cumpleaños de los usuarios', 'Creación de la categoría de cumpleaños', 'Creación del canal de cumpleaños', [
+                {
+                    id: guild.id,
+                    deny: [PermissionFlagsBits.SendMessages],
+                },
+            ], ChannelType.GuildText);
 
             birthday_setup.Create({
                 serverId: guild.id,
@@ -185,7 +149,6 @@ const SetupBirthdays = async (client, interaction) => {
         console.log(error);
         await interaction.reply({ content: 'No se pudo crear el canal de cumpleaños.' });
     }
-
 
 }
 
