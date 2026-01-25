@@ -12,7 +12,7 @@ class Library {
      * @param {Array} permissionOverwrites 
      * @param {*} typeChannel 
      * @param {*} category 
-     * @returns 
+     * @returns channel
      */
     async CreateChannel(interaction, titleChannel, reason, topic, permissionOverwrites, typeChannel, category) {
 
@@ -41,7 +41,7 @@ class Library {
      * @param {String} topic 
      * @param {Array} permissionOverwrites 
      * @param {*} typeChannel 
-     * @returns 
+     * @returns channel, category
      */
 
     async CreateChannelWithCategory(interaction, titleCategory, titleChannel, reasonChannel, reasonCategory, topic, permissionOverwrites, typeChannel) {

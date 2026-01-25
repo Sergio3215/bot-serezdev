@@ -2,6 +2,7 @@ const { setMetric } = require("../commands");
 const LibsCommands = require("../commands/lib");
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
 const { BirthdaySetup, Birthday } = require("../db");
+const { Library } = require("../library");
 
 let libCommands = new LibsCommands();
 
