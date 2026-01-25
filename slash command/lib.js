@@ -5,6 +5,9 @@ const { BirthdaySetup, Birthday } = require("../db");
 
 let libCommands = new LibsCommands();
 
+let birthday_setup = new BirthdaySetup();
+let birthday = new Birthday();
+
 async function SlashLib(client, isMod, isAdmin, interaction) {
 
     // console.log('Comando de barra invocado:', interaction.commandName);
@@ -48,12 +51,12 @@ const BirthdayLib = async (client, interaction) => {
     const user = interaction.user;
 
     try {
-        const bd = await Birthday.GetById(interaction.guild.id);
+        const bd = await birthday.GetById(interaction.guild.id);
 
         const usr = bd.filter(usr => usr.userId == user.id)
 
         if (usr.length == 0) {
-            await Birthday.Create({
+            await birthday.Create({
                 serverId: interaction.guild.id,
                 serverName: interaction.guild.name,
                 userId: user.id,
@@ -65,7 +68,7 @@ const BirthdayLib = async (client, interaction) => {
             await interaction.reply({ content: 'Se ha agregado tu cumpleaños.' });
         }
         else {
-            await Birthday.Update(interaction.guild.id, {
+            await birthday.Update(interaction.guild.id, {
                 day: day,
                 month: month,
                 age: age,
@@ -82,46 +85,97 @@ const BirthdayLib = async (client, interaction) => {
 
 const SetupBirthdays = async (client, interaction) => {
     const message = interaction.options.getString('mensaje-personalizado');
-    if (message == "") {
+    if (message == "" || message == null || message == undefined) {
         message = "$nombre Felicidades por cumplir años🎉, los $edad son bastantes. Que cumplas muchos mas. ¡Pasala muy bonito con tus seres queridos!🎉";
     }
 
     const guild = interaction.guild;
 
     try {
-        const category = await interaction.guild.channels.create({
-            name: '🎂Feliz Cumpleaños🎂',
-            type: ChannelType.GuildCategory,
-            permissionOverwrites: [
-                {
-                    id: guild.id,
-                    deny: [PermissionFlagsBits.SendMessages],
-                },
-            ],
-            reason: 'Creación de la categoría de cumpleaños',
-        });
 
-        const channel = await interaction.guild.channels.create({
-            name: '🎂Mensajes de cumpleaños🎂',
-            type: ChannelType.GuildText,
-            parent: category.id,
-            topic: 'Canal para recibir la felicitación de cumpleaños de los usuarios',
-            permissionOverwrites: [
-                {
-                    id: guild.id,
-                    deny: [PermissionFlagsBits.SendMessages],
-                },
-            ],
-            reason: 'Creación del canal de cumpleaños',
-        });
+        const bd = await birthday_setup.GetById(guild.id);
 
-        BirthdaySetup.Create({
-            serverId: guild.id,
-            serverName: guild.name,
-            channelId: channel.id,
-        });
+        if (bd.length > 0) {
 
-        await interaction.reply({ content: `Se ha hecho la configuración correspondiente. El canal donde se agasajan los cumpleaños es ${channel.name}` });
+            const channel = await interaction.guild.channels.fetch(bd[0].channelId).catch(() => null);
+
+            //crear canal si no existe
+            if (!channel) {
+                const category = await interaction.guild.channels.create({
+                    name: '🎂Feliz Cumpleaños🎂',
+                    type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                        {
+                            id: guild.id,
+                            deny: [PermissionFlagsBits.SendMessages],
+                        },
+                    ],
+                    reason: 'Creación de la categoría de cumpleaños',
+                });
+
+                const channel = await interaction.guild.channels.create({
+                    name: '🎂Mensajes de cumpleaños🎂',
+                    type: ChannelType.GuildText,
+                    parent: category.id,
+                    topic: 'Canal para recibir la felicitación de cumpleaños de los usuarios',
+                    permissionOverwrites: [
+                        {
+                            id: guild.id,
+                            deny: [PermissionFlagsBits.SendMessages],
+                        },
+                    ],
+                    reason: 'Creación del canal de cumpleaños',
+                });
+                await birthday_setup.Update(guild.id, {
+                    channelId: channel.id,
+                });
+            }
+
+            //Si existe el canal solo guardar el mensaje
+            await birthday_setup.Update(guild.id, {
+                message: message,
+            });
+
+            await interaction.reply({ content: `Se ha hecho la configuración correspondiente.` });
+        }
+        else {
+
+            const category = await interaction.guild.channels.create({
+                name: '🎂Feliz Cumpleaños🎂',
+                type: ChannelType.GuildCategory,
+                permissionOverwrites: [
+                    {
+                        id: guild.id,
+                        deny: [PermissionFlagsBits.SendMessages],
+                    },
+                ],
+                reason: 'Creación de la categoría de cumpleaños',
+            });
+
+            const channel = await interaction.guild.channels.create({
+                name: '🎂Mensajes de cumpleaños🎂',
+                type: ChannelType.GuildText,
+                parent: category.id,
+                topic: 'Canal para recibir la felicitación de cumpleaños de los usuarios',
+                permissionOverwrites: [
+                    {
+                        id: guild.id,
+                        deny: [PermissionFlagsBits.SendMessages],
+                    },
+                ],
+                reason: 'Creación del canal de cumpleaños',
+            });
+
+            birthday_setup.Create({
+                serverId: guild.id,
+                serverName: guild.name,
+                channelId: channel.id,
+                message: message,
+            });
+            await interaction.reply({ content: `Se ha hecho la configuración correspondiente. El canal donde se agasajan los cumpleaños es ${channel.name}` });
+        }
+
+
 
     } catch (error) {
         console.log(error);

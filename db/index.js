@@ -421,6 +421,7 @@ class BirthdaySetup {
                 serverId: option.serverId,
                 serverName: option.serverName,
                 channelId: option.channelId,
+                message: option.message,
             }
 
         });
