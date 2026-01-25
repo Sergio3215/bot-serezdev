@@ -65,7 +65,7 @@ client.on('ready', () => {
 
     let date = new Date();
 
-    if (date.getHours() == 5 && date.getMinutes() == 34) {
+    if (date.getHours() == 5 && date.getMinutes() == 40) {
         library.birthday_runtime(client);
     }
 
