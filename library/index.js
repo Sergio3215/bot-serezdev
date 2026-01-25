@@ -85,7 +85,7 @@ class RUNTIME_BOT {
             const guild = await client.guilds.fetch(bds.serverId);
             // console.log(typeof (guild));
             let users = await birthday.GetById(guild.id);
-            console.log(users);
+            // console.log(users);
             users.map(async (user) => {
                 console.log('start');
                 const { day, month, userId, age } = user;
@@ -96,7 +96,7 @@ class RUNTIME_BOT {
                     // const member = await guild.members.fetch(userId);
                     const channel = await guild.channels.fetch(bds.channelId);
                     channel.send(bds.message.replace('$nombre', ` <@${userId}> `).replace('$edad', age == 0 ? '**' : age));
-                    console.log(bds);
+                    // console.log(bds);
                 }
                 else {
                     console.log('not match')
