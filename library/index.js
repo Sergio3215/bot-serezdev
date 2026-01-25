@@ -80,7 +80,6 @@ class RUNTIME_BOT {
 
     async birthday_runtime(client) {
         try {
-
             const bd_servers = await birthday_setup.Get();
 
             bd_servers.map(async (bds) => {
@@ -93,8 +92,13 @@ class RUNTIME_BOT {
                     const { day, month, userId, age } = user;
                     const dateUser = new Date(`2025-${month}-${day}T00:00:00Z`);
                     const date = new Date();
-                    console.log(dateUser.getDate() + 1, date.getDate());
-                    if (dateUser.getDate() + 1 == date.getDate() && dateUser.getMonth() == date.getMonth()) {
+                    const dev = process.env.DEV == 'TRUE';
+
+                    const dayUser = dev ? dateUser.getDate() + 1 : dateUser.getDate();
+
+                    console.log(dayUser, date.getDate());
+
+                    if (dayUser == date.getDate() && dateUser.getMonth() == date.getMonth()) {
                         // const member = await guild.members.fetch(userId);
                         const channel = await guild.channels.fetch(bds.channelId);
                         channel.send(bds.message.replace('$nombre', ` <@${userId}> `).replace('$edad', age == 0 ? '**' : age));

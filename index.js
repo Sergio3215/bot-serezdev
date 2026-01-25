@@ -78,7 +78,7 @@ client.on('ready', async () => {
     // }, 2000)
 
 
-    const cron = new CronJob('0 */1 * * * *',
+    const cron = new CronJob('0 0 0 * * *',
         () => {
             // if (date.getHours() == 3 && date.getMinutes() == 43) {
             console.log('Start runtime');
