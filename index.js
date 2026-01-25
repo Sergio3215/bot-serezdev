@@ -65,10 +65,17 @@ client.on('ready', async () => {
 
     let date = new Date();
 
-    if (date.getHours() == 6 && date.getMinutes() == 8) {
-        console.log('Start runtime');
-        await library.birthday_runtime(client);
-    }
+    setTimeout(function () {
+        let dayMillseconds = 60000
+        setInterval(function () {
+            if (date.getHours() == 6 && date.getMinutes() == 15) {
+                console.log('Start runtime');
+                library.birthday_runtime(client);
+            }
+        }, dayMillseconds)
+    }, 2000)
+
+
 
 });
 
