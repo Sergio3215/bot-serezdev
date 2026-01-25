@@ -7,8 +7,12 @@ const { ManageInteraction } = require('./interaction/index.js');
 const { SlashCommands } = require('./slash command/index.js');
 const { SlashLib } = require('./slash command/lib.js');
 const { LibAutocomplete } = require('./slash command/lib-autocomplete.js');
+const { RUNTIME_BOT } = require('./library/index.js');
+
 require('dotenv').config();
 const token = process.env.token;
+
+const library = new RUNTIME_BOT();
 
 
 const ServerDb = new Server();
@@ -58,6 +62,13 @@ client.on('ready', () => {
     setInterval(function () {
         sendMessage();
     }, dayMillseconds);
+
+    let date = new Date();
+
+    if (date.getHours() == 0 && date.getMinutes() == 55) {
+        library.birthday_runtime(client);
+    }
+
 });
 
 client.on('messageCreate', async (msg) => {

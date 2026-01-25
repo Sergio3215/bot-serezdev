@@ -1,3 +1,5 @@
+const { Birthday, BirthdaySetup } = require("../db");
+
 class Library {
     constructor() {
 
@@ -44,11 +46,11 @@ class Library {
      * @returns channel, category
      */
 
-    async CreateChannelWithCategory(interaction, titleCategory, titleChannel, reasonChannel, reasonCategory, topic, permissionOverwrites, typeChannel) {
+    async CreateChannelWithCategory(interaction, titleCategory, titleChannel, reasonChannel, reasonCategory, topic, permissionOverwrites, typeChannel, typeCategory) {
 
         const category = await interaction.guild.channels.create({
             name: titleCategory,
-            type: ChannelType.GuildCategory,
+            type: typeCategory,
             permissionOverwrites: permissionOverwrites,
             reason: reasonCategory,
         });
@@ -69,6 +71,26 @@ class Library {
     }
 }
 
+const birthday = new Birthday();
+const birthday_setup = new BirthdaySetup();
+
+class RUNTIME_BOT {
+    constructor() {
+    }
+
+    async birthday_runtime(client) {
+        // const bd_servers = await birthday_setup.Get();
+
+        bd_servers.map(async (bds) => {
+            // const guild = await client.guilds.fetch(bds.serverId);
+            console.log(guild);
+        })
+
+
+    }
+}
+
 module.exports = {
-    Library
+    Library,
+    RUNTIME_BOT
 };

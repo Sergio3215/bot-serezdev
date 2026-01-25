@@ -102,7 +102,7 @@ const BirthdayLib = async (client, interaction) => {
 }
 
 const SetupBirthdays = async (client, interaction) => {
-    const message = interaction.options.getString('mensaje-personalizado');
+    let message = interaction.options.getString('mensaje-personalizado');
     if (message == "" || message == null || message == undefined) {
         message = "$nombre Felicidades por cumplir años🎉, los $edad son bastantes. Que cumplas muchos mas. ¡Pasala muy bonito con tus seres queridos!🎉";
     }
@@ -124,7 +124,7 @@ const SetupBirthdays = async (client, interaction) => {
                         id: guild.id,
                         deny: [PermissionFlagsBits.SendMessages],
                     },
-                ], ChannelType.GuildText);
+                ], ChannelType.GuildText, ChannelType.GuildCategory);
 
                 await birthday_setup.Update(guild.id, {
                     channelId: channel.id,
@@ -145,13 +145,13 @@ const SetupBirthdays = async (client, interaction) => {
                     id: guild.id,
                     deny: [PermissionFlagsBits.SendMessages],
                 },
-            ], ChannelType.GuildText);
+            ], ChannelType.GuildText, ChannelType.GuildCategory);
 
             birthday_setup.Create({
                 serverId: guild.id,
                 serverName: guild.name,
                 channelId: channel.id,
-                message: message,
+                message: message
             });
             await interaction.reply({ content: `Se ha hecho la configuración correspondiente. El canal donde se agasajan los cumpleaños es ${channel.name}` });
         }
