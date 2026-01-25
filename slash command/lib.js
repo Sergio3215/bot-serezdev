@@ -57,6 +57,18 @@ const BirthdayLib = async (client, interaction) => {
     }
 
     try {
+        const dateUriString = `2000-${month}-${day}T00:00:00Z`
+        const date = new Date(dateUriString);
+
+        if (date.toString() == 'Invalid Date') {
+            throw new Error();
+        }
+
+    } catch (error) {
+        return await interaction.reply({ content: 'Tu cumpleaño no es valido.' });
+    }
+
+    try {
         const bd = await birthday.GetById(interaction.guild.id);
 
         const usr = bd.filter(usr => usr.userId == user.id)
