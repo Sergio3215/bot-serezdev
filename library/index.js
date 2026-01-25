@@ -88,7 +88,7 @@ class RUNTIME_BOT {
                 let users = await birthday.GetById(guild.id);
                 // console.log(users);
                 users.map(async (user) => {
-                    console.log('start');
+                    // console.log('start');
                     const { day, month, userId, age } = user;
                     const dateUser = new Date(`2025-${month}-${day}T00:00:00Z`);
                     const date = new Date();
@@ -96,7 +96,7 @@ class RUNTIME_BOT {
 
                     const dayUser = dev ? dateUser.getDate() + 1 : dateUser.getDate();
 
-                    console.log(dayUser, date.getDate());
+                    // console.log(dayUser, date.getDate());
 
                     if (dayUser == date.getDate() && dateUser.getMonth() == date.getMonth()) {
                         // const member = await guild.members.fetch(userId);

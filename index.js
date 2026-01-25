@@ -65,7 +65,7 @@ client.on('ready', async () => {
         sendMessage();
     }, dayMillseconds);
 
-    let date = new Date();
+    // let date = new Date();
 
     // setTimeout(function () {
     //     let dayMillseconds = 60000
@@ -80,16 +80,12 @@ client.on('ready', async () => {
 
     const cron = new CronJob('0 0 0 * * *',
         () => {
-            // if (date.getHours() == 3 && date.getMinutes() == 43) {
             console.log('Start runtime');
             library.birthday_runtime(client);
-            // }
         },
         null,
         true,
         'America/Argentina/Buenos_Aires');
-
-
 
 });
 
