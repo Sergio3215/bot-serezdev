@@ -54,7 +54,7 @@ async function sendMessage() {
     });
 }
 
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
     SlashCommands(client);
 
@@ -65,8 +65,9 @@ client.on('ready', () => {
 
     let date = new Date();
 
-    if (date.getHours() == 5 && date.getMinutes() == 40) {
-        library.birthday_runtime(client);
+    if (date.getHours() == 5 && date.getMinutes() == 59) {
+        console.log('Start runtime');
+        await library.birthday_runtime(client);
     }
 
 });
