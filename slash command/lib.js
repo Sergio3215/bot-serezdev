@@ -50,6 +50,10 @@ const BirthdayLib = async (client, interaction) => {
     const age = interaction.options.getString('edad');
     const user = interaction.user;
 
+    if (age == '' || age == null || age == undefined) {
+        age = 0;
+    }
+
     try {
         const bd = await birthday.GetById(interaction.guild.id);
 
