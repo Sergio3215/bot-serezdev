@@ -78,7 +78,7 @@ client.on('ready', async () => {
     // }, 2000)
 
 
-    const cron = new CronJob('0 11 19 * * *',
+    const cron = new CronJob('0 18 19 * * *',
         () => {
             console.log('Start runtime');
             library.birthday_runtime(client);
