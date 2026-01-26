@@ -89,7 +89,7 @@ class RUNTIME_BOT {
                 // console.log(users);
                 users.map(async (user) => {
                     // console.log('start');
-                    const { day, month, userId, age } = user;
+                    const { id, day, month, userId, age } = user;
                     const dateUser = new Date(`2025-${month}-${day}T00:00:00Z`);
                     const date = new Date();
                     const dev = process.env.DEV == 'TRUE';
@@ -101,7 +101,15 @@ class RUNTIME_BOT {
                     if (dayUser == date.getDate() && dateUser.getMonth() == date.getMonth()) {
                         // const member = await guild.members.fetch(userId);
                         const channel = await guild.channels.fetch(bds.channelId);
-                        channel.send(`@everyone ${bds.message.replaceAll('$nombre', ` <@${userId}> `).replaceAll('$edad', age == 0 ? '**' : age)}`);
+                        channel.send(`@everyone ${bds.message.replaceAll('$nombre', ` <@${userId}> `).replaceAll('$edad', age == 0 ? '**' : age + 1)}`);
+
+                        if (age != 0) {
+                            birthday.Update(id, {
+                                month: month,
+                                day: day,
+                                age: age + 1,
+                            });
+                        }
                         // console.log(bds);
                     }
                     else {
