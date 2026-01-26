@@ -471,10 +471,10 @@ class Birthday {
         });
     }
 
-    async Update(serverId, option) {
+    async Update(id, option) {
         await prisma.Birthday.update({
             where: {
-                serverId: serverId,
+                id: id,
             },
             data: {
                 age: option.age == "" ? 0 : parseInt(option.age),

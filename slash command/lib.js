@@ -86,7 +86,7 @@ const BirthdayLib = async (client, interaction) => {
             await interaction.reply({ content: 'Se ha agregado tu cumpleaños.' });
         }
         else {
-            await birthday.Update(interaction.guild.id, {
+            await birthday.Update(usr[0].id, {
                 day: day,
                 month: month,
                 age: age,
