@@ -101,7 +101,7 @@ class RUNTIME_BOT {
                     if (dayUser == date.getDate() && dateUser.getMonth() == date.getMonth()) {
                         // const member = await guild.members.fetch(userId);
                         const channel = await guild.channels.fetch(bds.channelId);
-                        channel.send(bds.message.replace('$nombre', ` <@${userId}> `).replace('$edad', age == 0 ? '**' : age));
+                        channel.send(`@everyone ${bds.message.replace('$nombre', ` <@${userId}> `).replace('$edad', age == 0 ? '**' : age)}`);
                         // console.log(bds);
                     }
                     else {

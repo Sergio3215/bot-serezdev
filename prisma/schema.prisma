@@ -98,7 +98,7 @@ model BirthdaySetUp {
 
 model Birthday {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  serverId   String @unique
+  serverId   String
   serverName String
   userId     String
   age        Int    @default(0)
