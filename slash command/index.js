@@ -55,6 +55,17 @@ function SlashCommands(client) {
                         .setRequired(false)
                 })
         },
+        {
+            data: new SlashCommandBuilder()
+                .setName('cumpleaños')
+                .setDescription('Consulta el cumpleaños de un usuario.')
+                .addStringOption(opt => {
+                    return opt.setName('usuario')
+                        .setDescription('Usuario del cual se quiere consultar el cumpleaños')
+                        .setRequired(true)
+                        .setAutocomplete(true)
+                })
+        },
 
         // ---- CONTEXT MENU: USER (aparece en Apps al click derecho sobre un usuario)
         {

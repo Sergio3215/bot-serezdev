@@ -48,8 +48,18 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         if (ruleContador[0].channelId === msg.channel.id) return;
     }
 
-    
-    if (msg.channel.name.includes('anuncio') || msg.channel.name.includes('stream') || msg.channel.name.includes('twitch')|| msg.channel.name.includes('tiktok')|| msg.channel.name.includes('kick')) {
+
+    //Proyecto bot smart
+    if (msg.content.includes('<@')) {
+        const botId = msg.content.split('<@')[1].split('>')[0];
+
+        if (botId == client.user.id) {
+            msg.reply('!golpear <@' + msg.author.id + '>');
+        }
+    }
+
+
+    if (msg.channel.name.includes('anuncio') || msg.channel.name.includes('stream') || msg.channel.name.includes('twitch') || msg.channel.name.includes('tiktok') || msg.channel.name.includes('kick')) {
         return;
     }
 
@@ -196,7 +206,7 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.Saludar(client, msg);
         setMetric("!hi", msg);
     }
-    
+
     if (msg.content.toLowerCase().includes("!bye")) {
         libCommands.Despedirse(client, msg);
         setMetric("!bye", msg);
