@@ -6,7 +6,6 @@ class Library {
     }
 
     /**
-     * 
      * @param {*} interaction 
      * @param {String} titleChannel 
      * @param {String} reason 
@@ -34,7 +33,6 @@ class Library {
     }
 
     /**
-     * 
      * @param {*} interaction 
      * @param {String} titleCategory 
      * @param {String} titleChannel 
@@ -75,6 +73,7 @@ const birthday = new Birthday();
 const birthday_setup = new BirthdaySetup();
 
 class RUNTIME_BOT {
+
     constructor() {
     }
 
