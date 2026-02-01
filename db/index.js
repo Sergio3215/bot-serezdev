@@ -493,6 +493,33 @@ class Birthday {
     }
 }
 
+class LoggChatBot {
+    constructor() {
+
+    }
+
+    async Create(option) {
+        await prisma.LoggChatBot.create({
+            data: {
+                serverId: option.serverId,
+                userId: option.userId,
+                userName: option.userName,
+                message: option.message,
+                afinity: option.afinity,
+            }
+
+        });
+    }
+
+    async GetById(userId) {
+        return await prisma.LoggChatBot.findMany({
+            where: {
+                userId: userId,
+            }
+        });
+    }
+}
+
 module.exports = {
     Server,
     buttonFollowing,
@@ -504,5 +531,6 @@ module.exports = {
     MetricCommands,
     ContadorCommand,
     BirthdaySetup,
-    Birthday
+    Birthday,
+    LoggChatBot
 };

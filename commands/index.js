@@ -53,8 +53,9 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.includes('<@')) {
         const botId = msg.content.split('<@')[1].split('>')[0];
 
+
         if (botId == client.user.id) {
-            msg.reply('!golpear <@' + msg.author.id + '>');
+            libCommands.BotChat(client, msg);
         }
     }
 

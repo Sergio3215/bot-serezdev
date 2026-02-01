@@ -105,3 +105,13 @@ model Birthday {
   day        String
   month      String
 }
+
+model LoggChatBot {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  serverId String
+  userId   String
+  userName String
+  message  String
+  afinity  Float
+  createOn DateTime @default(now())
+}

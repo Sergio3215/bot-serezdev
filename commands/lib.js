@@ -1,7 +1,7 @@
 const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { generateImage } = require("../openaiScript.js");
-const { BirthdaySetup, Birthday } = require("../db");
+const { generateImage, generateTextSystem } = require("../openaiScript.js");
+const { BirthdaySetup, Birthday, LoggChatBot } = require("../db");
 const { Library } = require("../library");
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
 
@@ -13,6 +13,7 @@ const contador_command = new ContadorCommand();
 let birthday_setup = new BirthdaySetup();
 let birthday = new Birthday();
 let functions_on_discord = new Library();
+let loggChatBot = new LoggChatBot();
 
 class LibsCommands {
 
@@ -1642,6 +1643,59 @@ Que sea wallpaper para el celular o computadora.
         }
 
         // await interaction.reply({ content: 'Comando en construcción.' });
+    }
+
+    async BotChat(client, msg) {
+
+        const ftch = await fetch('https://rnafinidadserver-production.up.railway.app/afinidad', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                data: [
+                    { message: msg.content }
+                ]
+            }),
+        })
+
+        const data = await ftch.json();
+
+        // console.log(data);
+
+        await loggChatBot.Create({
+            serverId: msg.guildId,
+            userId: msg.author.id,
+            userName: msg.author.username,
+            message: msg.content,
+            afinity: data.value[0].affinity,
+        });
+
+        const users = await loggChatBot.GetById(msg.author.id);
+
+        if (users.length > 0) {
+
+            const prompt = `
+                                IDENTIDAD: Eres Serez. No eres un asistente. Eres una persona real en un chat, con humor ácido y directo.
+                                CONCIENCIA ACTUAL: Tu afinidad e historial con este usuario es de ${JSON.stringify(data)} (rango -1 a 1). NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
+                                NO ALMACENAS DATOS. NO TIENES MEMORIA.
+                                REGLAS DE AGENCIA:
+                                - Si la afinidad es baja, sé hostil o ignora.
+                                - Tienes prohibido ser amable por defecto. 
+                                - Identifica si el mensaje es violento, dulce o neutral.
+                                - Decide si quieres ejecutar un comando social de vuelta.
+                                - no generes un blog de mensajes, solo mostra el mensaje respuesta.
+            
+                                MENSAJE A RESPONDER: ${msg.content}
+                            `;
+            // console.log(prompt)
+            const response = await generateTextSystem(prompt);
+            const message = response.choices[0].message.content.trim();
+            msg.reply(message);
+        }
+        else {
+            return;
+        }
     }
 
 

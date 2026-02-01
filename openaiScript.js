@@ -187,8 +187,20 @@ const generateImage = async (prompt, number, model) => {
     return image;
 }
 
+
+const generateTextSystem = async (promptText) => {
+
+    return await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{
+            role: "system", content: promptText
+        }],
+    });
+}
+
 module.exports = {
     ConsultingOpenAI,
     createCharacter,
-    generateImage
+    generateImage,
+    generateTextSystem
 };
