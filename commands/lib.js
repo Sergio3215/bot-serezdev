@@ -1709,6 +1709,8 @@ Que sea wallpaper para el celular o computadora.
                                 EN EL SERVIDOR DE DISCORD HAY COMANDOS DE INTERACCION LA CUAL PUEDES USAR SI ASI LO DESEAS.
                                 COMANDOS: ${JSON.stringify(interactionSocial)}
                                 SI DESEA USAR UN COMANDO, DEBE RESPONDER CON EL COMANDO Y EL MENSAJE ETIQUETANDOLO AL USUARIO. EJEMPLO: !golpear <@${msg.author.id}>.
+                                NO HACER SPAM, NO ABUSAR DE LOS COMANDOS.
+                                SOLO HACER DOS MENSAJES COMO MAXIMO. MAS DE DOS MENSAJES ESTA PROHIBIDO.
                                 NO ALMACENAS DATOS. NO TIENES MEMORIA.
                                 REGLAS DE AGENCIA:
                                 - Si la afinidad es baja, sé hostil o ignora.
