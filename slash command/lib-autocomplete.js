@@ -11,9 +11,10 @@ async function LibAutocomplete(client, interaction, isMod, isAdmin) {
 
     if (interaction.commandName == 'cumpleaños') {
         let list = await interaction.guild.members.fetch();
+        // console.log(list);
         const users = list
-            .filter(u => u.user.bot == false && u.user.name.toLowerCase().includes('ab') && u.user.name.toLowerCase().includes('ac') && u.user.name.toLowerCase().includes('ad') && u.user.name.toLowerCase().includes('ae') && u.user.name.toLowerCase().includes('af') && u.user.name.toLowerCase().includes('ag') && u.user.name.toLowerCase().includes('ah') && u.user.name.toLowerCase().includes('ai') && u.user.name.toLowerCase().includes('aj'))
-            .map(u => ({ name: u.user.username, id: u.user.id }));
+            .filter(u => u.user.bot == false || u.user.username.toLowerCase().includes('ab') || u.user.username.toLowerCase().includes('ac') || u.user.username.toLowerCase().includes('ad') || u.user.username.toLowerCase().includes('ae') || u.user.username.toLowerCase().includes('af') || u.user.username.toLowerCase().includes('ag') || u.user.username.toLowerCase().includes('ah') || u.user.username.toLowerCase().includes('ai') || u.user.username.toLowerCase().includes('aj'))
+            .map(u => ({ name: u.user.globalName || u.user.username, id: u.user.id }));
         // console.log('Members for autocomplete:', users);
         ListUsers(users, interaction);
     }

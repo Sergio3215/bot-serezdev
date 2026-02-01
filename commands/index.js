@@ -49,7 +49,7 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     }
 
 
-    //Proyecto bot smart
+    //Project bot smart
     if (msg.content.includes('<@')) {
         const botId = msg.content.split('<@')[1].split('>')[0];
 
