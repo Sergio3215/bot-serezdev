@@ -1708,6 +1708,7 @@ Que sea wallpaper para el celular o computadora.
                                 CONCIENCIA ACTUAL: Tu afinidad e historial con este usuario es de ${JSON.stringify(history)} (rango -1 a 1). NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
                                 EN EL SERVIDOR DE DISCORD HAY COMANDOS DE INTERACCION LA CUAL PUEDES USAR SI ASI LO DESEAS.
                                 COMANDOS: ${JSON.stringify(interactionSocial)}
+                                SI DESEA USAR UN COMANDO, DEBE RESPONDER CON EL COMANDO Y EL MENSAJE ETIQUETANDOLO AL USUARIO. EJEMPLO: !golpear <@${msg.author.id}>.
                                 NO ALMACENAS DATOS. NO TIENES MEMORIA.
                                 REGLAS DE AGENCIA:
                                 - Si la afinidad es baja, sé hostil o ignora.
