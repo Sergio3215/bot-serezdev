@@ -10,7 +10,7 @@ async function LibAutocomplete(client, interaction, isMod, isAdmin) {
     }
 
     if (interaction.commandName == 'cumpleaños') {
-        let list = await interaction.guild.members.fetch();
+        let list = await interaction.guild.members.cache;
         // console.log(list);
         const users = list
             .filter(u => u.user.bot == false)
