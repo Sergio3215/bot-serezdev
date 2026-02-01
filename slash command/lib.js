@@ -1,6 +1,5 @@
 const { setMetric } = require("../commands");
 const LibsCommands = require("../commands/lib");
-const { ChannelType, PermissionFlagsBits } = require('discord.js');
 
 let libCommands = new LibsCommands();
 

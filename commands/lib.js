@@ -3,6 +3,7 @@ const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = r
 const { generateImage } = require("../openaiScript.js");
 const { BirthdaySetup, Birthday } = require("../db");
 const { Library } = require("../library");
+const { ChannelType, PermissionFlagsBits } = require('discord.js');
 
 const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
