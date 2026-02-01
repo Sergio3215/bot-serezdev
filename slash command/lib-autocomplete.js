@@ -10,13 +10,7 @@ async function LibAutocomplete(client, interaction, isMod, isAdmin) {
     }
 
     if (interaction.commandName == 'cumpleaños') {
-        let list = await interaction.guild.members.cache;
-        // console.log(list);
-        const users = list
-            .filter(u => u.user.bot == false)
-            .map(u => ({ name: u.user.globalName == undefined || u.user.globalName == null ? u.user.username : u.user.globalName, id: u.user.id }));
-        // console.log('Members for autocomplete:', users);
-        ListUsers(users, interaction);
+        await ListUsers(interaction);
     }
 }
 
@@ -32,15 +26,23 @@ async function ListChannels(channels, interaction) {
     );
 }
 
-async function ListUsers(users, interaction) {
-    const focused = interaction.options.getFocused(true);
-    const query = focused.value.toLowerCase();
+async function ListUsers(interaction) {
 
-    const filtered = users.filter(value => value.name.toLowerCase().includes(query.toLowerCase()))
+    const focusedValue = interaction.options.getFocused();
 
-    await interaction.respond(
-        filtered.map(value => ({ name: value.name, value: value.id })).slice(0, 25)
-    );
+    const members = await interaction.guild.members.fetch({
+        query: focusedValue,
+        limit: 25
+    });
+
+    const options = members
+        .filter(m => !m.user.bot)
+        .map(m => ({
+            name: m.user.globalName || m.user.username,
+            value: m.user.id
+        }));
+
+    await interaction.respond(options).catch(() => { });
 }
 
 module.exports = { LibAutocomplete };
