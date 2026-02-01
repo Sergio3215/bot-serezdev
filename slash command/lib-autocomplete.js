@@ -14,7 +14,7 @@ async function LibAutocomplete(client, interaction, isMod, isAdmin) {
         // console.log(list);
         const users = list
             .filter(u => u.user.bot == false)
-            .map(u => ({ name: u.user.globalName || u.user.username, id: u.user.id }));
+            .map(u => ({ name: u.user.globalName == undefined || u.user.globalName == null ? u.user.username : u.user.globalName, id: u.user.id }));
         // console.log('Members for autocomplete:', users);
         ListUsers(users, interaction);
     }
