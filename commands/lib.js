@@ -1627,8 +1627,20 @@ Que sea wallpaper para el celular o computadora.
     }
 
     async CumpleañosLib(client, interaction) {
+        const userId = interaction.options.getString('usuario');
 
-        await interaction.reply({ content: 'Comando en construcción.' });
+        const users = await birthday.GetById(interaction.guild.id);
+
+        const usr = users.filter(usr => usr.userId == userId);
+
+        if (usr.length == 0) {
+            await interaction.reply({ content: 'No se ha encontrado el cumpleaños del usuario.' });
+        }
+        else {
+            await interaction.reply({ content: `El Cumpleaños de <@${userId}> es el ${usr[0].day}/${usr[0].month}.` });
+        }
+
+        // await interaction.reply({ content: 'Comando en construcción.' });
     }
 
 
