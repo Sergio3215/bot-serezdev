@@ -13,7 +13,7 @@ async function LibAutocomplete(client, interaction, isMod, isAdmin) {
         let list = await interaction.guild.members.fetch();
         // console.log(list);
         const users = list
-            .filter(u => u.user.bot == false || u.user.username.toLowerCase().includes('ab') || u.user.username.toLowerCase().includes('ac') || u.user.username.toLowerCase().includes('ad') || u.user.username.toLowerCase().includes('ae') || u.user.username.toLowerCase().includes('af') || u.user.username.toLowerCase().includes('ag') || u.user.username.toLowerCase().includes('ah') || u.user.username.toLowerCase().includes('ai') || u.user.username.toLowerCase().includes('aj'))
+            .filter(u => u.user.bot == false)
             .map(u => ({ name: u.user.globalName || u.user.username, id: u.user.id }));
         // console.log('Members for autocomplete:', users);
         ListUsers(users, interaction);

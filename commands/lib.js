@@ -1634,7 +1634,7 @@ Que sea wallpaper para el celular o computadora.
         const usr = users.filter(usr => usr.userId == userId);
 
         if (usr.length == 0) {
-            await interaction.reply({ content: 'No se ha encontrado el cumpleaños del usuario.' });
+            await interaction.reply({ content: `El usuario <@${userId}> no tiene registrado su cumpleaños.` });
         }
         else {
             await interaction.reply({ content: `El Cumpleaños de <@${userId}> es el ${usr[0].day}/${usr[0].month}.` });
