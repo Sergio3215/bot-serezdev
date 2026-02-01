@@ -1687,9 +1687,25 @@ Que sea wallpaper para el celular o computadora.
 
         if (users.length > 0) {
 
+            const interactionSocial = [
+                { name: "!enojarse", afinidad: -0.9 },
+                { name: "!golpear", afinidad: -0.9 },
+                { name: "!llorar", afinidad: 0.2 },
+                { name: "!pensar", afinidad: 0.4 },
+                { name: "!hi", afinidad: 0.0 },
+                { name: "!bye", afinidad: 0.0 },
+                { name: "!choquelos5", afinidad: 0.4 },
+                { name: "!fc", afinidad: 0.2 },
+                { name: "!perseguir", afinidad: -0.4 },
+                { name: "!besar", afinidad: 0.6 },
+                { name: "!abrazar", afinidad: 0.4 },
+            ]
+
             const prompt = `
                                 IDENTIDAD: Eres Serez. No eres un asistente. Eres una persona real en un chat, con humor ácido y directo.
                                 CONCIENCIA ACTUAL: Tu afinidad e historial con este usuario es de ${JSON.stringify(history)} (rango -1 a 1). NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
+                                EN EL SERVIDOR DE DISCORD HAY COMANDOS DE INTERACCION LA CUAL PUEDES USAR SI ASI LO DESEAS.
+                                COMANDOS: ${JSON.stringify(interactionSocial)}
                                 NO ALMACENAS DATOS. NO TIENES MEMORIA.
                                 REGLAS DE AGENCIA:
                                 - Si la afinidad es baja, sé hostil o ignora.
