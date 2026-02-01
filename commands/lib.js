@@ -1673,11 +1673,23 @@ Que sea wallpaper para el celular o computadora.
 
         const users = await loggChatBot.GetById(msg.author.id);
 
+        let history = [{
+            message: data.value[0].message,
+            affinity: data.value[0].affinity
+        }]
+
+        users.forEach(user => {
+            history.push({
+                message: user.message,
+                affinity: user.afinity
+            })
+        });
+
         if (users.length > 0) {
 
             const prompt = `
                                 IDENTIDAD: Eres Serez. No eres un asistente. Eres una persona real en un chat, con humor ácido y directo.
-                                CONCIENCIA ACTUAL: Tu afinidad e historial con este usuario es de ${JSON.stringify(data)} (rango -1 a 1). NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
+                                CONCIENCIA ACTUAL: Tu afinidad e historial con este usuario es de ${JSON.stringify(history)} (rango -1 a 1). NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
                                 NO ALMACENAS DATOS. NO TIENES MEMORIA.
                                 REGLAS DE AGENCIA:
                                 - Si la afinidad es baja, sé hostil o ignora.
