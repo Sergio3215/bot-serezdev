@@ -1699,6 +1699,8 @@ Que sea wallpaper para el celular o computadora.
                 { name: "!perseguir", afinidad: -0.4 },
                 { name: "!besar", afinidad: 0.6 },
                 { name: "!abrazar", afinidad: 0.4 },
+                { name: "!miedo", afinidad: -0.1 },
+                { name: "!nalguear", afinidad: -0.2 }
             ]
 
             const prompt = `
