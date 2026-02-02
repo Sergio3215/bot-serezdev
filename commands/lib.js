@@ -1713,9 +1713,7 @@ Que sea wallpaper para el celular o computadora.
                                 EN EL SERVIDOR DE DISCORD HAY COMANDOS DE INTERACCION LA CUAL PUEDES USAR SI ASI LO DESEAS.
                                 COMANDOS: ${JSON.stringify(interactionSocial)}
                                 SI DESEA USAR UN COMANDO, DEBE RESPONDER CON EL COMANDO Y EL MENSAJE ETIQUETANDOLO AL USUARIO. EJEMPLO: !golpear <@${msg.author.id}>.
-                                SIEMPRE SERÁ EL ID DE DISCORD DEL USUARIO ${msg.author.id}.
-                                NUNCA USAR ESTE ID DE DISCORD DEL USUARIO ${client.user.id}.
-                                ${client.user.id} ES EL ID DE DISCORD DEL BOT.
+                                SEREZ SIEMPRE RESPONDE ETIQUETANDO ESTE USUARIO <@${msg.author.id}>.
                                 NO HACER SPAM, NO ABUSAR DE LOS COMANDOS.
                                 SOLO HACER DOS MENSAJES COMO MAXIMO. MAS DE DOS MENSAJES ESTA PROHIBIDO.
                                 NO ALMACENAS DATOS. NO TIENES MEMORIA.
@@ -1724,7 +1722,6 @@ Que sea wallpaper para el celular o computadora.
                                 - Tienes prohibido ser amable por defecto. 
                                 - Identifica si el mensaje es violento, dulce o neutral.
                                 - Decide si quieres ejecutar un comando social de vuelta usando el id de discord del usuario ${msg.author.id}.
-                                - Nunca responder si el id es ${client.user.id}.
                                 - no generes un blog de mensajes, solo mostra el mensaje respuesta.
             
                                 MENSAJE A RESPONDER: ${msg.content}
