@@ -42,6 +42,15 @@ async function SlashLib(client, isMod, isAdmin, interaction) {
         libCommands.CumpleañosLib(client, interaction);
         setMetric("!cumpleaños", interaction);
     }
+    if (interaction.commandName == 'restart') {
+        if (interaction.user.id === '276513065464365066') {
+            libCommands.RestartBot(client, interaction);
+            setMetric("!restart", interaction);
+        }
+        else {
+            return;
+        }
+    }
 }
 
 

@@ -1740,9 +1740,64 @@ Que sea wallpaper para el celular o computadora.
         }
     }
 
+    async RestartBot(client, msg) {
+        const response = await fetch("https://backboard.railway.com/graphql/v2", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.RAILWAYS_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                query: `query latestDeployment($input: DeploymentListInput!) {
+                      deployments(input: $input, first: 1) {
+                        edges {
+                          node {
+                            id
+                            status
+                            url
+                            createdAt
+                          }
+                        }
+                      }
+                    }`,
+                variables: {
+                    "input": {
+                        "projectId": "03e039bb-5ccc-470c-ac74-4f52a4cdc70d",
+                        "serviceId": "6afe9d6f-dd2c-414b-b8ca-a6140ca98b29",
+                        "environmentId": "3aa425d0-9111-4781-9a57-956301fbab68"
+                    }
+                },
+            }),
+        });
+
+        const { data, errors } = await response.json();
+        const deployment_id = data.deployments.edges[0].node.id;
+        // console.log(deployment_id);
+
+        const response2 = await fetch("https://backboard.railway.com/graphql/v2", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.RAILWAYS_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                query: `mutation deploymentRestart($id: String!) {
+                    deploymentRestart(id: $id)
+                }`,
+                variables: {
+                    "id": deployment_id
+                },
+            }),
+        });
+
+        const { data2, errors2 } = await response2.json();
+        // console.log(data2);
+    }
+
 
     async Test(client, msg) {
         // this.StreakCounter(msg, `¡Racha de ${20} números Desbloqueado! 🎉`);
+        // this.RestartBot(client, msg);
         return;
     }
 

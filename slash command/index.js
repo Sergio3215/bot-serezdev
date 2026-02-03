@@ -66,6 +66,11 @@ function SlashCommands(client) {
                         .setAutocomplete(true)
                 })
         },
+        {
+            data: new SlashCommandBuilder()
+                .setName('restart')
+                .setDescription('Reinicia el bot en railway.')
+        },
 
         // ---- CONTEXT MENU: USER (aparece en Apps al click derecho sobre un usuario)
         {
