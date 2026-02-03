@@ -1792,9 +1792,9 @@ Que sea wallpaper para el celular o computadora.
 
         const { data2, errors2 } = await response2.json();
 
-        // console.log(data2);
+        console.log(data2);
 
-        // await interaction.reply({ content: 'Bot reiniciado correctamente.', ephemeral: true });
+        await interaction.reply({ content: 'Bot reiniciado correctamente.', ephemeral: true });
     }
 
 
