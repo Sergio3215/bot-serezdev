@@ -1740,7 +1740,7 @@ Que sea wallpaper para el celular o computadora.
         }
     }
 
-    async RestartBot(client, msg) {
+    async RestartBot(client, interaction) {
         const response = await fetch("https://backboard.railway.com/graphql/v2", {
             method: "POST",
             headers: {
@@ -1791,6 +1791,8 @@ Que sea wallpaper para el celular o computadora.
         });
 
         const { data2, errors2 } = await response2.json();
+
+        await interaction.reply({ content: 'Bot reiniciado correctamente.', ephemeral: true });
         // console.log(data2);
     }
 
