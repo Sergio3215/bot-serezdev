@@ -1726,10 +1726,14 @@ Que sea wallpaper para el celular o computadora.
             
                                 MENSAJE A RESPONDER: ${msg.content}
                             `;
-            // console.log(prompt)
-            const response = await generateTextSystem(prompt);
-            const message = response.choices[0].message.content.trim();
-            msg.reply(message);
+            try {
+                // console.log(prompt)
+                const response = await generateTextSystem(prompt);
+                const message = response.choices[0].message.content;
+                msg.reply(message);
+            } catch (error) {
+                console.log(error);
+            }
         }
         else {
             return;
