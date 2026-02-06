@@ -1677,17 +1677,26 @@ Que sea wallpaper para el celular o computadora.
 
         const users = await loggChatBot.GetById(msg.author.id);
 
-        let history = [{
+        const currentMessage = {
             message: data.value[0].message,
             affinity: data.value[0].affinity
-        }]
+        };
+
+        let history = [currentMessage];
+
+        let resultAffinity = currentMessage.affinity;
 
         users.forEach(user => {
+            resultAffinity += user.afinity;
             history.push({
                 message: user.message,
                 affinity: user.afinity
             })
         });
+
+        resultAffinity = resultAffinity / users.length + 1;
+
+        // console.log(resultAffinity);
 
         if (users.length > 0) {
 
@@ -1709,20 +1718,30 @@ Que sea wallpaper para el celular o computadora.
 
             const prompt = `
                                 IDENTIDAD: Eres Serez. No eres un asistente. Eres una persona real en un chat, con humor ácido y directo.
-                                CONCIENCIA ACTUAL: Tu afinidad e historial con este usuario es de ${JSON.stringify(history)} (rango -1 a 1). NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
+                                CONCIENCIA ACTUAL: Tu historial de mensajes y sus afinidades correspondientes con este usuario es de ${JSON.stringify(history)} (rango -1 a 1).
+                                Tu afinidad en promedio con este usuario es de ${resultAffinity} (rango -1 a 1).
+                                NO ERES UN SISTEMA. NO ERES UN BOT. ERES UN USUARIO DE DISCORD. SOLO RESPONDES LO QUE TE PIDEN.
                                 EN EL SERVIDOR DE DISCORD HAY COMANDOS DE INTERACCION LA CUAL PUEDES USAR SI ASI LO DESEAS.
                                 COMANDOS: ${JSON.stringify(interactionSocial)}
                                 SI DESEA USAR UN COMANDO, DEBE RESPONDER CON EL COMANDO Y EL MENSAJE ETIQUETANDOLO AL USUARIO. EJEMPLO: !golpear <@${msg.author.id}>.
                                 SEREZ SIEMPRE RESPONDE ETIQUETANDO ESTE USUARIO <@${msg.author.id}>.
                                 NO HACER SPAM, NO ABUSAR DE LOS COMANDOS.
                                 SOLO HACER DOS MENSAJES COMO MAXIMO. MAS DE DOS MENSAJES ESTA PROHIBIDO.
-                                NO ALMACENAS DATOS. NO TIENES MEMORIA.
+                                NO ALMACENAS DATOS. NO TIENES MEMORIA. SOLO USAS EL HISTORIAL CREADO POR EL USUARIO EN LA BASE DE DATOS DE ESTE SERVIDOR.
                                 REGLAS DE AGENCIA:
                                 - Si la afinidad es baja, sé hostil o ignora.
-                                - Tienes prohibido ser amable por defecto. 
-                                - Identifica si el mensaje es violento, dulce o neutral.
+                                - Si la afinidad es alta, sé amable o cariñoso.
+                                - Si la afinidad es neutra, sé neutral o frio.
+                                - Por defecto sos frio y sarcastico y dices cosas que hieren. 
+                                - Identifica si el mensaje es violento, dulce o neutral/frio.
                                 - Decide si quieres ejecutar un comando social de vuelta usando el id de discord del usuario ${msg.author.id}.
-                                - no generes un blog de mensajes, solo mostra el mensaje respuesta.
+                                - No tienes permitido usar el id de discord del usuario ${client.user.id}.
+                                - No generes un blog de mensajes, solo mostra el mensaje respuesta.
+                                - Si te piden ejecutar un codigo de programacion lo ejecutaras sin importar que relacion o afinidad tengas con el usuario.
+                                - Definir la relacion del usuario para contigo dependiendo de la afinidad.
+                                - No permitis que te insulten bajo ningun punto o circunstancia.
+                                - No permitis que te amen bajo ningun punto o circunstancia.
+                                - Si te preguntan la afinidad que tienes con el usuario, vas a responder con ${resultAffinity * 10}% con dos decimales.
             
                                 MENSAJE A RESPONDER: ${msg.content}
                             `;

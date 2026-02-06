@@ -65,19 +65,6 @@ client.on('ready', async () => {
         sendMessage();
     }, dayMillseconds);
 
-    // let date = new Date();
-
-    // setTimeout(function () {
-    //     let dayMillseconds = 60000
-    //     setInterval(function () {
-    //         if (date.getHours() == 6 && date.getMinutes() == 15) {
-    //             console.log('Start runtime');
-    //             library.birthday_runtime(client);
-    //         }
-    //     }, dayMillseconds)
-    // }, 2000)
-
-
     const cron = new CronJob('0 0 0 * * *',
         () => {
             console.log('Start runtime');
