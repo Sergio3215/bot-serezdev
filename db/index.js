@@ -520,6 +520,45 @@ class LoggChatBot {
     }
 }
 
+class CloseChannel {
+
+    constructor() { }
+
+    async Create(option) {
+        await prisma.closeChannel.create({
+            data: {
+                channelId: option.channelId,
+                channelName: option.channelName,
+                serverId: option.serverId,
+                serverName: option.serverName,
+                close: option.close
+            }
+
+        });
+    }
+
+
+    async Update(id, option) {
+        await prisma.closeChannel.update({
+            where: {
+                id: id,
+            },
+            data: {
+                close: option.close
+            }
+        });
+    }
+
+    async GetById(id) {
+        return await prisma.closeChannel.findMany({
+            where: {
+                channelId: id
+            }
+        })
+    }
+
+}
+
 module.exports = {
     Server,
     buttonFollowing,
@@ -532,5 +571,6 @@ module.exports = {
     ContadorCommand,
     BirthdaySetup,
     Birthday,
-    LoggChatBot
+    LoggChatBot,
+    CloseChannel
 };

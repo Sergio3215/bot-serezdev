@@ -1,7 +1,7 @@
 const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { generateImage, generateTextSystem } = require("../openaiScript.js");
-const { BirthdaySetup, Birthday, LoggChatBot } = require("../db");
+const { BirthdaySetup, Birthday, LoggChatBot, CloseChannel } = require("../db");
 const { Library } = require("../library");
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
 
@@ -14,6 +14,7 @@ let birthday_setup = new BirthdaySetup();
 let birthday = new Birthday();
 let functions_on_discord = new Library();
 let loggChatBot = new LoggChatBot();
+let closeChannel = new CloseChannel();
 
 class LibsCommands {
 
@@ -638,6 +639,8 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!setfollowing', value: "Establece que canal van a seguir, poniendole un rol donde se puede anunciar, Ejemplo: !setfollowing [canal objetivo a colocar boton] [canal del cual va a ser seguido] [rol que se usara en los anuncios]" },
             { name: '!setrules', value: "Es igual que !setfollowing pero con las reglas, Ejemplo: !setrules [canal objetivo a colocar boton] [canal del cual estan las reglas] [rol que acepto las reglas]" },
             { name: '!settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]" },
+            { name: '!abrir', value: "Comando para abrir el chat de un canal de texto" },
+            { name: '!cerrar', value: "Comando para cerrar el chat de un canal de texto" },
         ]
 
         const embed_user = new EmbedBuilder()
@@ -1816,6 +1819,56 @@ Que sea wallpaper para el celular o computadora.
         await interaction.reply({ content: 'Bot reiniciado correctamente.', ephemeral: true });
     }
 
+    async Close(client, msg) {
+        const data = await closeChannel.GetById(msg.channel.id);
+        if (data.length === 0) {
+            await closeChannel.Create({
+                channelId: msg.channel.id,
+                channelName: msg.channel.name,
+                serverId: msg.guild.id,
+                serverName: msg.guild.name,
+                close: true
+            });
+            return functions_on_discord.SendMessage(msg.channel, 'Canal cerrado correctamente.');
+        }
+        else {
+            await closeChannel.Update(data[0].id, {
+                close: true
+            });
+
+            return await functions_on_discord.SendMessage(msg.channel, 'Canal cerrado correctamente.');
+        }
+    }
+
+    async Open(client, msg) {
+        const data = await closeChannel.GetById(msg.channel.id);
+        if (data.length === 0) {
+            await closeChannel.Create({
+                channelId: msg.channel.id,
+                channelName: msg.channel.name,
+                serverId: msg.guild.id,
+                serverName: msg.guild.name,
+                close: false
+            });
+            // msg.reply('Canal cerrado correctamente.');
+        }
+        else {
+            await closeChannel.Update(data[0].id, {
+                close: false
+            });
+            return await functions_on_discord.SendMessage(msg.channel, 'Canal abierto correctamente.');
+        }
+    }
+
+    async comprobateChannel(msg) {
+        const data = await closeChannel.GetById(msg.channel.id);
+        if (data.length === 0) {
+            return false;
+        }
+        else {
+            return data[0].close;
+        }
+    }
 
     async Test(client, msg) {
         // this.StreakCounter(msg, `¡Racha de ${20} números Desbloqueado! 🎉`);

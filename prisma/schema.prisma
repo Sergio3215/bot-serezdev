@@ -115,3 +115,12 @@ model LoggChatBot {
   afinity  Float
   createOn DateTime @default(now())
 }
+
+model CloseChannel {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId    String
+  serverName  String
+  channelId   String
+  channelName String
+  close       Boolean
+}

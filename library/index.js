@@ -67,6 +67,20 @@ class Library {
             channel: channel,
         }
     }
+
+    /**
+     * @param {*} channel Example: msg.channel
+     * @param {String} message Example: 'Este canal está cerrado.'
+     * @param {Number} time Example: 5000
+     */
+    async SendMessageTemp(channel, message, time) {
+        const sentMsg = await channel.send(message);
+        setTimeout(() => sentMsg.delete(), time);
+    }
+
+    async SendMessage(channel, message) {
+        await channel.send(message);
+    }
 }
 
 const birthday = new Birthday();

@@ -1,4 +1,5 @@
 const { Server, SettingWelcome, MetricCommands, ContadorCommand } = require("../db/index.js");
+const { Library } = require("../library/index.js");
 const LibsCommands = require("./lib.js");
 const { Rules } = require("./rules.js");
 
@@ -7,6 +8,7 @@ const contador_command = new ContadorCommand();
 const ServerDb = new Server();
 let libCommands = new LibsCommands();
 const metrica_commands = new MetricCommands();
+const library = new Library();
 
 const checkServer = async (guild) => {
     let dataServer = (await ServerDb.GetById(guild.id));
@@ -65,6 +67,14 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     }
 
     // Set Commands
+
+    const close = await libCommands.comprobateChannel(msg);
+
+    if (close && msg.author.id !== client.user.id && msg.content !== "!abrir") {
+        msg.delete();
+        library.SendMessageTemp(msg.channel, 'Este canal está cerrado.', 5000);
+        return;
+    }
 
     if (msg.content.includes('!comandos')) {
         libCommands.Comandos(isMod, admin, msg);
@@ -237,6 +247,27 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     if (msg.content.toLowerCase().includes("!pareja")) {
         libCommands.Pareja(client, msg);
         setMetric("!pareja", msg);
+    }
+
+    if (msg.content.toLowerCase().includes("!cerrar")) {
+        if (admin) {
+            libCommands.Close(client, msg);
+            setMetric("!cerrar", msg);
+        }
+        else {
+            msg.reply('No tienes permisos para usar este comando.');
+        }
+    }
+
+    if (msg.content.toLowerCase().includes("!abrir")) {
+
+        if (admin) {
+            libCommands.Open(client, msg);
+            setMetric("!abrir", msg);
+        }
+        else {
+            msg.reply('No tienes permisos para usar este comando.');
+        }
     }
 
 
