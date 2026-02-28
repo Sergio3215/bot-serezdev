@@ -639,8 +639,8 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!setfollowing', value: "Establece que canal van a seguir, poniendole un rol donde se puede anunciar, Ejemplo: !setfollowing [canal objetivo a colocar boton] [canal del cual va a ser seguido] [rol que se usara en los anuncios]" },
             { name: '!setrules', value: "Es igual que !setfollowing pero con las reglas, Ejemplo: !setrules [canal objetivo a colocar boton] [canal del cual estan las reglas] [rol que acepto las reglas]" },
             { name: '!settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]" },
-            { name: '!abrir', value: "Comando para abrir el chat de un canal de texto" },
-            { name: '!cerrar', value: "Comando para cerrar el chat de un canal de texto" },
+            { name: '!abrir', value: "Comando para abrir el chat de un canal de texto. Solo administradores pueden usarlo" },
+            { name: '!cerrar', value: "Comando para cerrar el chat de un canal de texto. Solo administradores pueden usarlo" },
         ]
 
         const embed_user = new EmbedBuilder()
