@@ -40,6 +40,14 @@ const setMetric = async (command, msg) => {
 
 const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster, createCharacter) => {
 
+    //375805687529209857 Streamcord
+    //276060004262477825 Koya
+    //678344927997853742 Sapphire
+
+    if (msg.author.id == "375805687529209857" || msg.author.id == "276060004262477825" || msg.author.id == "678344927997853742") {
+        return;
+    }
+
 
     const ruleContador = await contador_command.GetById(msg.guild.id);
     //Set Rules
