@@ -970,7 +970,7 @@ Carisma: ${estadisticas.carisma}`)
             if (llorar == 0) {
                 llorar = 1;
             }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar < 10 ? "0" + llorar : llorar}.gif`;
+            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar}.gif`;
 
             // console.log(llorar);
 
