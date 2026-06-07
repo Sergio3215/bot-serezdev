@@ -896,7 +896,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Asustar(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 14);
+            let perseguir = Math.floor(Math.random() * 19);
             if (perseguir == 0) {
                 perseguir = 1;
             }
@@ -999,7 +999,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Saludar(client, msg) {
         try {
-            let saludar = Math.floor(Math.random() * 22);
+            let saludar = Math.floor(Math.random() * 34);
 
             if (saludar == 0) {
                 saludar = 1;
