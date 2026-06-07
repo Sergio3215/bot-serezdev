@@ -602,23 +602,23 @@ Carisma: ${estadisticas.carisma}`)
 
     async Comandos(isMod, isAdmin, msg) {
         let comandos_helper = [
-            { name: '!memide', value: "Dice la cantidad que te mide." },
-            { name: '!golpear', value: "Tu golpeas a alguien cuando lo etiquetas. Ejemplo !golpear <name>" },
-            { name: '!sonrojar', value: "Accion de sonrojarse" },
-            { name: '!perseguir', value: "Tu persigues a alguien cuando lo etiquetas. Ejemplo !perseguir <name>" },
-            { name: '!besar', value: "Tu besas a alguien cuando lo etiquetas. Ejemplo !besar <name>" },
             { name: '!abrazar', value: "Tu abrazas a alguien cuando lo etiquetas. Ejemplo !abrazar <name>" },
-            { name: '!miedo', value: "Tu le temes al que etiquetes o tienes miedo. Ejemplo !miedo <name>" },
-            { name: '!intimidar', value: "Tu intimidas a alguien cuando lo etiquetas. Ejemplo !intimidar <name>" },
-            { name: '!nalguear', value: "Tu nalgueas a alguien cuando lo etiquetas. Ejemplo !nalguear <name>" },
-            { name: '!llorar', value: "Tu lloras o lloras por alguien ejemplo !llorar <name>" },
-            { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
-            { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
-            { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
+            { name: '!besar', value: "Tu besas a alguien cuando lo etiquetas. Ejemplo !besar <name>" },
             { name: '!bye', value: "Tu despides a todos o despedis a alguien ejemplo !bye <name>" },
-            { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
             { name: '!choquelos5', value: "Chocas los 5 con un amigo. Ejemplo !choquelos5 <name>" },
             { name: '!enojarse', value: "Te enojas con todos o con alguien en especifico. Ejemplo !enojarse <name>" },
+            { name: '!fc', value: "Felicitas por su cumpleaños a alguien, agregando el atributo '--atrasado' puedes felicitar un cumpleaños atrasado. Por ejemplo: !fc <name> \n !fc --atrasado <name>" },
+            { name: '!intimidar', value: "Tu intimidas a alguien cuando lo etiquetas. Ejemplo !intimidar <name>" },
+            { name: '!hi', value: "Tu saludas a todos o saludas a alguien ejemplo !hi <name>" },
+            { name: '!golpear', value: "Tu golpeas a alguien cuando lo etiquetas. Ejemplo !golpear <name>" },
+            { name: '!llorar', value: "Tu lloras o lloras por alguien ejemplo !llorar <name>" },
+            { name: '!memide', value: "Dice la cantidad que te mide." },
+            { name: '!miedo', value: "Tu le temes al que etiquetes o tienes miedo. Ejemplo !miedo <name>" },
+            { name: '!nalguear', value: "Tu nalgueas a alguien cuando lo etiquetas. Ejemplo !nalguear <name>" },
+            { name: '!perseguir', value: "Tu persigues a alguien cuando lo etiquetas. Ejemplo !perseguir <name>" },
+            { name: '!pensar', value: "Tu pensas o pensas en alguien ejemplo !pensar <name>" },
+            { name: '!pareja', value: "Te dice que pareja vas a tener :D" },
+            { name: '!sonrojar', value: "Accion de sonrojarse" },
         ];
 
         let command_rolplay = [
