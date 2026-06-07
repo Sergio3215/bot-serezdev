@@ -689,7 +689,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Golpear(client, msg) {
         try {
-            let golpe = Math.floor(Math.random() * 30);
+            let golpe = Math.floor(Math.random() * 35);
             if (golpe == 0) {
                 golpe = 1;
             }
@@ -758,7 +758,7 @@ Carisma: ${estadisticas.carisma}`)
     }
 
     async Sonrojar(client, msg) {
-        let sonrojar = Math.floor(Math.random() * 9);
+        let sonrojar = Math.floor(Math.random() * 27);
         if (sonrojar == 0) {
             sonrojar = 1;
         }
@@ -786,7 +786,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Besar(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 26);
+            let perseguir = Math.floor(Math.random() * 36);
             if (perseguir == 0) {
                 perseguir = 1;
             }
@@ -966,7 +966,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Llorar(client, msg) {
         try {
-            let llorar = Math.floor(Math.random() * 14);
+            let llorar = Math.floor(Math.random() * 28);
             if (llorar == 0) {
                 llorar = 1;
             }
@@ -1105,7 +1105,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Pensar(client, msg) {
         try {
-            let pensar = Math.floor(Math.random() * 28);
+            let pensar = Math.floor(Math.random() * 36);
 
             if (pensar == 0) {
                 pensar = 1;
@@ -1123,7 +1123,7 @@ Carisma: ${estadisticas.carisma}`)
             let folder = "pensar"
 
             if (msg.content.includes('<@')) {
-                pensar = Math.floor(Math.random() * 15);
+                pensar = Math.floor(Math.random() * 16);
 
                 if (pensar == 0) {
                     pensar = 1;
@@ -1270,7 +1270,7 @@ Carisma: ${estadisticas.carisma}`)
 
     async Enojar(client, msg) {
         try {
-            let enojarse = Math.floor(Math.random() * 55);
+            let enojarse = Math.floor(Math.random() * 79);
 
             if (enojarse == 0) {
                 enojarse = 1;
@@ -1407,7 +1407,7 @@ Carisma: ${estadisticas.carisma}`)
             let count = seccion == "abrazo" ? 32
                 :
                 seccion == "besar" ?
-                    26 : 4;
+                    36 : 4;
 
             let actionCount = Math.floor(Math.random() * count);
             if (actionCount == 0) {
