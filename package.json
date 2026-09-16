@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev:server": "nodemon ./server/index.js",
+    "start:server": "Node ./server/index.js"
   },
   "keywords": [],
   "author": "",
@@ -15,10 +17,12 @@
     "@ai-sdk/google": "^1.0.4",
     "@prisma/client": "^6.5.0",
     "ai": "^4.0.9",
+    "cors": "^2.8.6",
     "cron": "^4.4.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "nodemon": "^3.1.10",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14",
     "openai": "^5.3.0"
   },
   "devDependencies": {

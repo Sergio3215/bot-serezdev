@@ -124,3 +124,18 @@ model CloseChannel {
   channelName String
   close       Boolean
 }
+
+model gif {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  order         Int
+  serverId      String
+  url           String
+  interactionId String       @db.ObjectId
+  interaction   Interactions @relation(fields: [interactionId], references: [id])
+}
+
+model Interactions {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  gifs gif[]
+}

@@ -93,18 +93,6 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         libCommands.ConsultingGemini(msg, Consulting, userIsSubOrBooster);
         setMetric("!consulta", msg);
     }
-    if (msg.content.includes('!gay')) {
-        libCommands.Gay(msg, userIsSubOrBooster);
-        setMetric("!gay", msg);
-    }
-    if (msg.content.includes('!gaga')) {
-        libCommands.Gaga(msg, userIsSubOrBooster);
-        setMetric("!gaga", msg);
-    }
-    if (msg.content.includes('!meme')) {
-        libCommands.Meme(msg, userIsSubOrBooster);
-        setMetric("!meme", msg);
-    }
 
     if (msg.content.toLowerCase().includes("!rolplay")) {
         libCommands.Personaje(msg, createCharacter, userIsSubOrBooster);
@@ -170,7 +158,22 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         }
     }
 
-    //NEKOITINA Family Friendly
+    // TWITCH commands START
+    if (msg.content.includes('!gay')) {
+        libCommands.Gay(msg, userIsSubOrBooster);
+        setMetric("!gay", msg);
+    }
+    if (msg.content.includes('!gaga')) {
+        libCommands.Gaga(msg, userIsSubOrBooster);
+        setMetric("!gaga", msg);
+    }
+    if (msg.content.includes('!meme')) {
+        libCommands.Meme(msg, userIsSubOrBooster);
+        setMetric("!meme", msg);
+    }
+    // TWITCH commands END
+
+    //NEKOITINA Family Friendly START
     if (msg.content.toLowerCase().includes("!golpear")) {
         libCommands.Golpear(client, msg);
         setMetric("!golpear", msg);
@@ -246,11 +249,11 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         setMetric("!enojarse", msg);
     }
 
-
     if (msg.content.toLowerCase().includes("!duelo")) {
         libCommands.Duelo(client, msg);
         setMetric("!duelo", msg);
     }
+    //NEKOITINA Family Friendly END
 
     if (msg.content.toLowerCase().includes("!pareja")) {
         libCommands.Pareja(client, msg);

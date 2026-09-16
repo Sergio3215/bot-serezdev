@@ -559,6 +559,112 @@ class CloseChannel {
 
 }
 
+class Gifts {
+    constructor() { }
+
+    async getGifsByInteraction(serverId, name) {
+        return await prisma.gif.findMany({
+            where: {
+                serverId: serverId,
+                interaction: {
+                    name: name
+                }
+            },
+            orderBy: {
+                order: "asc"
+            }
+        });
+    }
+
+    async createGiftByInteractionId(order, serverId, url, interactionId) {
+        await prisma.gif.create({
+            data: {
+                order: order,
+                serverId: serverId,
+                url: url,
+                interactionId: interactionId
+            }
+        });
+    }
+
+    async updateGift(id, newUrl) {
+        await prisma.gif.update({
+            where: {
+                id: id
+            },
+            data: {
+                url: newUrl
+            }
+        });
+    }
+
+    async deleteGift(id) {
+        await prisma.gif.delete({
+            where: {
+                id: id
+            }
+        });
+    }
+}
+
+class Interaction {
+    constructor() { }
+
+    /**
+     * 
+     * @param {Array<Object>} gifts 
+     * @param {String} name
+     * 
+     */
+    async createInteractionAndGifs(gifts, name) {
+        await prisma.interactions.create({
+            data: {
+                name: name,
+
+                gifs: {
+                    create: gifts
+                }
+            },
+
+            include: {
+                gifs: true
+            }
+        });
+    }
+
+    async getInteractionByNameAndServer(name, serverId) {
+        return await prisma.interactions.findMany({
+            where: {
+                name: name
+            },
+            include: {
+                gifs: {
+                    where: {
+                        serverId: serverId
+                    },
+                    orderBy: {
+                        order: "asc"
+                    }
+                }
+            }
+        });
+    }
+
+
+    async getInteractions() {
+        return await prisma.interactions.findMany();
+    }
+
+    async deleteIntegraction(id) {
+        return await prisma.interactions.delete({
+            where: {
+                id: id
+            }
+        })
+    }
+
+}
+
 module.exports = {
     Server,
     buttonFollowing,
@@ -572,5 +678,7 @@ module.exports = {
     BirthdaySetup,
     Birthday,
     LoggChatBot,
-    CloseChannel
+    CloseChannel,
+    Gifts,
+    Interaction
 };
