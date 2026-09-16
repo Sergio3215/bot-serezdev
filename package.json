@@ -1,6 +1,6 @@
 {
   "name": "serezdev-bot",
-  "version": "2.2.1",
+  "version": "2.4.1",
   "description": "Bot of serezdev",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "dev:server": "nodemon ./server/index.js",
-    "start:server": "Node ./server/index.js"
+    "start:server": "node ./server/index.js"
   },
   "keywords": [],
   "author": "",
