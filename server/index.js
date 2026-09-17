@@ -82,7 +82,7 @@ app.get("/api/v1/getInteractionByName", async (req, res) => {
     res.json({ data: interaction });
 })
 
-app.post("/api/v1/addInteraction", async (req, res) => {
+app.post("/api/v1/addGif", async (req, res) => {
     const { inter, serverId, url } = req.body;
 
     try {
