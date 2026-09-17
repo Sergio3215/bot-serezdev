@@ -562,16 +562,16 @@ class CloseChannel {
 class Gifts {
     constructor() { }
 
-    async getGifsByInteraction(serverId, name) {
+    async getGifsByInteraction(serverId, id) {
         return await prisma.gif.findMany({
             where: {
                 serverId: serverId,
                 interaction: {
-                    name: name
+                    id: id
                 }
             },
             orderBy: {
-                order: "asc"
+                order: "desc"
             }
         });
     }

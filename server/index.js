@@ -2,13 +2,17 @@ const express = require("express");
 const fs = require("fs").promises;
 const cors = require("cors");
 
-const { Interaction } = require('../db/index');
+const { Interaction, Gifts } = require('../db/index');
 
 const db_interaction = new Interaction();
+const db_gif = new Gifts();
+
 
 const app = express();
 
 require("dotenv").config();
+
+app.use(express.json());
 
 app.use(cors({
     origin: "*"
@@ -76,6 +80,37 @@ app.get("/api/v1/getInteractionByName", async (req, res) => {
     const interaction = await db_interaction.getInteractionByNameAndServer(name, serverId);
 
     res.json({ data: interaction });
+})
+
+app.post("/api/v1/addInteraction", async (req, res) => {
+    const { inter, serverId, url } = req.body;
+
+    try {
+        const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+
+        const regex = new RegExp(expression);
+
+        if (!(url.match(regex))) {
+            throw new Error("No es un enlace real");
+        }
+        if (inter == "") {
+            throw new Error("No existe la interación");
+        }
+        if (serverId === "") {
+            throw new Error("No existe el servidor");
+        }
+
+        const gifs = await db_gif.getGifsByInteraction(serverId, inter);
+        const order = gifs[0].order + 1;
+
+        console.log(order);
+
+        await db_gif.createGiftByInteractionId(order, serverId, url, inter);
+
+        res.status(201).json({ message: "Se subio la imagen con exito" });
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
 })
 
 
