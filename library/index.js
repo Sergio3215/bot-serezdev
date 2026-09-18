@@ -1,4 +1,5 @@
 const { Birthday, BirthdaySetup } = require("../db");
+const { Util } = require("../commands/util/index.js");
 
 class Library {
     constructor() {
@@ -85,6 +86,7 @@ class Library {
 
 const birthday = new Birthday();
 const birthday_setup = new BirthdaySetup();
+const util = new Util();
 
 class RUNTIME_BOT {
 
@@ -134,6 +136,28 @@ class RUNTIME_BOT {
             console.log(error);
         }
     }
+
+    async gif_runtime(client) {
+        try {
+            const guilds = await client.guilds.fetch();
+
+            for (const [serverId] of guilds) {
+                await this.gif_runtime_server(serverId);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async gif_runtime_server(serverId) {
+        try {
+            console.log(`Sync gifs del servidor ${serverId}`);
+            await util.syncGif(serverId);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
 }
 
 module.exports = {

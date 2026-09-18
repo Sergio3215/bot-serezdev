@@ -1,4 +1,8 @@
+const { Gifs, Interaction } = require("../../db");
 const fs = require("fs").promises;
+
+const db_gif = new Gifs();
+const db_interaction = new Interaction();
 
 class Util {
     constructor() { }
@@ -85,7 +89,13 @@ class Util {
         let directory = await fs.readdir("./static");
         let dir = directory.filter(d => d !== 'sin clasificar' && !d.includes(".sh"));
         directory = dir;
-        console.log(dir);
+        // console.log(dir);
+
+        let getInteraction = await db_interaction.getInteractionByNameAndServer(dir[0], serverId);
+
+        if (getInteraction.length == 0) {
+            return;
+        }
 
         for (const d of directory) {
 
@@ -103,9 +113,12 @@ class Util {
                 });
             }
 
-            console.log(d, gifs);
+            // console.log(d, gifs);
 
-            // await db_interaction.createInteractionAndGifs(gifs, d);
+            gifs.forEach(async g => {
+                // await db_gif.createGifByName(g.order, serverId, g.url, d);
+            })
+
         }
     }
 

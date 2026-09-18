@@ -601,6 +601,21 @@ class Gifs {
         });
     }
 
+
+    async createGifByName(order, serverId, url, name) {
+        let inte = await prisma.interactions.findMany();
+        let interaction = inte.filter(i => i.name == name);
+
+        await prisma.gif.create({
+            data: {
+                order: order,
+                serverId: serverId,
+                url: url,
+                interactionId: interaction[0].id
+            }
+        });
+    }
+
     async updateGift(id, newUrl) {
         await prisma.gif.update({
             where: {

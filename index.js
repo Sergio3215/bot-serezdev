@@ -74,6 +74,16 @@ client.on('ready', async () => {
         true,
         'America/Argentina/Buenos_Aires');
 
+    // Sincroniza los gifs de todos los servidores 3 veces al dia: 08:00, 14:00 y 21:00
+    const cronGifs = new CronJob('0 0 8,14,21 * * *',
+        () => {
+            console.log('Start sync gifs');
+            library.gif_runtime(client);
+        },
+        null,
+        true,
+        'America/Argentina/Buenos_Aires');
+
 });
 
 client.on('messageCreate', async (msg) => {
@@ -130,6 +140,13 @@ client.on('interactionCreate', async (interaction) => {
     } catch (error) {
         console.error('Error al manejar la interacción:', error);
     }
+});
+
+
+// Cuando agregan el bot a un servidor nuevo, sincroniza sus gifs al toque
+client.on('guildCreate', async (guild) => {
+    console.log(`Bot agregado al servidor: ${guild.name} (${guild.id})`);
+    library.gif_runtime_server(guild.id);
 });
 
 
