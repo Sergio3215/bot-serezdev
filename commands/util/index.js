@@ -116,7 +116,7 @@ class Util {
             // console.log(d, gifs);
 
             gifs.forEach(async g => {
-                // await db_gif.createGifByName(g.order, serverId, g.url, d);
+                await db_gif.createGifByName(g.order, serverId, g.url, d);
             })
 
         }

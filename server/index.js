@@ -111,6 +111,26 @@ app.post("/api/v1/addGif", async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message })
     }
+});
+
+app.put("/api/v1/editGif", async (req, res) => {
+
+    const { id, url } = req.body;
+
+    await db_gif.updateGift(id, url);
+
+    res.status(200).send("Editado")
+})
+
+
+
+app.delete("/api/v1/deleteGif", async (req, res) => {
+
+    const { id } = req.body;
+
+    await db_gif.deleteGift(id);
+
+    res.status(200).send("Borrado")
 })
 
 
