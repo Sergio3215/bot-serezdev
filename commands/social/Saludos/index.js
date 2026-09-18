@@ -1,20 +1,20 @@
-const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../../../db/index.js");
+const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand, Gifs } = require("../../../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const { Util } = require("../../util/index.js");
 
 const util = new Util();
 
+const db_gif = new Gifs();
+
 class Saludos {
     constructor() { }
 
     async Saludar(client, msg) {
         try {
-            let saludar = Math.floor(Math.random() * 34);
-
-            if (saludar == 0) {
-                saludar = 1;
-            }
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "saludar");
+            let count = gif[0].order - 1;
+            let saludar = Math.floor(Math.random() * count);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -25,14 +25,8 @@ class Saludos {
 
             let str = `${memberName} esta **saludando a todos**`;
 
-            let folder = "saludar"
-
             if (msg.content.includes('<@')) {
-                saludar = Math.floor(Math.random() * 15);
-
-                if (saludar == 0) {
-                    saludar = 1;
-                }
+                saludar = Math.floor(Math.random() * count);
 
                 let reciverID = msg.content.split('<@')[1].split('>')[0];
                 let reciver = await guild.members.fetch(reciverID);
@@ -42,13 +36,13 @@ class Saludos {
             }
 
 
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${saludar}.gif`;
+            let dir = gif.filter(g => g.order == saludar + 1);
 
             const embed = new EmbedBuilder()
                 .setTitle(str)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
@@ -62,11 +56,9 @@ class Saludos {
 
     async Despedirse(client, msg) {
         try {
-            let despedirse = Math.floor(Math.random() * 28);
-
-            if (despedirse == 0) {
-                despedirse = 1;
-            }
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "despedirse");
+            let count = gif[0].order - 1;
+            let despedirse = Math.floor(Math.random() * count);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -77,14 +69,8 @@ class Saludos {
 
             let str = `${memberName} se esta **despidiendo de todos**`;
 
-            let folder = "despedirse"
-
             if (msg.content.includes('<@')) {
-                despedirse = Math.floor(Math.random() * 15);
-
-                if (despedirse == 0) {
-                    despedirse = 1;
-                }
+                despedirse = Math.floor(Math.random() * count);
 
                 let reciverID = msg.content.split('<@')[1].split('>')[0];
                 let reciver = await guild.members.fetch(reciverID);
@@ -94,13 +80,13 @@ class Saludos {
             }
 
 
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${despedirse}.gif`;
+            let dir = gif.filter(g => g.order == despedirse + 1);
 
             const embed = new EmbedBuilder()
                 .setTitle(str)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )

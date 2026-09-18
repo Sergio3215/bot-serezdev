@@ -1,8 +1,11 @@
+const { Gifs } = require("../../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const { Util } = require("../util/index.js");
 
 const util = new Util();
+
+const db_gif = new Gifs();
 
 
 class Social {
@@ -10,11 +13,9 @@ class Social {
 
     async Pensar(client, msg) {
         try {
-            let pensar = Math.floor(Math.random() * 36);
-
-            if (pensar == 0) {
-                pensar = 1;
-            }
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "pensar");
+            let count = gif[0].order - 1;
+            let pensar = Math.floor(Math.random() * count);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -25,16 +26,10 @@ class Social {
 
             let str = `${memberName} esta pensando`;
 
-            let folder = "pensar"
-
             if (msg.content.includes('<@')) {
-                pensar = Math.floor(Math.random() * 16);
-
-                if (pensar == 0) {
-                    pensar = 1;
-                }
-
-                folder = "pensar-alguien"
+                gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "pensar-alguien");
+                count = gif[0].order - 1;
+                pensar = Math.floor(Math.random() * count);
 
                 let reciverID = msg.content.split('<@')[1].split('>')[0];
                 let reciver = await guild.members.fetch(reciverID);
@@ -44,13 +39,13 @@ class Social {
             }
 
 
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${pensar}.gif`;
+            let dir = gif.filter(g => g.order == pensar + 1);
 
             const embed = new EmbedBuilder()
                 .setTitle(str)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
@@ -64,11 +59,9 @@ class Social {
 
     async FelizCumple(client, msg) {
         try {
-            let fc = Math.floor(Math.random() * 36);
-
-            if (fc == 0) {
-                fc = 1;
-            }
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "FelizCumple");
+            let count = gif[0].order - 1;
+            let fc = Math.floor(Math.random() * count);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -78,8 +71,6 @@ class Social {
             let memberName = (member.nickname == null) ? msg.author.globalName : member.nickname;
 
             let str = ``;
-
-            let folder = "FelizCumple"
 
             if (msg.content.includes('<@')) {
 
@@ -97,13 +88,13 @@ class Social {
 
                 str = `${memberName} desea un 🎉¡Feliz cumpleaños ${atrasado} a ${reciverName}! 🎂`;
 
-                let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${fc}.gif`;
+                let dir = gif.filter(g => g.order == fc + 1);
 
                 const embed = new EmbedBuilder()
                     .setTitle(str)
                     // .setDescription("list of all commands")
                     .setColor(color)
-                    .setImage(dir)
+                    .setImage(dir[0].url)
                 // .addFields(
                 //     comandos_helper
                 // )
@@ -123,11 +114,9 @@ class Social {
 
     async Choca5(client, msg) {
         try {
-            let chocar5 = Math.floor(Math.random() * 20);
-
-            if (chocar5 == 0) {
-                chocar5 = 1;
-            }
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "chocar5");
+            let count = gif[0].order - 1;
+            let chocar5 = Math.floor(Math.random() * count);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -138,8 +127,6 @@ class Social {
 
             let str = ``;
 
-            let folder = "chocar5"
-
             if (msg.content.includes('<@')) {
 
                 let reciverID = msg.content.split('<@')[1].split('>')[0];
@@ -148,13 +135,13 @@ class Social {
 
                 str = `${memberName} choco los 5 con ${reciverName}`;
 
-                let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${folder}/${chocar5}.gif`;
+                let dir = gif.filter(g => g.order == chocar5 + 1);
 
                 const embed = new EmbedBuilder()
                     .setTitle(str)
                     // .setDescription("list of all commands")
                     .setColor(color)
-                    .setImage(dir)
+                    .setImage(dir[0].url)
                 // .addFields(
                 //     comandos_helper
                 // )

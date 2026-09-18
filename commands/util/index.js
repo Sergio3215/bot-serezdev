@@ -1,3 +1,5 @@
+const fs = require("fs").promises;
+
 class Util {
     constructor() { }
 
@@ -76,6 +78,34 @@ class Util {
             case 4:
                 return Colors.Black;
                 break;
+        }
+    }
+
+    async syncGif(serverId) {
+        let directory = await fs.readdir("./static");
+        let dir = directory.filter(d => d !== 'sin clasificar' && !d.includes(".sh"));
+        directory = dir;
+        console.log(dir);
+
+        for (const d of directory) {
+
+            const gifs = [];
+
+            const files = (
+                await fs.readdir(`./static/${d}`)
+            ).filter(file => file.endsWith(".gif"));
+
+            for (const file of files) {
+                gifs.push({
+                    order: parseInt(file.replace(".gif", "")),
+                    serverId,
+                    url: `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${d}/${file}`
+                });
+            }
+
+            console.log(d, gifs);
+
+            // await db_interaction.createInteractionAndGifs(gifs, d);
         }
     }
 

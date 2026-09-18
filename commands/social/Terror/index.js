@@ -1,20 +1,21 @@
-const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../../../db/index.js");
+const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand, Gifs } = require("../../../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const { Util } = require("../../util/index.js");
 
 const util = new Util();
 
+const db_gif = new Gifs();
+
 class Terror {
     constructor() { }
 
     async Perseguir(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 4);
-            if (perseguir == 0) {
-                perseguir = 1;
-            }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/perseguir/${perseguir}.gif`;
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "perseguir");
+            let count = gif[0].order - 1;
+            let perseguir = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == perseguir + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -31,7 +32,7 @@ class Terror {
                 .setTitle(`${memberName} le esta persiguiendo a ${reciverName}`)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
@@ -45,11 +46,10 @@ class Terror {
 
     async Miedo(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 16);
-            if (perseguir == 0) {
-                perseguir = 1;
-            }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/miedo/${perseguir}.gif`;
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "miedo");
+            let count = gif[0].order - 1;
+            let perseguir = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == perseguir + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -71,7 +71,7 @@ class Terror {
                 .setTitle(str)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
@@ -85,11 +85,10 @@ class Terror {
 
     async Asustar(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 19);
-            if (perseguir == 0) {
-                perseguir = 1;
-            }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/asustar/${perseguir}.gif`;
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "asustar");
+            let count = gif[0].order - 1;
+            let perseguir = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == perseguir + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -106,7 +105,7 @@ class Terror {
                 .setTitle(`${memberName} quiere intimidar a ${reciverName}`)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
@@ -120,11 +119,10 @@ class Terror {
 
     async Llorar(client, msg) {
         try {
-            let llorar = Math.floor(Math.random() * 28);
-            if (llorar == 0) {
-                llorar = 1;
-            }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/llorar/${llorar}.gif`;
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "llorar");
+            let count = gif[0].order - 1;
+            let llorar = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == llorar + 1);
 
             // console.log(llorar);
 
@@ -139,7 +137,7 @@ class Terror {
                 .setTitle(`${memberName} empezo a llorar`)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
