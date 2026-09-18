@@ -21,8 +21,6 @@ class LibsCommands {
     constructor() {
 
     }
-
-
     //Role Play
     #SubirNivel = () => {
         let maxLevel = 10;
@@ -33,24 +31,6 @@ class LibsCommands {
             inteligencia: Math.floor(Math.random() * maxLevel),
             sabiduria: Math.floor(Math.random() * maxLevel),
             carisma: Math.floor(Math.random() * maxLevel),
-        }
-    }
-
-    #getCommentAndReciver(msg, percent, message) {
-        let reciver = msg.author.id;
-        let comment = '';
-
-        if (percent > 50) {
-            comment = message;
-        }
-
-        if (msg.content.includes('<@')) {
-            reciver = msg.content.split('<@')[1].split('>')[0];
-        }
-
-        return {
-            reciver,
-            comment
         }
     }
 
@@ -76,43 +56,6 @@ class LibsCommands {
             case 4:
                 return Colors.Black;
                 break;
-        }
-    }
-
-    async #PersonaRandom(client, msg) {
-
-        let letter = 'a';
-        let arrLetter = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-
-        letter = arrLetter[Math.floor(Math.random() * arrLetter.length)];
-        // console.log(letter);
-
-        const guild = await client.guilds.cache.get(msg.guild.id);
-        // console.log(guild);
-        let member = await guild.members.search({ query: letter, limit: 100 });
-        // console.log(member.size);
-        // console.log(member.filter(m => m.user.bot !== true));
-
-        if (member.size !== 0) {
-            let tempArr = [];
-            member.filter(m => m.user.bot !== true).map(m => {
-
-                if (m.user.globalName == null) {
-                    m.user.globalName = m.user.username;
-                }
-
-                tempArr.push(m);
-            })
-
-            let oneMember = Math.floor(Math.random() * tempArr.length);
-
-            // console.log(tempArr[oneMember].nickname);
-            // console.log(tempArr[oneMember].user.globalName);
-
-            return tempArr[oneMember]
-        }
-        else {
-            return this.#PersonaRandom(client, msg);
         }
     }
 
