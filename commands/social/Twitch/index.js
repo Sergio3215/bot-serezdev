@@ -20,6 +20,7 @@ class Twitch {
     }
 
     async Gaga(msg, userIsSubOrBooster) {
+        util.syncGif();
 
         const member = await msg.guild.members.fetch(msg.author.id);
 
