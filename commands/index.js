@@ -2,6 +2,12 @@ const { Server, SettingWelcome, MetricCommands, ContadorCommand } = require("../
 const { Library } = require("../library/index.js");
 const LibsCommands = require("./lib.js");
 const { Rules } = require("./rules.js");
+const { Battle } = require("./social/Battle/index.js");
+const { Romance } = require("./social/Romance/index.js");
+const { Saludos } = require("./social/Saludos/index.js");
+const { Terror } = require("./social/Terror/index.js");
+const { Twitch } = require("./social/Twitch/index.js");
+const { Social } = require("./social/index.js");
 
 const contador_command = new ContadorCommand();
 
@@ -9,6 +15,13 @@ const ServerDb = new Server();
 let libCommands = new LibsCommands();
 const metrica_commands = new MetricCommands();
 const library = new Library();
+
+const battle = new Battle();
+const romance = new Romance();
+const saludos = new Saludos();
+const terror = new Terror();
+const twitch = new Twitch();
+const social = new Social();
 
 const checkServer = async (guild) => {
     let dataServer = (await ServerDb.GetById(guild.id));
@@ -105,7 +118,7 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     }
 
     if (msg.content.includes('!memide')) {
-        libCommands.MeMide(msg);
+        twitch.MeMide(msg);
         setMetric("!memide", msg);
     }
 
@@ -160,11 +173,11 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
 
     // TWITCH commands START
     if (msg.content.includes('!gay')) {
-        libCommands.Gay(msg, userIsSubOrBooster);
+        twitch.Gay(msg, userIsSubOrBooster);
         setMetric("!gay", msg);
     }
     if (msg.content.includes('!gaga')) {
-        libCommands.Gaga(msg, userIsSubOrBooster);
+        twitch.Gaga(msg, userIsSubOrBooster);
         setMetric("!gaga", msg);
     }
     if (msg.content.includes('!meme')) {
@@ -175,88 +188,88 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
 
     //NEKOITINA Family Friendly START
     if (msg.content.toLowerCase().includes("!golpear")) {
-        libCommands.Golpear(client, msg);
+        battle.Golpear(client, msg);
         setMetric("!golpear", msg);
     }
 
     if (msg.content.toLowerCase().includes("!sonrojar")) {
-        libCommands.Sonrojar(client, msg);
+        romance.Sonrojar(client, msg);
         setMetric("!sonrojar", msg);
     }
 
     if (msg.content.toLowerCase().includes("!perseguir")) {
-        libCommands.Perseguir(client, msg);
+        terror.Perseguir(client, msg);
         setMetric("!perseguir", msg);
     }
 
     if (msg.content.toLowerCase().includes("!besar")) {
-        libCommands.Besar(client, msg);
+        romance.Besar(client, msg);
         setMetric("!besar", msg);
     }
 
     if (msg.content.toLowerCase().includes("!abrazar")) {
-        libCommands.Abrazar(client, msg);
+        romance.Abrazar(client, msg);
         setMetric("!abrazar", msg);
     }
 
     if (msg.content.toLowerCase().includes("!miedo")) {
-        libCommands.Miedo(client, msg);
+        terror.Miedo(client, msg);
         setMetric("!miedo", msg);
     }
 
     if (msg.content.toLowerCase().includes("!intimidar")) {
-        libCommands.Asustar(client, msg);
+        terror.Asustar(client, msg);
         setMetric("!intimidar", msg);
     }
 
     if (msg.content.toLowerCase().includes("!nalguear")) {
-        libCommands.Nalguear(client, msg);
+        romance.Nalguear(client, msg);
         setMetric("!nalguear", msg);
     }
 
     if (msg.content.toLowerCase().includes("!pensar")) {
-        libCommands.Pensar(client, msg);
+        social.Pensar(client, msg);
         setMetric("!pensar", msg);
     }
 
     if (msg.content.toLowerCase().includes("!llorar")) {
-        libCommands.Llorar(client, msg);
+        terror.Llorar(client, msg);
         setMetric("!llorar", msg);
     }
 
     if (msg.content.toLowerCase().includes("!hi")) {
-        libCommands.Saludar(client, msg);
+        saludos.Saludar(client, msg);
         setMetric("!hi", msg);
     }
 
     if (msg.content.toLowerCase().includes("!bye")) {
-        libCommands.Despedirse(client, msg);
+        saludos.Despedirse(client, msg);
         setMetric("!bye", msg);
     }
 
     if (msg.content.toLowerCase().includes("!fc")) {
-        libCommands.FelizCumple(client, msg);
+        social.FelizCumple(client, msg);
         setMetric("!fc", msg);
     }
 
     if (msg.content.toLowerCase().includes("!choquelos5")) {
-        libCommands.Choca5(client, msg);
+        social.Choca5(client, msg);
         setMetric("!choquelos5", msg);
     }
 
     if (msg.content.toLowerCase().includes("!enojarse")) {
-        libCommands.Enojar(client, msg);
+        battle.Enojar(client, msg);
         setMetric("!enojarse", msg);
     }
 
     if (msg.content.toLowerCase().includes("!duelo")) {
-        libCommands.Duelo(client, msg);
+        battle.Duelo(client, msg);
         setMetric("!duelo", msg);
     }
     //NEKOITINA Family Friendly END
 
     if (msg.content.toLowerCase().includes("!pareja")) {
-        libCommands.Pareja(client, msg);
+        romance.Pareja(client, msg);
         setMetric("!pareja", msg);
     }
 

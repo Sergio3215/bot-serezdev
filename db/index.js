@@ -576,6 +576,20 @@ class Gifts {
         });
     }
 
+    async getGifsByInteractionByName(serverId, name) {
+        return await prisma.gif.findMany({
+            where: {
+                serverId: serverId,
+                interaction: {
+                    name: name
+                }
+            },
+            orderBy: {
+                order: "desc"
+            }
+        });
+    }
+
     async createGiftByInteractionId(order, serverId, url, interactionId) {
         await prisma.gif.create({
             data: {
