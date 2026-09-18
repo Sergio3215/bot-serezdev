@@ -2,10 +2,10 @@ const express = require("express");
 const fs = require("fs").promises;
 const cors = require("cors");
 
-const { Interaction, Gifts } = require('../db/index');
+const { Interaction, Gifs } = require('../db/index');
 
 const db_interaction = new Interaction();
-const db_gif = new Gifts();
+const db_gif = new Gifs();
 
 
 const app = express();

@@ -1,9 +1,11 @@
-const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../../../db/index.js");
+const { Gifs } = require("../../../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const { Util } = require("../../util/index.js");
 
 const util = new Util();
+
+const db_gif = new Gifs();
 
 class Romance {
     constructor() { }
@@ -26,18 +28,15 @@ class Romance {
                         :
                         "besar"
 
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, seccion);
 
-            let count = seccion == "abrazo" ? 32
-                :
-                seccion == "besar" ?
-                    36 : 4;
+            let count = gif[0].order - 1;
 
             let actionCount = Math.floor(Math.random() * count);
-            if (actionCount == 0) {
-                actionCount = 1;
-            }
 
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${seccion}/${actionCount}.gif`;
+            // let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${seccion}/${actionCount}.gif`;
+
+            let dir = gif.filter(g => g.order == actionCount + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -56,11 +55,13 @@ class Romance {
 
             // console.log(reciverName);
 
+            console.log(dir)
+
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} es 100% compatible con ${reciverName}`)
                 // .setDescription("list of all commands")
                 .setColor(color)
-                .setImage(dir)
+                .setImage(dir[0].url)
             // .addFields(
             //     comandos_helper
             // )
@@ -77,11 +78,11 @@ class Romance {
 
     async Nalguear(client, msg) {
         try {
-            let perseguir = Math.floor(Math.random() * 8);
-            if (perseguir == 0) {
-                perseguir = 1;
-            }
-            let dir = `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/nalguear/${perseguir}.gif`;
+
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "nalguear");
+            let count = gif[0].order - 1;
+            let actionCount = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == actionCount + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -96,11 +97,8 @@ class Romance {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} ha nalgueado a ${reciverName}`)
-                .setColor(color);
-
-            if (dir) {
-                embed.setImage(dir);
-            }
+                .setColor(color)
+                .setImage(dir[0].url);
 
             await msg.reply({
                 embeds: [embed]
@@ -111,7 +109,11 @@ class Romance {
     }
 
     async Sonrojar(client, msg) {
-        let dir = await gifts.getRandomGif(msg.guild.id, "sonrojar");
+
+        let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "sonrojar");
+        let count = gif[0].order - 1;
+        let actionCount = Math.floor(Math.random() * count);
+        let dir = gif.filter(g => g.order == actionCount + 1);
 
         const guild = await client.guilds.cache.get(msg.guild.id);
         let member = await guild.members.fetch(msg.author.id);
@@ -122,11 +124,8 @@ class Romance {
 
         const embed = new EmbedBuilder()
             .setTitle(`${memberName} se ha sonrojado`)
-            .setColor(color);
-
-        if (dir) {
-            embed.setImage(dir);
-        }
+            .setColor(color)
+            .setImage(dir[0].url);
 
         await msg.reply({
             embeds: [embed]
@@ -135,7 +134,11 @@ class Romance {
 
     async Besar(client, msg) {
         try {
-            let dir = await gifts.getRandomGif(msg.guild.id, "besar");
+
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "besar");
+            let count = gif[0].order - 1;
+            let actionCount = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == actionCount + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -150,11 +153,8 @@ class Romance {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} le dio un beso a ${reciverName}`)
-                .setColor(color);
-
-            if (dir) {
-                embed.setImage(dir);
-            }
+                .setColor(color)
+                .setImage(dir[0].url)
 
             await msg.reply({
                 embeds: [embed]
@@ -166,7 +166,10 @@ class Romance {
 
     async Abrazar(client, msg) {
         try {
-            let dir = await gifts.getRandomGif(msg.guild.id, "abrazo");
+            let gif = await db_gif.getGifsByInteractionByName(msg.guild.id, "abrazo");
+            let count = gif[0].order - 1;
+            let actionCount = Math.floor(Math.random() * count);
+            let dir = gif.filter(g => g.order == actionCount + 1);
 
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
@@ -181,11 +184,8 @@ class Romance {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} le abrazó a ${reciverName}`)
-                .setColor(color);
-
-            if (dir) {
-                embed.setImage(dir);
-            }
+                .setColor(color)
+                .setImage(dir[0].url);
 
             await msg.reply({
                 embeds: [embed]

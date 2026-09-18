@@ -559,7 +559,7 @@ class CloseChannel {
 
 }
 
-class Gifts {
+class Gifs {
     constructor() { }
 
     async getGifsByInteraction(serverId, id) {
@@ -693,6 +693,6 @@ module.exports = {
     Birthday,
     LoggChatBot,
     CloseChannel,
-    Gifts,
+    Gifs,
     Interaction
 };
