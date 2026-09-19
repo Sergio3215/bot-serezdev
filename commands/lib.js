@@ -1,4 +1,4 @@
-const { Server, SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
+const { SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { generateImage, generateTextSystem } = require("../openaiScript.js");
 const { BirthdaySetup, Birthday, LoggChatBot, CloseChannel } = require("../db");

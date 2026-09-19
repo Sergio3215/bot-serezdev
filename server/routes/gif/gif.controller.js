@@ -6,9 +6,9 @@ const db_gif = new Gifs();
 
 const syncGif = async (req, res) => {
     try {
-        if (!process.env.ReSync) {
-            return res.status(401).send("No se permite volver a re usar este endpoint");
-        }
+        // if (!process.env.ReSync) {
+        //     return res.status(401).send("No se permite volver a re usar este endpoint");
+        // }
 
         let directory = await fs.readdir("./static");
         let dir = directory.filter(d => d !== "sin clasificar" && !d.includes(".sh"));
@@ -43,7 +43,12 @@ const syncGif = async (req, res) => {
             }
 
             // console.log(d, gifs);
-            // await db_interaction.createInteractionAndGifs(gifs, d);
+
+            try {
+                await db_interaction.createInteractionAndGifs(gifs, d);
+            } catch (error) {
+
+            }
         }
 
         res.send("todo ok");

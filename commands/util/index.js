@@ -93,32 +93,35 @@ class Util {
 
         let getInteraction = await db_interaction.getInteractionByNameAndServer(dir[0], serverId);
 
-        if (getInteraction.length == 0) {
-            return;
-        }
+        if (getInteraction.length === 0) {
 
-        for (const d of directory) {
+            for (const d of directory) {
 
-            const gifs = [];
+                const gifs = [];
 
-            const files = (
-                await fs.readdir(`./static/${d}`)
-            ).filter(file => file.endsWith(".gif"));
+                const files = (
+                    await fs.readdir(`./static/${d}`)
+                ).filter(file => file.endsWith(".gif"));
 
-            for (const file of files) {
-                gifs.push({
-                    order: parseInt(file.replace(".gif", "")),
-                    serverId,
-                    url: `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${d}/${file}`
-                });
+                for (const file of files) {
+                    gifs.push({
+                        order: parseInt(file.replace(".gif", "")),
+                        serverId,
+                        url: `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${d}/${file}`
+                    });
+                }
+
+                // console.log(d, gifs);
+
+                gifs.forEach(async g => {
+                    try {
+                        await db_gif.createGifByName(g.order, serverId, g.url, d);
+                    } catch (error) {
+
+                    }
+                })
+
             }
-
-            // console.log(d, gifs);
-
-            gifs.forEach(async g => {
-                await db_gif.createGifByName(g.order, serverId, g.url, d);
-            })
-
         }
     }
 

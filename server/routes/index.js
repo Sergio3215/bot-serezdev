@@ -4,6 +4,8 @@ const router = express.Router();
 const gifRoutes = require("./gif");
 const birthdaySetRoutes = require("./birthdaySet");
 
+const joinServerRoutes = require("./joinServer");
+
 // 1. Compatibilidad directa para el frontend actual (/api/v1/getInteractions, /api/v1/addGif, etc.)
 router.use("/", gifRoutes);
 
@@ -12,5 +14,8 @@ router.use("/gif", gifRoutes);
 
 // Rutas de cumpleaños y configuración (/api/v1/birthdaySet/... o /api/v1/birthday/...)
 router.use("/birthday", birthdaySetRoutes);
+
+// Rutas de cumpleaños y configuración (/api/v1/joinServer/... o /api/v1/joinServer/...)
+router.use("/joinServer", joinServerRoutes);
 
 module.exports = router;

@@ -132,10 +132,12 @@ model gif {
   url           String
   interactionId String       @db.ObjectId
   interaction   Interactions @relation(fields: [interactionId], references: [id])
+
+  @@unique([serverId, interactionId, order])
 }
 
 model Interactions {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  name String @unique
   gifs gif[]
 }
