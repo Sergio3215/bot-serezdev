@@ -24,9 +24,7 @@ const createJoinServer = async (req, res) => {
             return res.status(400).json({ message: "El id del servidor es requerido" });
         }
 
-        const idRole = cleanRoleId(roleId);
-
-        const result = await setting_welcome.Create(serverId, idRole);
+        const result = await setting_welcome.Create(serverId, roleId);
 
         return res.status(201).json({ message: "Configuración de bienvenida creada con éxito", data: result });
 
