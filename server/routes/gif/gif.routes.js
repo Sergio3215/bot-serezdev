@@ -8,5 +8,6 @@ router.get("/getInteractionByName", gifController.getInteractionByName);
 router.post("/addGif", gifController.addGif);
 router.put("/editGif", gifController.editGif);
 router.delete("/deleteGif", gifController.deleteGif);
+router.delete("/deleteGifsByServer", gifController.deleteGifsByServer);
 
 module.exports = router;

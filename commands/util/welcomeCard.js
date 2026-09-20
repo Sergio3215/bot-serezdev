@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
@@ -18,28 +19,73 @@ const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
 const CARPETA_FUENTES = path.join(__dirname, "..", "..", "static", "fonts");
 
+/**
+ * Equivalentes libres (Google Fonts) de las familias que ofrece el editor.
+ *
+ * @napi-rs/canvas no trae ninguna fuente: usa las del sistema. Windows tiene casi
+ * 200 familias, pero un contenedor Linux como el de Railway puede no tener ninguna,
+ * y sin fuentes el texto se mide con ancho 0 y no se dibuja nada: queda el fondo y
+ * el avatar, sin letras.
+ *
+ * Cada archivo se registra además con el nombre que usa el editor, así "Arial"
+ * existe aunque el sistema no la tenga. Arimo, Tinos y Cousine comparten las
+ * métricas exactas de Arial, Times New Roman y Courier New, así que el texto ocupa
+ * lo mismo que en la vista previa. El resto son aproximaciones visuales.
+ */
+const ARIMO = ["Arimo-400.ttf", "Arimo-700.ttf", "Arimo-400Italic.ttf", "Arimo-700Italic.ttf"];
+const TINOS = ["Tinos-400.ttf", "Tinos-700.ttf", "Tinos-400Italic.ttf"];
+const COUSINE = ["Cousine-400.ttf", "Cousine-700.ttf"];
+const COMIC = ["ComicNeue-400.ttf", "ComicNeue-700.ttf"];
+
+const FUENTES = [
+    { alias: "Arial", archivos: ARIMO },
+    { alias: "Helvetica", archivos: ARIMO },
+    { alias: "Verdana", archivos: ARIMO },
+    { alias: "Trebuchet MS", archivos: ["FiraSans-400.ttf", "FiraSans-700.ttf"] },
+    { alias: "Georgia", archivos: ["Gelasio-400.ttf", "Gelasio-700.ttf"] },
+    { alias: "Times New Roman", archivos: TINOS },
+    { alias: "Courier New", archivos: COUSINE },
+    { alias: "Impact", archivos: ["Anton-400.ttf"] },
+    { alias: "Comic Sans MS", archivos: COMIC },
+    // Genéricos de CSS, por si una capa vieja quedó solo con esto.
+    { alias: "sans-serif", archivos: ARIMO },
+    { alias: "serif", archivos: TINOS },
+    { alias: "monospace", archivos: COUSINE },
+    { alias: "cursive", archivos: COMIC },
+];
+
 let fuentesCargadas = false;
 
-/**
- * Registra los .ttf/.otf de static/fonts. En un contenedor Linux (Railway) no
- * hay fuentes del sistema: sin esto, todo se dibuja con la de reserva y no se
- * parece a la vista previa.
- */
 function cargarFuentes() {
     if (fuentesCargadas) return;
     fuentesCargadas = true;
 
     try {
-        const cantidad = GlobalFonts.loadFontsFromDir(CARPETA_FUENTES);
+        // 1. Todo lo que haya en la carpeta, con su nombre real (Arimo, Tinos...).
+        const propias = GlobalFonts.loadFontsFromDir(CARPETA_FUENTES);
 
-        if (cantidad > 0) {
-            console.log(`[welcomeCard] ${cantidad} fuentes cargadas desde static/fonts`);
-        } else {
-            console.log(
-                "[welcomeCard] sin fuentes propias en static/fonts: se usan las del sistema. " +
-                "En Linux puede que no haya ninguna y la imagen no se parezca a la vista previa. " +
-                "Copiá ahí los .ttf (Arial, Impact, etc.) y se registran solos."
-            );
+        // 2. Y de nuevo bajo el nombre que guarda el editor, para que resuelvan
+        //    aunque el sistema operativo no tenga esas familias.
+        let alias = 0;
+        for (const fuente of FUENTES) {
+            for (const archivo of fuente.archivos) {
+                const ruta = path.join(CARPETA_FUENTES, archivo);
+                if (!fs.existsSync(ruta)) continue;
+
+                try {
+                    GlobalFonts.registerFromPath(ruta, fuente.alias);
+                    alias++;
+                } catch (error) {
+                    console.log(`[welcomeCard] no se pudo registrar ${archivo} como "${fuente.alias}":`, error.message);
+                }
+            }
+        }
+
+        const total = GlobalFonts.families.length;
+        console.log(`[welcomeCard] fuentes: ${propias} archivos propios, ${alias} alias, ${total} familias disponibles`);
+
+        if (total === 0) {
+            console.log("[welcomeCard] ¡SIN NINGUNA FUENTE! El texto no se va a dibujar. Faltan los .ttf en static/fonts.");
         }
     } catch (error) {
         console.log("[welcomeCard] no se pudieron cargar las fuentes:", error.message);
@@ -62,6 +108,14 @@ function resolverFuente(pila) {
         } catch (error) {
             // GlobalFonts.has puede no existir en versiones viejas: seguimos de largo.
         }
+    }
+
+    // Última red: antes que no dibujar nada, dibujar con cualquier familia que haya.
+    try {
+        const disponibles = GlobalFonts.families;
+        if (disponibles.length > 0) return disponibles[0].family;
+    } catch (error) {
+        // sin families: caemos al nombre original
     }
 
     return familias[0] || "sans-serif";

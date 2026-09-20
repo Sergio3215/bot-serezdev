@@ -106,8 +106,35 @@ const deleteGif = async (req, res) => {
     }
 };
 
+/**
+ * Borra todos los gifs de un servidor. Las interacciones no se tocan: son
+ * globales. Un sync posterior (cron, guildCreate o /syncGif) los vuelve a crear
+ * desde ./static, así que esto sirve para dejar un servidor en cero y repoblarlo.
+ */
+const deleteGifsByServer = async (req, res) => {
+    try {
+        const { serverId } = req.body;
+
+        // Sin este control, un body vacío borraría los gifs de serverId undefined;
+        // hoy no borra nada, pero no es algo que quieras dejar librado al azar.
+        if (!serverId) {
+            return res.status(400).json({ message: "El id del servidor es requerido" });
+        }
+
+        const borrados = await db_gif.deleteByServer(serverId);
+
+        res.status(200).json({
+            message: `Se borraron ${borrados} gifs del servidor ${serverId}`,
+            gifs: borrados
+        });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
 module.exports = {
     syncGif,
+    deleteGifsByServer,
     getInteractions,
     getInteractionByName,
     addGif,

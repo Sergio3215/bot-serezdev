@@ -634,6 +634,24 @@ class Gifs {
             }
         });
     }
+
+    /**
+     * Borra todos los gifs de un servidor, de todas las interacciones.
+     * No toca las interacciones en sí, que son globales y las comparten
+     * todos los servidores.
+     *
+     * @param {String} serverId
+     * @returns {Promise<Number>} cuántos se borraron
+     */
+    async deleteByServer(serverId) {
+        const { count } = await prisma.gif.deleteMany({
+            where: {
+                serverId: serverId
+            }
+        });
+
+        return count;
+    }
 }
 
 class Interaction {
