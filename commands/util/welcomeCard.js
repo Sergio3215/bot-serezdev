@@ -47,6 +47,7 @@ const FUENTES = [
     { alias: "Courier New", archivos: COUSINE },
     { alias: "Impact", archivos: ["Anton-400.ttf"] },
     { alias: "Comic Sans MS", archivos: COMIC },
+    { alias: "Ubuntu", archivos: ["Ubuntu-400.ttf", "Ubuntu-700.ttf", "Ubuntu-400Italic.ttf", "Ubuntu-700Italic.ttf"] },
     // Genéricos de CSS, por si una capa vieja quedó solo con esto.
     { alias: "sans-serif", archivos: ARIMO },
     { alias: "serif", archivos: TINOS },
