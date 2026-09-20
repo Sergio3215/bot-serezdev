@@ -141,3 +141,16 @@ model Interactions {
   name String @unique
   gifs gif[]
 }
+
+model WelcomeCard {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  serverId       String   @unique
+  enabled        Boolean  @default(true)
+  channelId      String?
+  messageContent String   @default("")
+  config         Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("welcome_card")
+}

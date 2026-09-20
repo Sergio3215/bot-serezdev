@@ -2,7 +2,8 @@ const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js')
 const { Consulting } = require('./gemini');
 const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
-const { Server, SettingWelcome, ContadorCommand } = require('./db/index.js');
+const { Server, SettingWelcome, ContadorCommand, WelcomeCard } = require('./db/index.js');
+const { WelcomeCardRenderer } = require('./commands/util/welcomeCard.js');
 const { ManageInteraction } = require('./interaction/index.js');
 const { SlashCommands } = require('./slash command/index.js');
 const { SlashLib } = require('./slash command/lib.js');
@@ -20,6 +21,8 @@ const library = new RUNTIME_BOT();
 const ServerDb = new Server();
 const settingWelcome = new SettingWelcome();
 const counterDb = new ContadorCommand();
+const welcomeCardDb = new WelcomeCard();
+const welcomeCard = new WelcomeCardRenderer();
 
 const client = new Client({
     intents: [
@@ -152,14 +155,30 @@ client.on('guildCreate', async (guild) => {
 
 client.on('guildMemberAdd', async (member) => {
 
+    // 1. Rol automático de bienvenida
     try {
         const settingWelcomeData = await settingWelcome.GetById(member.guild.id);
         if (settingWelcomeData.length > 0) {
             const roleId = settingWelcomeData[0].setRole;
-            member.roles.add(roleId);
+            await member.roles.add(roleId);
         }
     } catch (error) {
+        console.log('[guildMemberAdd] no se pudo asignar el rol:', error.message);
+    }
 
+    // 2. Imagen de bienvenida. Va en su propio try: si falla el dibujo o el envío,
+    //    el rol de arriba ya quedó asignado igual.
+    try {
+        const card = await welcomeCardDb.GetOne(member.guild.id);
+
+        if (!card || !card.enabled || !card.channelId) return;
+
+        const channel = await member.guild.channels.fetch(card.channelId);
+        if (!channel) return;
+
+        await channel.send(await welcomeCard.BuildMessage(card, member));
+    } catch (error) {
+        console.log('[guildMemberAdd] no se pudo enviar la bienvenida:', error.message);
     }
 });
 

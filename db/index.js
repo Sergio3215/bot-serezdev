@@ -694,10 +694,92 @@ class Interaction {
 
 }
 
+class WelcomeCard {
+    constructor() {
+
+    }
+
+    /**
+     * Mismo shape que el resto de las clases (array), para que la API pueda
+     * responder { data: [...] } y el panel lea data[0].
+     */
+    async GetById(serverId) {
+        return await prisma.welcomeCard.findMany({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+
+    /**
+     * Para el guildMemberAdd: una sola lectura por el índice de serverId.
+     * Devuelve el documento o null.
+     */
+    async GetOne(serverId) {
+        return await prisma.welcomeCard.findUnique({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+
+    async Create(option) {
+        return await prisma.welcomeCard.create({
+            data: {
+                serverId: option.serverId,
+                enabled: option.enabled,
+                channelId: option.channelId,
+                messageContent: option.messageContent,
+                config: option.config,
+            }
+
+        });
+    }
+
+    async Update(serverId, option) {
+        await prisma.welcomeCard.update({
+            where: {
+                serverId: serverId,
+            },
+            data: {
+                enabled: option.enabled,
+                channelId: option.channelId,
+                messageContent: option.messageContent,
+                config: option.config,
+            }
+        });
+    }
+
+    /**
+     * El panel manda POST la primera vez y PUT después, pero como serverId es
+     * unique los dos se resuelven acá sin averiguar antes si la fila existe.
+     */
+    async Upsert(serverId, option) {
+        const data = {
+            enabled: option.enabled,
+            channelId: option.channelId,
+            messageContent: option.messageContent,
+            config: option.config,
+        };
+
+        return await prisma.welcomeCard.upsert({
+            where: {
+                serverId: serverId,
+            },
+            create: {
+                serverId: serverId,
+                ...data
+            },
+            update: data
+        });
+    }
+}
+
 module.exports = {
     Server,
     buttonFollowing,
     SettingWelcome,
+    WelcomeCard,
     aceptRules,
     setTicket,
     statusTicket,
