@@ -9,7 +9,7 @@ require("dotenv").config();
 app.use(express.json());
 
 app.use(cors({
-    origin: "*"
+    origin: process.env.URL_PERMISSION
 }));
 
 app.use("/api/v1", routes);
