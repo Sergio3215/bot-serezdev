@@ -84,6 +84,45 @@ function aplicarVariables(texto, datos) {
 }
 
 /* ------------------------------------------------------------------ */
+/* URLs de Drive / OneDrive                                            */
+/* ------------------------------------------------------------------ */
+
+const DRIVE_ID = "[A-Za-z0-9_-]{10,}";
+
+const DRIVE_PATRONES = [
+    new RegExp(`drive\\.google\\.com/file/d/(${DRIVE_ID})`),
+    new RegExp(`(?:drive|docs)\\.google\\.com/(?:uc|open)\\?[^\\s]*id=(${DRIVE_ID})`),
+    new RegExp(`drive\\.google\\.com/thumbnail\\?[^\\s]*id=(${DRIVE_ID})`),
+];
+
+/**
+ * Los links de "compartir" de Drive y OneDrive devuelven HTML, no la imagen.
+ * Esta es la misma conversión que hace el panel (lib/imageUrl.ts), replicada acá
+ * para las configs que se hayan guardado antes o editado a mano en la base.
+ */
+function urlDirecta(url) {
+    const limpia = String(url || "").trim();
+    if (!limpia) return limpia;
+
+    for (const patron of DRIVE_PATRONES) {
+        const match = limpia.match(patron);
+        if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+
+    if (/(?:1drv\.ms|onedrive\.live\.com|\.sharepoint\.com)\//.test(limpia)) {
+        const codificada = Buffer.from(limpia, "utf8")
+            .toString("base64")
+            .replace(/=+$/, "")
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-");
+
+        return `https://api.onedrive.com/v1.0/shares/u!${codificada}/root/content`;
+    }
+
+    return limpia;
+}
+
+/* ------------------------------------------------------------------ */
 /* Helpers de dibujo                                                   */
 /* ------------------------------------------------------------------ */
 
@@ -152,8 +191,12 @@ class WelcomeCardRenderer {
         const imagenes = { background: null, avatar: null };
 
         if (config.background.type === "image" && config.background.imageUrl) {
+            // El panel ya guarda la URL directa, pero una config vieja (o editada a
+            // mano en la base) puede tener todavía el link de "compartir".
+            const url = urlDirecta(config.background.imageUrl);
+
             try {
-                imagenes.background = await loadImage(config.background.imageUrl);
+                imagenes.background = await loadImage(url);
             } catch (error) {
                 console.log("[welcomeCard] no se pudo bajar el fondo:", error.message);
             }
