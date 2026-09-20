@@ -137,18 +137,21 @@ class RUNTIME_BOT {
         }
     }
 
+    /** Cron: todos los servidores donde está el bot. */
     async gif_runtime(client) {
         try {
             const guilds = await client.guilds.fetch();
+            const serverIds = [...guilds.keys()];
 
-            for (const [serverId] of guilds) {
-                await this.gif_runtime_server(serverId);
-            }
+            console.log(`Sync gifs de ${serverIds.length} servidores`);
+            const total = await util.syncGifServers(serverIds);
+            console.log(`Sync gifs terminado: ${total} gifs copiados`);
         } catch (error) {
             console.log(error);
         }
     }
 
+    /** guildCreate: solo el servidor que acaba de agregar el bot. */
     async gif_runtime_server(serverId) {
         try {
             console.log(`Sync gifs del servidor ${serverId}`);

@@ -1,8 +1,9 @@
-const fs = require("fs").promises;
 const { Interaction, Gifs } = require("../../../db/index");
+const { Util } = require("../../../commands/util/index");
 
 const db_interaction = new Interaction();
 const db_gif = new Gifs();
+const util = new Util();
 
 const syncGif = async (req, res) => {
     try {
@@ -10,48 +11,25 @@ const syncGif = async (req, res) => {
         //     return res.status(401).send("No se permite volver a re usar este endpoint");
         // }
 
-        let directory = await fs.readdir("./static");
-        let dir = directory.filter(d => d !== "sin clasificar" && !d.includes(".sh"));
-        directory = dir;
-
-        let ftch = await fetch("https://discord.com/api/users/@me/guilds", {
+        // Este proceso no tiene el cliente de discord.js, así que la lista de
+        // servidores sale de la API REST. El sync en sí es el mismo que usan el
+        // guildCreate y el cron: Util.syncGif.
+        const ftch = await fetch("https://discord.com/api/users/@me/guilds", {
             headers: {
                 "Authorization": `Bot ${process.env.token}`
             }
         });
-        const servers = await ftch.json();
 
-        const serversId = servers.map(s => s.id);
-
-        // console.log(serversId);
-
-        for (const d of directory) {
-            const gifs = [];
-
-            for (const serverId of serversId) {
-                const files = (
-                    await fs.readdir(`./static/${d}`)
-                ).filter(file => file.endsWith(".gif"));
-
-                for (const file of files) {
-                    gifs.push({
-                        order: parseInt(file.replace(".gif", "")),
-                        serverId,
-                        url: `https://raw.githubusercontent.com/Sergio3215/bot-serezdev/main/static/${d}/${file}`
-                    });
-                }
-            }
-
-            // console.log(d, gifs);
-
-            try {
-                await db_interaction.createInteractionAndGifs(gifs, d);
-            } catch (error) {
-
-            }
+        if (!ftch.ok) {
+            return res.status(502).json({ message: `Discord respondió ${ftch.status}` });
         }
 
-        res.send("todo ok");
+        const servers = await ftch.json();
+        const serversId = servers.map(s => s.id);
+
+        const creados = await util.syncGifServers(serversId);
+
+        res.json({ message: "Sync terminado", servidores: serversId.length, gifs: creados });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
