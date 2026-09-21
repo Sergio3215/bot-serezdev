@@ -3,7 +3,7 @@ const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = r
 const { generateImage, generateTextSystem } = require("../openaiScript.js");
 const { BirthdaySetup, Birthday, LoggChatBot, CloseChannel } = require("../db");
 const { Library } = require("../library");
-const { ChannelType, PermissionFlagsBits } = require('discord.js');
+const { ChannelType, PermissionFlagsBits, MessageFlags } = require('discord.js');
 
 const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
@@ -516,7 +516,7 @@ Carisma: ${estadisticas.carisma}`)
             const canalCreacion = interaction.options.getChannel('canal-creacion');
             const canalGestion = interaction.options.getChannel('canal-gestion');
 
-            await interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
             const btn_ticket = new ButtonBuilder()
                 .setCustomId('open_ticket')
@@ -556,7 +556,7 @@ Carisma: ${estadisticas.carisma}`)
                 await interaction.editReply(aviso);
             }
             else if (!interaction.replied) {
-                await interaction.reply({ content: aviso, ephemeral: true });
+                await interaction.reply({ content: aviso, flags: MessageFlags.Ephemeral });
             }
         }
     }

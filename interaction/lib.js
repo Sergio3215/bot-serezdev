@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder, MessageFlags } = require('discord.js');
 const { setTicket, Ticket, statusTicket } = require('../db');
 
 const set_ticket = new setTicket();
@@ -27,14 +27,14 @@ class interactionLib {
 
             await interaction.reply({
                 content: 'No pude asignarte el rol. Avisale a un moderador que revise los permisos del bot.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
 
         await interaction.reply({
             content: `Has seguido el canal <#${label_id}>`,
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 
@@ -51,14 +51,14 @@ class interactionLib {
 
             await interaction.reply({
                 content: 'No pude cambiarte los roles. Avisale a un moderador que revise los permisos del bot.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
 
         await interaction.reply({
             content: `Has aceptado las reglas del canal <#${label_id}>`,
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 
@@ -89,7 +89,7 @@ class interactionLib {
 
         // Se defiere antes de tocar Mongo: entre el GetById, el Create, el send y el
         // Update no se entra en los 3 segundos que da Discord.
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const message = interaction.fields.getTextInputValue('report_message');
 
@@ -183,8 +183,36 @@ class interactionLib {
                 id: ticketId,
                 status: 'open',
             }
-            await status_ticket.Create(opt);
-            open = true;
+
+            // El Create puede chocar contra el unique de ticketId si otra interacción
+            // creó la fila en el medio: doble clic en "Abrir Ticket", o dos instancias
+            // del bot conectadas con el mismo token atendiendo el mismo evento. En ese
+            // caso la fila existe igual, así que se relee en lugar de reventar.
+            try {
+                await status_ticket.Create(opt);
+                open = true;
+            } catch (error) {
+                const reintento = await status_ticket.GetById(ticketId);
+
+                if (reintento.length === 0) throw error;
+
+                status = reintento;
+
+                switch (status[0].status) {
+                    case 'in progress':
+                        inProgress = true;
+                        break;
+                    case 'resolve':
+                        resolve = true;
+                        break;
+                    case 'close':
+                        close = true;
+                        break;
+                    default:
+                        open = true;
+                        break;
+                }
+            }
         }
 
 
@@ -249,7 +277,7 @@ class interactionLib {
         if (!dto) {
             await interaction.followUp({
                 content: `El ticket #${ticketId} ya no existe.`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -306,7 +334,7 @@ class interactionLib {
         if (!dto) {
             await interaction.followUp({
                 content: `El ticket #${ticketId} ya no existe.`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -346,7 +374,7 @@ class interactionLib {
 
         // Antes esto era un deferReply({ content }), y deferReply ignora el content: la
         // interacción quedaba deferida sin respuesta, con el "pensando..." eterno.
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const dto = (await ticket.GetById(ticketId))[0];
 

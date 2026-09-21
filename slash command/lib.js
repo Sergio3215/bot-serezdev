@@ -1,5 +1,6 @@
 const { setMetric } = require("../commands");
 const LibsCommands = require("../commands/lib");
+const { MessageFlags } = require('discord.js');
 
 let libCommands = new LibsCommands();
 
@@ -60,7 +61,7 @@ async function SlashLib(client, isMod, isAdmin, interaction) {
             setMetric("!settickets", interaction);
         }
         else {
-            await interaction.reply({ content: 'No tienes permisos para usar este comando.', ephemeral: true });
+            await interaction.reply({ content: 'No tienes permisos para usar este comando.', flags: MessageFlags.Ephemeral });
         }
     }
 }

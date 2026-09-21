@@ -1,3 +1,4 @@
+const { MessageFlags } = require('discord.js');
 const { buttonFollowing, aceptRules } = require("../db");
 
 const { interactionLib } = require("./lib.js");
@@ -38,6 +39,15 @@ const ManageInteraction = async (client, interaction) => {
             return;
         }
     } catch (error) {
+        // 40060: alguien ya respondió esta interacción. Si el proceso es uno solo no
+        // debería pasar nunca; si pasa, casi siempre hay dos instancias del bot
+        // conectadas con el mismo token y las dos atienden el mismo evento. No tiene
+        // sentido ni el stack completo ni intentar contestar: la interacción ya se fue.
+        if (error.code === 40060) {
+            console.warn(`La interacción "${interaction.customId}" ya había sido respondida (40060). ¿Hay otra instancia del bot corriendo?`);
+            return;
+        }
+
         console.error(`Error manejando la interacción "${interaction.customId}":`, error);
         await avisarDelError(interaction);
     }
@@ -77,7 +87,7 @@ const botones = async (client, interaction) => {
 const avisarDelError = async (interaction) => {
     const aviso = {
         content: 'Algo falló procesando esta acción. Intentalo de nuevo.',
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
     };
 
     try {
