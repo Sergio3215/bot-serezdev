@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, REST, Routes, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
+const { SlashCommandBuilder, REST, Routes, ContextMenuCommandBuilder, ApplicationCommandType, ChannelType } = require('discord.js');
 
 function SlashCommands(client) {
 
@@ -70,6 +70,23 @@ function SlashCommands(client) {
             data: new SlashCommandBuilder()
                 .setName('restart')
                 .setDescription('Reinicia el bot en railway.')
+        },
+        {
+            data: new SlashCommandBuilder()
+                .setName('settickets')
+                .setDescription('Publica el boton para crear tickets y define donde se gestionan.')
+                .addChannelOption(opt => {
+                    return opt.setName('canal-creacion')
+                        .setDescription('Canal donde se publica el boton para crear tickets')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(true)
+                })
+                .addChannelOption(opt => {
+                    return opt.setName('canal-gestion')
+                        .setDescription('Canal donde los moderadores gestionan los tickets')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(true)
+                })
         },
 
         // ---- CONTEXT MENU: USER (aparece en Apps al click derecho sobre un usuario)

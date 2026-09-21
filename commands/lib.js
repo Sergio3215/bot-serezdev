@@ -507,6 +507,60 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
+    /**
+     * `/settickets`: lo mismo que `!settickets`, pero con los canales elegidos desde el
+     * selector de Discord en vez de parseados a mano del texto del mensaje.
+     */
+    async TicketButtonSlash(client, interaction) {
+        try {
+            const canalCreacion = interaction.options.getChannel('canal-creacion');
+            const canalGestion = interaction.options.getChannel('canal-gestion');
+
+            await interaction.deferReply({ ephemeral: true });
+
+            const btn_ticket = new ButtonBuilder()
+                .setCustomId('open_ticket')
+                .setLabel('Crear Ticket')
+                .setStyle(ButtonStyle.Secondary);
+
+            const row = new ActionRowBuilder()
+                .addComponents(btn_ticket);
+
+            await canalCreacion.send({
+                content: `¿Deseas crear un ticket?`,
+                components: [row]
+            });
+
+            const options = {
+                id: interaction.guild.id,
+                requestChannel: canalCreacion.id,
+                pendingChannel: canalGestion.id,
+            };
+
+            const yaExistia = (await set_ticket.GetById(interaction.guild.id)).length > 0;
+
+            if (!yaExistia) {
+                await set_ticket.Create(options);
+                await interaction.editReply(`El canal <#${canalCreacion.id}> ha sido establecido como creador de ticket.`);
+            }
+            else {
+                await set_ticket.Update(options);
+                await interaction.editReply(`El canal <#${canalCreacion.id}> ha sido modificado como creador de ticket.`);
+            }
+        } catch (error) {
+            console.error('Error configurando los tickets:', error);
+
+            const aviso = 'No pude configurar los tickets. Revisá que el bot pueda escribir en los dos canales.';
+
+            if (interaction.deferred) {
+                await interaction.editReply(aviso);
+            }
+            else if (!interaction.replied) {
+                await interaction.reply({ content: aviso, ephemeral: true });
+            }
+        }
+    }
+
     async Comandos(isMod, isAdmin, msg) {
         let comandos_helper = [
             { name: '!abrazar', value: "Tu abrazas a alguien cuando lo etiquetas. Ejemplo !abrazar <name>" },
@@ -545,7 +599,7 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!setwelcome', value: "Establece sobre el rol que se les da a los que llegan al servidor Ejemplo: !setwelcome @Miembros" },
             { name: '!setfollowing', value: "Establece que canal van a seguir, poniendole un rol donde se puede anunciar, Ejemplo: !setfollowing [canal objetivo a colocar boton] [canal del cual va a ser seguido] [rol que se usara en los anuncios]" },
             { name: '!setrules', value: "Es igual que !setfollowing pero con las reglas, Ejemplo: !setrules [canal objetivo a colocar boton] [canal del cual estan las reglas] [rol que acepto las reglas]" },
-            { name: '!settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]" },
+            { name: '!settickets  /settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]. Con /settickets los canales se eligen de una lista." },
             { name: '!abrir', value: "Comando para abrir el chat de un canal de texto. Solo administradores pueden usarlo" },
             { name: '!cerrar', value: "Comando para cerrar el chat de un canal de texto. Solo administradores pueden usarlo" },
         ]

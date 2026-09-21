@@ -1,10 +1,18 @@
-const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder } = require('discord.js');
 const { setTicket, Ticket, statusTicket } = require('../db');
 
 const set_ticket = new setTicket();
 const ticket = new Ticket();
 const status_ticket = new statusTicket();
 
+/**
+ * Regla que ordena todo este archivo: Discord da 3 segundos para acusar recibo de una
+ * interacción. Como casi todos estos handlers pegan a Mongo antes de contestar, primero
+ * se defiere (`deferReply` / `deferUpdate`) y recién después se trabaja.
+ *
+ * La excepción es `showModal`: tiene que ser la PRIMERA respuesta de la interacción, así
+ * que las ramas que abren un modal no se pueden deferir.
+ */
 class interactionLib {
     constructor() {
 
@@ -12,9 +20,19 @@ class interactionLib {
 
     async BtnFollowing(interaction, rolId, label_id) {
 
-        interaction.member.roles.add(rolId);
+        try {
+            await interaction.member.roles.add(rolId);
+        } catch (error) {
+            console.error('No se pudo asignar el rol de seguimiento:', error);
 
-        interaction.reply({
+            await interaction.reply({
+                content: 'No pude asignarte el rol. Avisale a un moderador que revise los permisos del bot.',
+                ephemeral: true
+            });
+            return;
+        }
+
+        await interaction.reply({
             content: `Has seguido el canal <#${label_id}>`,
             ephemeral: true
         });
@@ -22,10 +40,23 @@ class interactionLib {
 
     async BtnRules(interaction, set_rolId, remove_roleId, label_id) {
 
-        interaction.member.roles.add(set_rolId);
-        interaction.member.roles.remove(remove_roleId);
+        try {
+            await interaction.member.roles.add(set_rolId);
 
-        interaction.reply({
+            if (remove_roleId) {
+                await interaction.member.roles.remove(remove_roleId);
+            }
+        } catch (error) {
+            console.error('No se pudieron cambiar los roles de reglas:', error);
+
+            await interaction.reply({
+                content: 'No pude cambiarte los roles. Avisale a un moderador que revise los permisos del bot.',
+                ephemeral: true
+            });
+            return;
+        }
+
+        await interaction.reply({
             content: `Has aceptado las reglas del canal <#${label_id}>`,
             ephemeral: true
         });
@@ -34,7 +65,7 @@ class interactionLib {
     async BtnTicket(interaction) {
 
         if (interaction.replied || interaction.deferred) {
-            console.warn("❌ Esta interacción ya fue respondida. No se puede mostrar el modal.");
+            console.warn("Esta interacción ya fue respondida. No se puede mostrar el modal.");
             return;
         }
 
@@ -56,63 +87,67 @@ class interactionLib {
 
     async TicketForm(client, interaction) {
 
+        // Se defiere antes de tocar Mongo: entre el GetById, el Create, el send y el
+        // Update no se entra en los 3 segundos que da Discord.
+        await interaction.deferReply({ ephemeral: true });
+
         const message = interaction.fields.getTextInputValue('report_message');
 
-        const pendding_channel = (await set_ticket.GetById(interaction.guild.id))[0].pendingChannel;
-        const channel = await interaction.guild.channels.fetch(pendding_channel);
+        const setup = (await set_ticket.GetById(interaction.guild.id))[0];
 
-        let options = {
+        if (!setup || !setup.pendingChannel) {
+            await interaction.editReply({
+                content: 'Este servidor todavía no tiene configurado el canal de gestión de tickets.'
+            });
+            return;
+        }
+
+        const channel = await interaction.guild.channels.fetch(setup.pendingChannel).catch(() => null);
+
+        if (!channel) {
+            await interaction.editReply({
+                content: 'El canal de gestión de tickets ya no existe. Un moderador tiene que volver a configurarlo.'
+            });
+            return;
+        }
+
+        const dto = await ticket.Create({
             id: interaction.guild.id,
             userId: interaction.user.id,
             message: message,
-        }
+        });
 
-        const dto = await ticket.Create(options);
-        let ticketId = dto.ticketId;
+        const ticketId = dto.ticketId;
 
-        let btn_ticket = new ButtonBuilder()
+        const btn_ticket = new ButtonBuilder()
             .setCustomId('Tkt-' + ticketId)
             .setLabel('Abrir Ticket')
             .setStyle(ButtonStyle.Success);
 
-        let row = new ActionRowBuilder()
+        const row = new ActionRowBuilder()
             .addComponents(btn_ticket);
 
-        const messageId = (await channel.send({
+        const enviado = await channel.send({
             content: `¿Deseas abrir un ticket?`,
             components: [row]
-        })).id;
+        });
 
-        options = {
+        // El messageId se guarda aparte porque al cerrar el ticket hay que borrar ese
+        // mensaje del canal de moderación.
+        await ticket.Update({
             id: ticketId,
-            userId: interaction.user.id,
-            message: message,
-            messageId: messageId
-        }
+            messageId: enviado.id,
+        });
 
+        await this.#sendUserMessageTicket(client, interaction.user.id, ticketId, message, "Creado", this.#nombre(interaction.user), interaction.guild.name, "");
 
-        await ticket.Update(options);
+        await interaction.editReply({
+            content: `Se ha creado un ticket con el número ${ticketId}`
+        });
+    }
 
-        try {
-
-            await interaction.reply({
-                content: `Se ha creado un ticket con el número ${ticketId}`,
-                ephemeral: true
-            });
-
-            await this.#sendUserMessageTicket(client, options.userId, ticketId, options.message, "Creado", interaction.user.globalName, interaction.guild.name, "");
-        } catch (error) {
-            console.error("❌ Error al enviar ticket al usuario:", error);
-            if (!interaction.replied) {
-                await interaction.reply({
-                    content: "❌ Hubo un error al crear el ticket. Intenta más tarde.",
-                    ephemeral: true
-                });
-            }
-        }
-
-        return `Se ha creado un ticket con el número ${ticketId}`;
-
+    #nombre(user) {
+        return user.globalName || user.username;
     }
 
     async #checkStatus(ticketId, save_status) {
@@ -163,13 +198,21 @@ class interactionLib {
         return { arrOptions };
     }
 
+    /**
+     * El aviso por DM es "mejor esfuerzo": si el usuario tiene los privados cerrados,
+     * `user.send` tira error. Antes eso mataba el handler entero y el moderador veía la
+     * interacción fallada aunque el ticket se hubiera guardado bien.
+     */
     async #sendUserMessageTicket(client, userId, ticketId, message, status, remited, guild, result) {
-        const user = await client.users.fetch(userId);
-        user.send({
-            content: `**Ticket #${ticketId}** \n El ticket con el siguiente mensaje:\n **${message}** ${(result == "") ? "" : `\n Resultado del Ticket:\n${result}`} \n Tiene un estado de **${status}** \n Estado del ticket remitido por **${remited}** en el servidor **${guild}**`,
-            ephemeral: true
-        });
+        try {
+            const user = await client.users.fetch(userId);
 
+            await user.send({
+                content: `**Ticket #${ticketId}** \n El ticket con el siguiente mensaje:\n **${message}** ${(result == "") ? "" : `\n Resultado del Ticket:\n${result}`} \n Tiene un estado de **${status}** \n Estado del ticket remitido por **${remited}** en el servidor **${guild}**`,
+            });
+        } catch (error) {
+            console.warn(`No se pudo avisar por DM del ticket #${ticketId} al usuario ${userId}:`, error.message);
+        }
     }
 
 
@@ -198,11 +241,20 @@ class interactionLib {
     }
 
     async TicketShowed(client, interaction) {
+        await interaction.deferUpdate();
+
         const ticketId = parseInt(interaction.customId.split('-')[1]);
         const dto = (await ticket.GetById(ticketId))[0];
 
-        const { arrOptions } = await this.#checkStatus(ticketId);
+        if (!dto) {
+            await interaction.followUp({
+                content: `El ticket #${ticketId} ya no existe.`,
+                ephemeral: true
+            });
+            return;
+        }
 
+        const { arrOptions } = await this.#checkStatus(ticketId);
 
         const dropdown = new StringSelectMenuBuilder()
             .setCustomId('dropdown_ticket-' + ticketId)
@@ -212,9 +264,9 @@ class interactionLib {
         const row = new ActionRowBuilder()
             .addComponents(dropdown);
 
-        await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, "Abrierto", interaction.user.globalName, interaction.guild.name, "");
+        await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, "Abierto", this.#nombre(interaction.user), interaction.guild.name, "");
 
-        interaction.update({
+        await interaction.editReply({
             content: `Ticket #${ticketId} \n Ticket generado por: <@${dto.userId}> \n ${dto.message} \n Estado del ticket`,
             components: [row],
         });
@@ -223,38 +275,11 @@ class interactionLib {
 
     async setTicketStatus(client, interaction) {
         const ticketId = parseInt(interaction.customId.split('-')[1]);
-        const dto = (await ticket.GetById(ticketId))[0];
+        const nuevoEstado = interaction.values[0];
 
-        if (interaction.values[0] != 'close') {
-            const options = {
-                id: ticketId,
-                status: interaction.values[0],
-            }
-
-            const save_status = await status_ticket.Update(options);
-
-            const { arrOptions } = await this.#checkStatus(ticketId, save_status);
-
-            const { label } = await this.#labelStatus(interaction.values[0]);
-
-            await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, label, interaction.user.globalName, interaction.guild.name, "");
-
-
-            const dropdown = new StringSelectMenuBuilder()
-                .setCustomId('dropdown_ticket-' + ticketId)
-                .setPlaceholder('Elige una categoría')
-                .addOptions(arrOptions);
-
-            const row = new ActionRowBuilder()
-                .addComponents(dropdown);
-
-            interaction.update({
-                content: `Ticket #${ticketId} \n Ticket generado por: <@${dto.userId}> \n ${dto.message} \n Estado del ticket`,
-                components: [row],
-            });
-        }
-        else {
-
+        // "Cerrar" abre un modal, y un modal no se puede mostrar después de deferir. Por
+        // eso la rama se decide antes de tocar la base de datos.
+        if (nuevoEstado === 'close') {
             const modal = new ModalBuilder()
                 .setCustomId('closeTicket-' + ticketId)
                 .setTitle('¿Quieres cerrar el ticket?');
@@ -270,46 +295,84 @@ class interactionLib {
             const row = new ActionRowBuilder().addComponents(result);
             modal.addComponents(row);
 
-            interaction.showModal(modal)
+            await interaction.showModal(modal);
+            return;
         }
 
+        await interaction.deferUpdate();
+
+        const dto = (await ticket.GetById(ticketId))[0];
+
+        if (!dto) {
+            await interaction.followUp({
+                content: `El ticket #${ticketId} ya no existe.`,
+                ephemeral: true
+            });
+            return;
+        }
+
+        // #checkStatus crea la fila de estado si todavía no existe, así que va antes del
+        // Update: de lo contrario Prisma no encuentra el registro y revienta.
+        await this.#checkStatus(ticketId);
+
+        await status_ticket.Update({
+            id: ticketId,
+            status: nuevoEstado,
+        });
+
+        const { arrOptions } = await this.#checkStatus(ticketId);
+
+        const { label } = await this.#labelStatus(nuevoEstado);
+
+        await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, label, this.#nombre(interaction.user), interaction.guild.name, "");
+
+        const dropdown = new StringSelectMenuBuilder()
+            .setCustomId('dropdown_ticket-' + ticketId)
+            .setPlaceholder('Elige una categoría')
+            .addOptions(arrOptions);
+
+        const row = new ActionRowBuilder()
+            .addComponents(dropdown);
+
+        await interaction.editReply({
+            content: `Ticket #${ticketId} \n Ticket generado por: <@${dto.userId}> \n ${dto.message} \n Estado del ticket`,
+            components: [row],
+        });
     }
 
     async closeTicket(client, interaction) {
-        try {
-            const result = interaction.fields.getTextInputValue('result_message');
-            const ticketId = parseInt(interaction.customId.split('-')[1]);
-            const dto = (await ticket.GetById(ticketId))[0];
+        const result = interaction.fields.getTextInputValue('result_message');
+        const ticketId = parseInt(interaction.customId.split('-')[1]);
 
-            await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, 'Cerrado', interaction.user.globalName, interaction.guild.name, result);
+        // Antes esto era un deferReply({ content }), y deferReply ignora el content: la
+        // interacción quedaba deferida sin respuesta, con el "pensando..." eterno.
+        await interaction.deferReply({ ephemeral: true });
 
-            const options = {
-                id: ticketId,
-                status: "close",
-            }
+        const dto = (await ticket.GetById(ticketId))[0];
 
-            const save_status = await status_ticket.Update(options);
+        if (!dto) {
+            await interaction.editReply({ content: `El ticket #${ticketId} ya no existe.` });
+            return;
+        }
 
-            await interaction.deferReply({ content: `¡Caso cerrado con exito!`, ephemeral: true });
+        await this.#checkStatus(ticketId);
 
-            const message = await interaction.channel.messages.fetch(dto.messageId);
+        await status_ticket.Update({
+            id: ticketId,
+            status: "close",
+        });
 
-            await message.delete();
+        await this.#sendUserMessageTicket(client, dto.userId, ticketId, dto.message, 'Cerrado', this.#nombre(interaction.user), interaction.guild.name, result);
 
-            // Opcional: puedes eliminar la respuesta silenciosa luego
-            setTimeout(() => {
-                interaction.deleteReply().catch(() => { });
-            }, 800);
+        if (dto.messageId) {
+            const message = await interaction.channel.messages.fetch(dto.messageId).catch(() => null);
 
-        } catch (error) {
-            console.error("❌ Error al enviar ticket al usuario:", error);
-            if (!interaction.replied) {
-                await interaction.reply({
-                    content: "❌ Hubo un error al crear el ticket. Intenta más tarde.",
-                    ephemeral: true
-                });
+            if (message) {
+                await message.delete().catch(() => { });
             }
         }
+
+        await interaction.editReply({ content: `¡Caso cerrado con exito!` });
     }
 }
 

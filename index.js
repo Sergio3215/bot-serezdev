@@ -126,18 +126,20 @@ client.on('interactionCreate', async (interaction) => {
             interaction.isMessageContextMenuCommand()) {
             console.log('Comando chat  invocado:', interaction.isChatInputCommand());
             try {
-                SlashLib(client, isMod, admin, interaction);
+                await SlashLib(client, isMod, admin, interaction);
             } catch (error) {
                 console.error('Error al ejecutar el comando de barra:', error);
             }
         }
 
-        if (interaction.isButton() || interaction.isSelectMenu()) {
-            ManageInteraction(client, interaction);
+        // Los modales entran por acá. Sin esta rama, el formulario de ticket se envía y
+        // no lo recibe nadie: era lo que rompía crear y cerrar tickets.
+        if (interaction.isButton() || interaction.isAnySelectMenu() || interaction.isModalSubmit()) {
+            await ManageInteraction(client, interaction);
         }
 
         if (interaction.isAutocomplete()) {
-            LibAutocomplete(client, interaction, isMod, admin);
+            await LibAutocomplete(client, interaction, isMod, admin);
         }
 
     } catch (error) {

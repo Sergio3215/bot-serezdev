@@ -51,6 +51,18 @@ async function SlashLib(client, isMod, isAdmin, interaction) {
             return;
         }
     }
+
+    if (interaction.commandName == 'settickets') {
+        if (isAdmin || isMod) {
+            // Misma métrica que la versión con "!": es el mismo comando, así el
+            // histórico de uso no se parte en dos.
+            await libCommands.TicketButtonSlash(client, interaction);
+            setMetric("!settickets", interaction);
+        }
+        else {
+            await interaction.reply({ content: 'No tienes permisos para usar este comando.', ephemeral: true });
+        }
+    }
 }
 
 

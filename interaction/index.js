@@ -5,97 +5,90 @@ const { interactionLib } = require("./lib.js");
 const btnfollow = new buttonFollowing();
 const acept_rules = new aceptRules();
 
+const lib = new interactionLib();
 
+/**
+ * Único punto de entrada de botones, menús y modales.
+ *
+ * Cada rama corta con `return`. Antes eran `if` sueltos que comparaban con
+ * `customId.includes(...)`: dos ramas podían dispararse sobre la misma interacción y la
+ * segunda moría con InteractionAlreadyReplied.
+ */
 const ManageInteraction = async (client, interaction) => {
-    let lib = new interactionLib();
-
-    if (interaction.isButton()) {
-        if (interaction.customId.includes('Following')) {
-
-            let dto = (await btnfollow.GetById(interaction.guild.id))[0];
-            let label_id = dto.setChannel;
-
-            if (interaction.customId.includes('Following ' + label_id)) {
-                lib.BtnFollowing(interaction, dto.setRole, label_id);
-            }
-        }
-
-        if (interaction.customId.includes('Rules')) {
-
-            let dto = (await acept_rules.GetById(interaction.guild.id))[0];
-            let label_id = dto.setChannel;
-
-            if (interaction.customId.includes('Rules ' + label_id)) {
-                lib.BtnRules(interaction, dto.setRole, dto.removeRole, label_id);
-            }
-        }
-
-        if (interaction.customId.includes('open_ticket')) {
-            lib.BtnTicket(interaction);
-            // await apagarInteraccion(interaction);
-        }
-
-        if (interaction.customId.includes('Tkt-')) {
-            lib.TicketShowed(client, interaction);
-        }
-    }
-
-    if (interaction.isModalSubmit()) {
-
-        if (interaction.customId.includes('closeTicket-')) {
-            lib.closeTicket(client, interaction);
-        }
-        if (interaction.customId === 'ticket_form') {
-            const msj = lib.TicketForm(client, interaction);
-            await apagarInteraccion(interaction, msj, true);
-        }
-    }
-
-    if (interaction.customId.includes('dropdown_ticket-')) {
-        lib.setTicketStatus(client, interaction);
-    }
-
-}
-
-const apagarInteraccion = async (interaction, mensaje = null, limpiarComponentes = false) => {
     try {
-        // Si no se ha respondido aún
-        if (!interaction.replied && !interaction.deferred) {
-            if (interaction.isMessageComponent()) {
-                // Para botones o dropdowns
-                await interaction.update({
-                    content: mensaje || interaction.message.content,
-                    components: limpiarComponentes ? [] : interaction.message.components,
-                });
-            } else {
-                // Para slash commands o modales
-                // await interaction.reply({
-                //     content: mensaje || '✅ Acción completada.',
-                //     ephemeral: true,
-                // });
-            }
-        } else {
-            // Ya fue respondida o deferida
-            // if (mensaje) {
-            //     if (interaction.deferred) {
-            //         await interaction.editReply({ content: mensaje });
-            //     } else {
-            //         await interaction.followUp({
-            //             content: mensaje,
-            //             ephemeral: true
-            //         });
-            //     }
-            // }
+        if (interaction.isButton()) {
+            return await botones(client, interaction);
+        }
 
-            // Borra el mensaje efímero si quieres
-            if (interaction.ephemeral && interaction.deleteReply) {
-                setTimeout(() => {
-                    interaction.deleteReply().catch(() => {});
-                }, 3000); // espera opcional
+        if (interaction.isStringSelectMenu()) {
+            if (interaction.customId.startsWith('dropdown_ticket-')) {
+                return await lib.setTicketStatus(client, interaction);
             }
+            return;
+        }
+
+        if (interaction.isModalSubmit()) {
+            if (interaction.customId === 'ticket_form') {
+                return await lib.TicketForm(client, interaction);
+            }
+
+            if (interaction.customId.startsWith('closeTicket-')) {
+                return await lib.closeTicket(client, interaction);
+            }
+            return;
         }
     } catch (error) {
-        console.warn('⚠️ No se pudo apagar la interacción:', error);
+        console.error(`Error manejando la interacción "${interaction.customId}":`, error);
+        await avisarDelError(interaction);
+    }
+};
+
+const botones = async (client, interaction) => {
+    const id = interaction.customId;
+
+    if (id === 'open_ticket') {
+        return await lib.BtnTicket(interaction);
+    }
+
+    if (id.startsWith('Tkt-')) {
+        return await lib.TicketShowed(client, interaction);
+    }
+
+    // El canal viaja dentro del customId: un botón viejo, de un canal que ya no es el
+    // configurado, se ignora en lugar de asignar el rol equivocado.
+    if (id.startsWith('Following ')) {
+        const dto = (await btnfollow.GetById(interaction.guild.id))[0];
+
+        if (!dto || id !== `Following ${dto.setChannel}`) return;
+
+        return await lib.BtnFollowing(interaction, dto.setRole, dto.setChannel);
+    }
+
+    if (id.startsWith('Rules ')) {
+        const dto = (await acept_rules.GetById(interaction.guild.id))[0];
+
+        if (!dto || id !== `Rules ${dto.setChannel}`) return;
+
+        return await lib.BtnRules(interaction, dto.setRole, dto.removeRole, dto.setChannel);
+    }
+};
+
+/** Que el usuario vea algo cuando el handler explota, en vez del error genérico de Discord. */
+const avisarDelError = async (interaction) => {
+    const aviso = {
+        content: 'Algo falló procesando esta acción. Intentalo de nuevo.',
+        ephemeral: true
+    };
+
+    try {
+        if (interaction.deferred) {
+            await interaction.followUp(aviso);
+        }
+        else if (!interaction.replied) {
+            await interaction.reply(aviso);
+        }
+    } catch (error) {
+        // La interacción ya venció o fue respondida por otro lado: no hay nada que hacer.
     }
 };
 
