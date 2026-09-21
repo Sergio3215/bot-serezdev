@@ -793,6 +793,87 @@ class WelcomeCard {
     }
 }
 
+/**
+ * El diseño de la imagen de cumpleaños.
+ *
+ * No guarda canal ni mensaje: esos ya están en birthday_setup. Acá vive solo la
+ * receta que dibuja el cron, y la imagen sale adjunta a ese mismo saludo.
+ */
+class BirthdayCard {
+    constructor() {
+
+    }
+
+    /**
+     * Mismo shape que el resto de las clases (array), para que la API pueda
+     * responder { data: [...] } y el panel lea data[0].
+     */
+    async GetById(serverId) {
+        return await prisma.birthdayCard.findMany({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+
+    /**
+     * Para el cron de cumpleaños: una sola lectura por el índice de serverId.
+     * Devuelve el documento o null.
+     */
+    async GetOne(serverId) {
+        return await prisma.birthdayCard.findUnique({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+
+    async Create(option) {
+        return await prisma.birthdayCard.create({
+            data: {
+                serverId: option.serverId,
+                enabled: option.enabled,
+                config: option.config,
+            }
+
+        });
+    }
+
+    async Update(serverId, option) {
+        await prisma.birthdayCard.update({
+            where: {
+                serverId: serverId,
+            },
+            data: {
+                enabled: option.enabled,
+                config: option.config,
+            }
+        });
+    }
+
+    /**
+     * El panel manda POST la primera vez y PUT después, pero como serverId es
+     * unique los dos se resuelven acá sin averiguar antes si la fila existe.
+     */
+    async Upsert(serverId, option) {
+        const data = {
+            enabled: option.enabled,
+            config: option.config,
+        };
+
+        return await prisma.birthdayCard.upsert({
+            where: {
+                serverId: serverId,
+            },
+            create: {
+                serverId: serverId,
+                ...data
+            },
+            update: data
+        });
+    }
+}
+
 module.exports = {
     Server,
     buttonFollowing,
@@ -805,6 +886,7 @@ module.exports = {
     MetricCommands,
     ContadorCommand,
     BirthdaySetup,
+    BirthdayCard,
     Birthday,
     LoggChatBot,
     CloseChannel,

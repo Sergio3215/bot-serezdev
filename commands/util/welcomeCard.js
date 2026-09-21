@@ -526,4 +526,16 @@ module.exports = {
     WelcomeCardRenderer,
     aplicarVariables,
     normalizar,
+
+    // Los usa también la tarjeta de cumpleaños (commands/util/birthdayCard.js).
+    // Se comparten en vez de copiarse: `cargarFuentes` tiene que correr una sola
+    // vez para las dos, y el día que agregues una familia la tocás en un solo lado.
+    cargarFuentes,
+    resolverFuente,
+    urlDirecta,
+    encuadrar,
+    hexARgba,
+    degradado,
+    trazarForma,
+    limpiarEfectos,
 };

@@ -154,3 +154,14 @@ model WelcomeCard {
 
   @@map("welcome_card")
 }
+
+model BirthdayCard {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  serverId  String   @unique
+  enabled   Boolean  @default(true)
+  config    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("birthday_card")
+}

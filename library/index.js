@@ -1,5 +1,9 @@
-const { Birthday, BirthdaySetup } = require("../db");
+const { Birthday, BirthdaySetup, BirthdayCard } = require("../db");
 const { Util } = require("../commands/util/index.js");
+const { BirthdayCardRenderer } = require("../commands/util/birthdayCard.js");
+
+const birthday_card = new BirthdayCard();
+const birthdayCardRenderer = new BirthdayCardRenderer();
 
 class Library {
     constructor() {
@@ -101,6 +105,14 @@ class RUNTIME_BOT {
                 const guild = await client.guilds.fetch(bds.serverId);
                 // console.log(typeof (guild));
                 let users = await birthday.GetById(guild.id);
+
+                // El diseño de la imagen es uno por servidor: se lee una sola vez
+                // acá y no una por cumpleañero.
+                const card = await birthday_card.GetOne(guild.id).catch((error) => {
+                    console.log('[birthday] no se pudo leer la tarjeta:', error.message);
+                    return null;
+                });
+
                 // console.log(users);
                 users.map(async (user) => {
                     // console.log('start');
@@ -114,9 +126,27 @@ class RUNTIME_BOT {
                     // console.log(dayUser, date.getDate());
 
                     if (dayUser == date.getDate() && dateUser.getMonth() == date.getMonth()) {
-                        // const member = await guild.members.fetch(userId);
                         const channel = await guild.channels.fetch(bds.channelId);
-                        channel.send(`@everyone ${bds.message.replaceAll('$nombre', ` <@${userId}> `).replaceAll('$edad', age == 0 ? '**' : age + 1)}`);
+                        const contenido = `@everyone ${bds.message.replaceAll('$nombre', ` <@${userId}> `).replaceAll('$edad', age == 0 ? '**' : age + 1)}`;
+
+                        // La imagen es opcional y no puede voltear el saludo: si no
+                        // hay diseño, está apagado, el miembro ya no está en el
+                        // servidor o el dibujo falla, `files` queda vacío y el
+                        // mensaje sale igual que siempre.
+                        let files = [];
+
+                        if (card && card.enabled) {
+                            const member = await guild.members.fetch(userId).catch(() => null);
+
+                            if (member) {
+                                // age es el año que cumplió la última vez, así que los
+                                // que cumple hoy son age + 1. age == 0 es el que nunca
+                                // cargó el año: ahí $edad va vacío en la imagen.
+                                files = await birthdayCardRenderer.BuildFiles(card, member, age == 0 ? null : age + 1);
+                            }
+                        }
+
+                        await channel.send({ content: contenido, files: files });
 
                         if (age != 0) {
                             birthday.Update(id, {
