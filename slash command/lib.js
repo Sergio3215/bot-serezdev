@@ -64,6 +64,26 @@ async function SlashLib(client, isMod, isAdmin, interaction) {
             await interaction.reply({ content: 'No tienes permisos para usar este comando.', flags: MessageFlags.Ephemeral });
         }
     }
+
+    if (interaction.commandName == 'setfollowing') {
+        if (isAdmin || isMod) {
+            await libCommands.SettingsButtonSlash(interaction);
+            setMetric("!setfollowing", interaction);
+        }
+        else {
+            await interaction.reply({ content: 'No tienes permisos para usar este comando.', flags: MessageFlags.Ephemeral });
+        }
+    }
+
+    if (interaction.commandName == 'setrules') {
+        if (isAdmin || isMod) {
+            await libCommands.AcceptRulesSlash(interaction);
+            setMetric("!setrules", interaction);
+        }
+        else {
+            await interaction.reply({ content: 'No tienes permisos para usar este comando.', flags: MessageFlags.Ephemeral });
+        }
+    }
 }
 
 

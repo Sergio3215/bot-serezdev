@@ -133,32 +133,6 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
         }
     }
 
-    if (msg.content.includes('!setfollowing')) {
-        setMetric("!setfollowing", msg);
-
-        if (admin || isMod) {
-            libCommands.SettingsButton(client, msg);
-        }
-
-        else {
-            msg.reply('No tienes permisos para usar este comando.');
-        }
-    }
-
-
-    if (msg.content.includes('!setrules')) {
-        setMetric("!setrules", msg);
-
-        if (admin || isMod) {
-            libCommands.AceptRules(client, msg);
-        }
-
-        else {
-            msg.reply('No tienes permisos para usar este comando.');
-        }
-    }
-
-
     if (msg.content.includes('!settickets')) {
         setMetric("!settickets", msg);
 

@@ -329,129 +329,149 @@ Carisma: ${estadisticas.carisma}`)
         }
     }
 
-    async SettingsButton(client, msg) {
+    /**
+     * `/setfollowing`: publica el botón en el canal de destino y guarda el canal
+     * seguido junto con el rol que se asignará al pulsarlo.
+     */
+    async SettingsButtonSlash(interaction) {
+        try {
+            const canalDestino = interaction.options.getChannel('canal-destino', true);
+            const canalFuente = interaction.options.getChannel('canal-fuente', true);
+            const rol = interaction.options.getRole('rol', true);
 
-        /**
-         * Get all roles
-         * 
-            let roles = []
-            msg.guild.roles.cache.map((r, ii) => {
-                roles.push({
-                    id: r.id,
-                    name: r.name
-                });
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+            const errorRol = this.#validarRolAsignable(interaction, rol);
+            if (errorRol) {
+                await interaction.editReply(errorRol);
+                return;
+            }
+
+            const following = new ButtonBuilder()
+                .setCustomId(`Following ${canalFuente.id}`)
+                .setLabel('Seguir Sección')
+                .setStyle(ButtonStyle.Success);
+
+            const row = new ActionRowBuilder().addComponents(following);
+
+            await canalDestino.send({
+                content: `¿Deseas seguir el canal <#${canalFuente.id}>?`,
+                components: [row]
             });
-    
-            console.log(roles);
-         */
 
-        const channelData = msg.content.split('!setfollowing')[1].trim();
-        if (channelData.includes('<#') && channelData.includes('>') && channelData.includes('<@&')) {
-            try {
-                let id = channelData.split('<#')[1].split('>')[0];
-                let label_id = channelData.split('<#')[2].split('>')[0];
+            const options = {
+                id: interaction.guild.id,
+                channel: canalFuente.id,
+                role: rol.id,
+            };
 
-                let target_channel = await client.channels.fetch(id);
+            const yaExistia = (await btnfollow.GetById(interaction.guild.id)).length > 0;
 
-                let following = new ButtonBuilder()
-                    .setCustomId('Following ' + label_id)
-                    .setLabel('Seguir Sección')
-                    .setStyle(ButtonStyle.Success);
-
-                let row = new ActionRowBuilder()
-                    .addComponents(following);
-
-                target_channel.send({
-                    content: `¿Deseas seguir el canal <#${label_id}>?`,
-                    components: [row]
-                });
-
-
-                let rol_id = channelData.split('<@&')[1].split('>')[0];
-
-                let options = {
-                    id: msg.guild.id,
-                    channel: label_id,
-                    role: rol_id,
-                }
-
-                let db_update = (await btnfollow.GetById(msg.guild.id)).length > 0;
-
-                if (!db_update) {
-                    btnfollow.Create(options);
-                    msg.reply(`El canal <#${label_id}> ha sido establecido como el canal a seguir.`);
-                }
-                else {
-                    btnfollow.Update(options);
-                    msg.reply(`El canal <#${label_id}> ha sido modificado como el canal a seguir.`);
-                }
-
+            if (yaExistia) {
+                await btnfollow.Update(options);
+                await interaction.editReply(`El seguimiento de <#${canalFuente.id}> fue actualizado en <#${canalDestino.id}>.`);
             }
-            catch (error) {
-                console.error(error);
-                msg.reply('Debe enviarse el comando con el canal [target] y el canal [label]');
+            else {
+                await btnfollow.Create(options);
+                await interaction.editReply(`El seguimiento de <#${canalFuente.id}> fue configurado en <#${canalDestino.id}>.`);
             }
-            // const channel = msg.guild.channels.cache.get(channelId);
-        }
-        else {
-            msg.reply('No es un canal o rol valido');
+        } catch (error) {
+            console.error('Error configurando el seguimiento de canales:', error);
+            await this.#responderErrorSlash(
+                interaction,
+                'No pude configurar el seguimiento. Revisá que el bot pueda escribir en el canal y asignar el rol.'
+            );
         }
     }
 
+    /**
+     * `/setrules`: al aceptar se quita el rol pendiente y se entrega el rol de
+     * miembro que ya aceptó las reglas.
+     */
+    async AcceptRulesSlash(interaction) {
+        try {
+            const canalDestino = interaction.options.getChannel('canal-destino', true);
+            const canalReglas = interaction.options.getChannel('canal-reglas', true);
+            const rolSinAceptar = interaction.options.getRole('rol-sin-aceptar', true);
+            const rolAceptado = interaction.options.getRole('rol-aceptado', true);
 
-    async AceptRules(client, msg) {
-        const channelData = msg.content.split('!setrules')[1].trim();
-        if (channelData.includes('<#') && channelData.includes('>') && channelData.includes('<@&')) {
-            try {
-                let id = channelData.split('<#')[1].split('>')[0];
-                let label_id = channelData.split('<#')[2].split('>')[0];
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-                let target_channel = await client.channels.fetch(id);
-
-                let btn_rules = new ButtonBuilder()
-                    .setCustomId('Rules ' + label_id)
-                    .setLabel('Aceptar las reglas!')
-                    .setStyle(ButtonStyle.Success);
-
-                let row = new ActionRowBuilder()
-                    .addComponents(btn_rules);
-
-                target_channel.send({
-                    content: `¿Deseas seguir el canal <#${label_id}>?`,
-                    components: [row]
-                });
-
-
-                let remove_roleId = channelData.split('<@&')[1].split('>')[0];
-                let set_roleId = channelData.split('<@&')[2].split('>')[0];
-
-                let options = {
-                    id: msg.guild.id,
-                    channel: label_id,
-                    role: set_roleId,
-                    removeRole: remove_roleId
-                }
-
-                let db_update = (await acept_rules.GetById(msg.guild.id)).length > 0;
-
-                if (!db_update) {
-                    acept_rules.Create(options);
-                    msg.reply(`El canal <#${label_id}> ha sido establecido como el canal para aceptar las reglas.`);
-                }
-                else {
-                    acept_rules.Update(options);
-                    msg.reply(`El canal <#${label_id}> ha sido modificado como el canal para aceptar las reglas.`);
-                }
-
+            if (rolSinAceptar.id === rolAceptado.id) {
+                await interaction.editReply('El rol pendiente y el rol aceptado tienen que ser diferentes.');
+                return;
             }
-            catch (error) {
-                console.error(error);
-                msg.reply('Debe enviarse el comando con el canal [target] y el canal [label] y dos roles [remove] y [set]');
+
+            const errorRolSinAceptar = this.#validarRolAsignable(interaction, rolSinAceptar);
+            if (errorRolSinAceptar) {
+                await interaction.editReply(`Rol a quitar: ${errorRolSinAceptar}`);
+                return;
             }
-            // const channel = msg.guild.channels.cache.get(channelId);
+
+            const errorRolAceptado = this.#validarRolAsignable(interaction, rolAceptado);
+            if (errorRolAceptado) {
+                await interaction.editReply(`Rol a otorgar: ${errorRolAceptado}`);
+                return;
+            }
+
+            const aceptarReglas = new ButtonBuilder()
+                .setCustomId(`Rules ${canalReglas.id}`)
+                .setLabel('Aceptar las reglas!')
+                .setStyle(ButtonStyle.Success);
+
+            const row = new ActionRowBuilder().addComponents(aceptarReglas);
+
+            await canalDestino.send({
+                content: `Leé las reglas en <#${canalReglas.id}> y aceptalas con este botón.`,
+                components: [row]
+            });
+
+            const options = {
+                id: interaction.guild.id,
+                channel: canalReglas.id,
+                role: rolAceptado.id,
+                removeRole: rolSinAceptar.id,
+            };
+
+            const yaExistia = (await acept_rules.GetById(interaction.guild.id)).length > 0;
+
+            if (yaExistia) {
+                await acept_rules.Update(options);
+                await interaction.editReply(`La aceptación de reglas de <#${canalReglas.id}> fue actualizada en <#${canalDestino.id}>.`);
+            }
+            else {
+                await acept_rules.Create(options);
+                await interaction.editReply(`La aceptación de reglas de <#${canalReglas.id}> fue configurada en <#${canalDestino.id}>.`);
+            }
+        } catch (error) {
+            console.error('Error configurando la aceptación de reglas:', error);
+            await this.#responderErrorSlash(
+                interaction,
+                'No pude configurar las reglas. Revisá que el bot pueda escribir en el canal y asignar el rol.'
+            );
         }
-        else {
-            msg.reply('No es un canal o rol valido');
+    }
+
+    #validarRolAsignable(interaction, rol) {
+        const botMember = interaction.guild.members.me;
+
+        if (!botMember) {
+            return 'No pude comprobar la jerarquía de roles del bot.';
+        }
+
+        if (rol.id === interaction.guild.id || rol.managed || rol.position >= botMember.roles.highest.position) {
+            return 'No puedo asignar ese rol. Elegí uno no administrado que esté por debajo del rol más alto del bot.';
+        }
+
+        return null;
+    }
+
+    async #responderErrorSlash(interaction, message) {
+        if (interaction.deferred) {
+            await interaction.editReply(message);
+        }
+        else if (!interaction.replied) {
+            await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
         }
     }
 
@@ -597,8 +617,8 @@ Carisma: ${estadisticas.carisma}`)
 
         let commands_admins = [
             { name: '!setwelcome', value: "Establece sobre el rol que se les da a los que llegan al servidor Ejemplo: !setwelcome @Miembros" },
-            { name: '!setfollowing', value: "Establece que canal van a seguir, poniendole un rol donde se puede anunciar, Ejemplo: !setfollowing [canal objetivo a colocar boton] [canal del cual va a ser seguido] [rol que se usara en los anuncios]" },
-            { name: '!setrules', value: "Es igual que !setfollowing pero con las reglas, Ejemplo: !setrules [canal objetivo a colocar boton] [canal del cual estan las reglas] [rol que acepto las reglas]" },
+            { name: '/setfollowing', value: "Publica un botón para seguir un canal y asigna el rol elegido." },
+            { name: '/setrules', value: "Publica un botón que quita el rol pendiente y asigna el rol de reglas aceptadas." },
             { name: '!settickets  /settickets', value: "Establece los ticket o issues en el servidor, Ejemplo: !settickets [canal objetivo a crear tickets] [canal para gestionar los tickets]. Con /settickets los canales se eligen de una lista." },
             { name: '!abrir', value: "Comando para abrir el chat de un canal de texto. Solo administradores pueden usarlo" },
             { name: '!cerrar', value: "Comando para cerrar el chat de un canal de texto. Solo administradores pueden usarlo" },

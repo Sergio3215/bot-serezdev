@@ -88,6 +88,55 @@ function SlashCommands(client) {
                         .setRequired(true)
                 })
         },
+        {
+            data: new SlashCommandBuilder()
+                .setName('setfollowing')
+                .setDescription('Automatiza anuncios y seguimiento de canales.')
+                .addChannelOption(opt => {
+                    return opt.setName('canal-destino')
+                        .setDescription('Canal donde se publica el botón de seguimiento')
+                        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+                        .setRequired(true)
+                })
+                .addChannelOption(opt => {
+                    return opt.setName('canal-fuente')
+                        .setDescription('Canal que los miembros podrán seguir')
+                        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+                        .setRequired(true)
+                })
+                .addRoleOption(opt => {
+                    return opt.setName('rol')
+                        .setDescription('Rol que recibe quien sigue el canal')
+                        .setRequired(true)
+                })
+        },
+        {
+            data: new SlashCommandBuilder()
+                .setName('setrules')
+                .setDescription('Automatiza la aceptación de reglas.')
+                .addChannelOption(opt => {
+                    return opt.setName('canal-destino')
+                        .setDescription('Canal donde se publica el botón para aceptar las reglas')
+                        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+                        .setRequired(true)
+                })
+                .addChannelOption(opt => {
+                    return opt.setName('canal-reglas')
+                        .setDescription('Canal que contiene las reglas del servidor')
+                        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+                        .setRequired(true)
+                })
+                .addRoleOption(opt => {
+                    return opt.setName('rol-sin-aceptar')
+                        .setDescription('Rol que se quita cuando el miembro acepta las reglas')
+                        .setRequired(true)
+                })
+                .addRoleOption(opt => {
+                    return opt.setName('rol-aceptado')
+                        .setDescription('Rol que recibe quien acepta las reglas')
+                        .setRequired(true)
+                })
+        },
 
         // ---- CONTEXT MENU: USER (aparece en Apps al click derecho sobre un usuario)
         {
