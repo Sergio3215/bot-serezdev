@@ -96,6 +96,22 @@ const editGif = async (req, res) => {
     }
 };
 
+const updateGifTypes = async (req, res) => {
+    try {
+        const updated = await db_gif.updateGifTypes();
+
+        res.status(200).json({
+            message: "Tipos de GIF actualizados",
+            gifs: {
+                ...updated,
+                total: updated.default + updated.custom
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const deleteGif = async (req, res) => {
     try {
         const { id } = req.body;
@@ -139,5 +155,6 @@ module.exports = {
     getInteractionByName,
     addGif,
     editGif,
+    updateGifTypes,
     deleteGif
 };

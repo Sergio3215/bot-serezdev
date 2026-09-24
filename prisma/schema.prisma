@@ -130,6 +130,7 @@ model gif {
   order         Int
   serverId      String
   url           String
+  type          String       @default("default")
   interactionId String       @db.ObjectId
   interaction   Interactions @relation(fields: [interactionId], references: [id])
 
@@ -164,4 +165,52 @@ model BirthdayCard {
   updatedAt DateTime @updatedAt
 
   @@map("birthday_card")
+}
+
+//Subscriptions
+model Tier {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  code          String         @unique
+  name          String
+  subscriptions Subscription[]
+}
+
+model PaymentProvider {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  code     String    @unique
+  name     String
+  payments Payment[]
+}
+
+model Payment {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  subscriptionId String          @db.ObjectId
+  subscription   Subscription    @relation(fields: [subscriptionId], references: [id])
+  providerId     String          @db.ObjectId
+  provider       PaymentProvider @relation(fields: [providerId], references: [id])
+  payerUserId    String?
+  amount         Float?
+  currency       String?
+  createdAt      DateTime        @default(now())
+}
+
+model SubscriptionStatus {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  code          String         @unique
+  name          String
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  serverId           String             @unique
+  tierId             String             @db.ObjectId
+  tier               Tier               @relation(fields: [tierId], references: [id])
+  statusId           String             @db.ObjectId
+  status             SubscriptionStatus @relation(fields: [statusId], references: [id])
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  payments           Payment[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 }

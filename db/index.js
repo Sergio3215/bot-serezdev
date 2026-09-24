@@ -2,6 +2,12 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+const DEFAULT_GIF_URL_PREFIX = "https://raw.githubusercontent.com";
+
+const getGifType = (url) => url.startsWith(DEFAULT_GIF_URL_PREFIX)
+    ? "default"
+    : "custom";
+
 class Server {
     constructor() {
 
@@ -596,6 +602,7 @@ class Gifs {
                 order: order,
                 serverId: serverId,
                 url: url,
+                type: getGifType(url),
                 interactionId: interactionId
             }
         });
@@ -611,6 +618,7 @@ class Gifs {
                 order: order,
                 serverId: serverId,
                 url: url,
+                type: getGifType(url),
                 interactionId: interaction[0].id
             }
         });
@@ -625,6 +633,42 @@ class Gifs {
                 url: newUrl
             }
         });
+    }
+
+    /**
+     * Reclasifica todos los gifs segun el origen de su URL.
+     *
+     * @returns {Promise<{default: Number, custom: Number}>}
+     */
+    async updateGifTypes() {
+        const defaultResult = await prisma.gif.updateMany({
+            where: {
+                url: {
+                    startsWith: DEFAULT_GIF_URL_PREFIX
+                }
+            },
+            data: {
+                type: "default"
+            }
+        });
+
+        const customResult = await prisma.gif.updateMany({
+            where: {
+                NOT: {
+                    url: {
+                        startsWith: DEFAULT_GIF_URL_PREFIX
+                    }
+                }
+            },
+            data: {
+                type: "custom"
+            }
+        });
+
+        return {
+            default: defaultResult.count,
+            custom: customResult.count
+        };
     }
 
     async deleteGift(id) {

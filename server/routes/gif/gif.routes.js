@@ -7,6 +7,7 @@ router.get("/getInteractions", gifController.getInteractions);
 router.get("/getInteractionByName", gifController.getInteractionByName);
 router.post("/addGif", gifController.addGif);
 router.put("/editGif", gifController.editGif);
+router.put("/updateGifTypes", gifController.updateGifTypes);
 router.delete("/deleteGif", gifController.deleteGif);
 router.delete("/deleteGifsByServer", gifController.deleteGifsByServer);
 
