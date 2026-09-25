@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const DEFAULT_GIF_URL_PREFIX = "https://raw.githubusercontent.com";
+const DEFAULT_GIF_URL_PREFIX = "https://raw.githubusercontent.com/Sergio3215";
 
 const getGifType = (url) => url.startsWith(DEFAULT_GIF_URL_PREFIX)
     ? "default"
