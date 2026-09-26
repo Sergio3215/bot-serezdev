@@ -919,6 +919,7 @@ class BirthdayCard {
 }
 
 module.exports = {
+    prisma,
     Server,
     buttonFollowing,
     SettingWelcome,

@@ -188,6 +188,7 @@ model Payment {
   subscription   Subscription    @relation(fields: [subscriptionId], references: [id])
   providerId     String          @db.ObjectId
   provider       PaymentProvider @relation(fields: [providerId], references: [id])
+  reference      String?         @unique
   payerUserId    String?
   amount         Float?
   currency       String?
