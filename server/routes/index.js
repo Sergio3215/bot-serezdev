@@ -6,6 +6,7 @@ const birthdaySetRoutes = require("./birthdaySet");
 
 const joinServerRoutes = require("./joinServer");
 const subscriptionRoutes = require("./subscriptions");
+const customCommandRoutes = require("./customCommand");
 
 // 1. Compatibilidad directa para el frontend actual (/api/v1/getInteractions, /api/v1/addGif, etc.)
 router.use("/", gifRoutes);
@@ -21,5 +22,8 @@ router.use("/joinServer", joinServerRoutes);
 
 // Estado de facturacion que el panel persiste y consulta mediante la API interna.
 router.use("/subscriptions", subscriptionRoutes);
+
+// Creación y administración de comandos personalizados por servidor.
+router.use("/customCommand", customCommandRoutes);
 
 module.exports = router;
