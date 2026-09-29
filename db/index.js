@@ -950,6 +950,14 @@ class CustomCommand {
         });
     }
 
+    async GetEnabled() {
+        return await prisma.customCommand.findMany({
+            where: {
+                enabled: true,
+            }
+        });
+    }
+
     async GetByCommand(serverId, command) {
         const customCommand = await prisma.customCommand.findUnique({
             where: {

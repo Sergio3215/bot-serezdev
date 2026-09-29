@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js')
 const { Consulting } = require('./gemini');
 const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
+const { LoadCustomCommandMap } = require('./commands/custom/index.js');
 const { Server, SettingWelcome, ContadorCommand, WelcomeCard } = require('./db/index.js');
 const { WelcomeCardRenderer } = require('./commands/util/welcomeCard.js');
 const { ManageInteraction } = require('./interaction/index.js');
@@ -62,6 +63,13 @@ async function sendMessage() {
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
     SlashCommands(client);
+
+    try {
+        const loadedCommands = await LoadCustomCommandMap();
+        console.log(`Custom commands loaded: ${loadedCommands}`);
+    } catch (error) {
+        console.error('Error loading custom commands:', error);
+    }
 
     let dayMillseconds = 3600000 * 24;
     setInterval(function () {
