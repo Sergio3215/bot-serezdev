@@ -918,6 +918,83 @@ class BirthdayCard {
     }
 }
 
+class CustomCommand {
+    constructor() {
+
+    }
+
+    async Create(option) {
+        return await prisma.customCommand.create({
+            data: {
+                serverId: option.serverId,
+                command: option.command,
+                code: option.code,
+                enabled: option.enabled ?? true,
+            }
+        });
+    }
+
+    async GetById(id) {
+        return await prisma.customCommand.findUnique({
+            where: {
+                id: id,
+            }
+        });
+    }
+
+    async GetByServerId(serverId) {
+        return await prisma.customCommand.findMany({
+            where: {
+                serverId: serverId,
+            }
+        });
+    }
+
+    async GetByCommand(serverId, command) {
+        const customCommand = await prisma.customCommand.findUnique({
+            where: {
+                serverId_command: {
+                    serverId: serverId,
+                    command: command,
+                }
+            }
+        });
+
+        return customCommand?.enabled ? customCommand : null;
+    }
+
+    async Update(id, option) {
+        return await prisma.customCommand.update({
+            where: {
+                id: id,
+            },
+            data: {
+                command: option.command,
+                code: option.code,
+            }
+        });
+    }
+
+    async UpdateStatus(id, enabled) {
+        return await prisma.customCommand.update({
+            where: {
+                id: id,
+            },
+            data: {
+                enabled: enabled,
+            }
+        });
+    }
+
+    async Delete(id) {
+        return await prisma.customCommand.delete({
+            where: {
+                id: id,
+            }
+        });
+    }
+}
+
 module.exports = {
     prisma,
     Server,
@@ -936,5 +1013,6 @@ module.exports = {
     LoggChatBot,
     CloseChannel,
     Gifs,
-    Interaction
+    Interaction,
+    CustomCommand
 };
