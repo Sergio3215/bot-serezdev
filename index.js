@@ -26,6 +26,46 @@ const counterDb = new ContadorCommand();
 const welcomeCardDb = new WelcomeCard();
 const welcomeCard = new WelcomeCardRenderer();
 
+let customCommandRefreshCron = null;
+let customCommandRefreshRunning = false;
+
+const refreshCustomCommandMap = async () => {
+    if (customCommandRefreshRunning) {
+        return;
+    }
+
+    customCommandRefreshRunning = true;
+
+    try {
+        const summary = await LoadCustomCommandMap();
+
+        if (summary.failed > 0) {
+            console.error(
+                'Custom commands excluded by compilation errors during refresh:',
+                summary.diagnostics
+            );
+        }
+    } catch (error) {
+        console.error('Error refreshing custom commands:', error);
+    } finally {
+        customCommandRefreshRunning = false;
+    }
+};
+
+const startCustomCommandRefreshCron = () => {
+    if (customCommandRefreshCron !== null) {
+        return;
+    }
+
+    customCommandRefreshCron = new CronJob(
+        '*/10 * * * * *',
+        refreshCustomCommandMap,
+        null,
+        true,
+        'America/Argentina/Buenos_Aires'
+    );
+};
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -80,6 +120,8 @@ client.on('ready', async () => {
     } catch (error) {
         console.error('Error loading custom commands:', error);
     }
+
+    startCustomCommandRefreshCron();
 
     let dayMillseconds = 3600000 * 24;
     setInterval(function () {
