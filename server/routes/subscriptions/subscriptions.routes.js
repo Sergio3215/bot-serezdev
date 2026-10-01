@@ -1,5 +1,4 @@
 const express = require("express");
-const { internalApiAuth } = require("../../middleware/internalApiAuth");
 const {
     getSubscription,
     saveSubscription,
@@ -7,7 +6,6 @@ const {
 
 const router = express.Router();
 
-router.use(internalApiAuth);
 router.get("/", getSubscription);
 router.post("/", saveSubscription);
 

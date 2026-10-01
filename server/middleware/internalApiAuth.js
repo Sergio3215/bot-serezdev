@@ -1,31 +1,55 @@
 const crypto = require("node:crypto");
 
-/**
- * Protege las rutas internas que pueden consultar o modificar una suscripcion.
- * El secreto se lee en cada request para que los tests y los procesos que cargan
- * dotenv despues de las rutas usen siempre el valor actual.
- */
-function internalApiAuth(req, res, next) {
-    const expectedSecret = process.env.INTERNAL_API_SECRET;
-    const authorization = req.get("authorization") || "";
-    const prefix = "Bearer ";
+const UNAUTHORIZED_RESPONSE = Object.freeze({ message: "No autorizado" });
 
-    if (!expectedSecret || !authorization.startsWith(prefix)) {
-        return res.status(401).json({ message: "No autorizado" });
+function assertInternalApiSecretConfigured() {
+    const secret = process.env.INTERNAL_API_SECRET;
+
+    if (typeof secret !== "string" || secret.trim().length === 0) {
+        throw new Error("INTERNAL_API_SECRET es obligatorio para iniciar la API");
+    }
+}
+
+function readBearerToken(req) {
+    const authorization = req.get("authorization");
+
+    if (typeof authorization !== "string") {
+        return null;
     }
 
-    const receivedSecret = authorization.slice(prefix.length);
-    const expectedBuffer = Buffer.from(expectedSecret, "utf8");
-    const receivedBuffer = Buffer.from(receivedSecret, "utf8");
+    const match = /^Bearer ([^\s]+)$/i.exec(authorization);
+    return match?.[1] ?? null;
+}
 
-    const valid = expectedBuffer.length === receivedBuffer.length
-        && crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+function secureDigest(value) {
+    return crypto.createHash("sha256").update(value, "utf8").digest();
+}
+
+function internalApiAuth(req, res, next) {
+    const expectedSecret = process.env.INTERNAL_API_SECRET;
+    const receivedSecret = readBearerToken(req);
+
+    if (
+        typeof expectedSecret !== "string"
+        || expectedSecret.trim().length === 0
+        || receivedSecret === null
+    ) {
+        return res.status(401).json(UNAUTHORIZED_RESPONSE);
+    }
+
+    const valid = crypto.timingSafeEqual(
+        secureDigest(expectedSecret),
+        secureDigest(receivedSecret),
+    );
 
     if (!valid) {
-        return res.status(401).json({ message: "No autorizado" });
+        return res.status(401).json(UNAUTHORIZED_RESPONSE);
     }
 
     return next();
 }
 
-module.exports = { internalApiAuth };
+module.exports = {
+    assertInternalApiSecretConfigured,
+    internalApiAuth,
+};
