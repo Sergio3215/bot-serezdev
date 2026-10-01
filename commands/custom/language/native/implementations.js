@@ -14,6 +14,7 @@ const REPLY_MESSAGE_KEYS = Object.freeze(["message"]);
 const SEND_EMBED_KEYS = Object.freeze(["channel", "message", ...EMBED_ATTRIBUTE_KEYS]);
 const REPLY_EMBED_KEYS = Object.freeze(["message", ...EMBED_ATTRIBUTE_KEYS]);
 const SNOWFLAKE_PATTERN = /^\d{17,20}$/;
+const USER_MENTION_PATTERN = /<@!?(\d{17,20})>/g;
 const COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 const AssertConfig = (config, functionName) => {
@@ -134,23 +135,66 @@ const CreateMemberValue = (guildMember) => Object.freeze({
     ),
 });
 
-const GetMember = async (runtimeContext, userId) => {
-    if (typeof userId !== "string" || !SNOWFLAKE_PATTERN.test(userId)) {
-        throw new TypeError("GetMember requiere un identificador de Discord válido");
-    }
-
+const ResolveGuildMember = async (runtimeContext, userId) => {
     if (!runtimeContext.guild?.members) {
         throw new TypeError("No existe un servidor disponible para buscar el miembro");
     }
 
     try {
-        const guildMember = runtimeContext.guild.members.cache?.get(userId)
+        return runtimeContext.guild.members.cache?.get(userId)
             ?? await runtimeContext.guild.members.fetch(userId);
-
-        return guildMember ? CreateMemberValue(guildMember) : null;
     } catch {
         return null;
     }
+};
+
+const GetMentionedUserIds = (runtimeContext) => {
+    const content = runtimeContext.sourceMessage?.content;
+    if (typeof content !== "string") {
+        throw new TypeError("No existe un mensaje de origen para consultar menciones");
+    }
+
+    const userIds = [];
+    const seen = new Set();
+    let match;
+
+    USER_MENTION_PATTERN.lastIndex = 0;
+    while ((match = USER_MENTION_PATTERN.exec(content)) !== null) {
+        const userId = match[1];
+        if (!seen.has(userId)) {
+            seen.add(userId);
+            userIds.push(userId);
+        }
+    }
+
+    return userIds;
+};
+
+const ResolveMentionContext = async (runtimeContext) => {
+    const mentionedMembers = [];
+
+    for (const userId of GetMentionedUserIds(runtimeContext)) {
+        const guildMember = await ResolveGuildMember(runtimeContext, userId);
+        if (guildMember) {
+            mentionedMembers.push(CreateMemberValue(guildMember));
+        }
+    }
+
+    const frozenMembers = Object.freeze(mentionedMembers);
+
+    return Object.freeze({
+        mentionedMember: frozenMembers[0] ?? null,
+        mentionedMembers: frozenMembers,
+    });
+};
+
+const GetMember = async (runtimeContext, userId) => {
+    if (typeof userId !== "string" || !SNOWFLAKE_PATTERN.test(userId)) {
+        throw new TypeError("GetMember requiere un identificador de Discord válido");
+    }
+
+    const guildMember = await ResolveGuildMember(runtimeContext, userId);
+    return guildMember ? CreateMemberValue(guildMember) : null;
 };
 
 const GetMembers = async (runtimeContext) => {
@@ -161,6 +205,36 @@ const GetMembers = async (runtimeContext) => {
     return Object.freeze(
         Array.from(runtimeContext.guild.members.cache.values(), CreateMemberValue),
     );
+};
+
+const GetAuthor = (runtimeContext) => {
+    if (!runtimeContext.authorMember) {
+        throw new TypeError("No existe un autor disponible para ejecutar el comando");
+    }
+
+    return CreateMemberValue(runtimeContext.authorMember);
+};
+
+const GetMentionedMember = async (runtimeContext) => {
+    const mentionContext = runtimeContext.mentionContext
+        ?? await ResolveMentionContext(runtimeContext);
+
+    if (mentionContext.mentionedMember === null) {
+        throw new TypeError("GetMentionedMember requiere mencionar a un miembro del servidor");
+    }
+
+    return mentionContext.mentionedMember;
+};
+
+const GetMentionedMembers = async (runtimeContext) => {
+    const mentionContext = runtimeContext.mentionContext
+        ?? await ResolveMentionContext(runtimeContext);
+
+    if (mentionContext.mentionedMembers.length === 0) {
+        throw new TypeError("GetMentionedMembers requiere mencionar a un miembro del servidor");
+    }
+
+    return mentionContext.mentionedMembers;
 };
 
 const HasRole = (member, role) => {
@@ -325,6 +399,10 @@ module.exports = {
     Role,
     GetMember,
     GetMembers,
+    GetAuthor,
+    ResolveMentionContext,
+    GetMentionedMember,
+    GetMentionedMembers,
     HasRole,
     AddRole,
     BuildEmbed,

@@ -15,6 +15,10 @@ const NativeContext = Object.freeze({
     MESSAGE: "message",
 });
 
+const NativeRequirement = Object.freeze({
+    MENTION: "mention",
+});
+
 const REGISTRY_ENTRIES = Symbol("registryEntries");
 
 const Parameter = (name, type, required = true, options = {}) => ({
@@ -36,6 +40,7 @@ const CreateMetadata = ({
     parameters,
     returns,
     isAsync,
+    requires = [],
 }) => DeepFreeze({
     name,
     kind,
@@ -44,6 +49,7 @@ const CreateMetadata = ({
     returns,
     contexts: [NativeContext.MESSAGE],
     isAsync,
+    requires,
 });
 
 const ValidateMetadata = (metadata) => {
@@ -92,6 +98,16 @@ const ValidateMetadata = (metadata) => {
 
     if (typeof metadata.isAsync !== "boolean") {
         throw new TypeError(`isAsync es inválido en ${metadata.name}`);
+    }
+
+    if (
+        !Array.isArray(metadata.requires)
+        || metadata.requires.some((requirement) => (
+            !Object.values(NativeRequirement).includes(requirement)
+        ))
+        || new Set(metadata.requires).size !== metadata.requires.length
+    ) {
+        throw new TypeError(`Los requisitos de ${metadata.name} son inválidos`);
     }
 };
 
@@ -195,6 +211,38 @@ const CreateNativeDefinitions = (implementations) => [
     },
     {
         metadata: CreateMetadata({
+            name: "GetAuthor",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.Member, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.GetAuthor(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "GetMentionedMember",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.Member, { readOnly: true }),
+            isAsync: true,
+            requires: [NativeRequirement.MENTION],
+        }),
+        execute: (runtimeContext, args) => implementations.GetMentionedMember(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "GetMentionedMembers",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(ArrayOf(NativeTypes.Member, { readOnly: true }), { readOnly: true }),
+            isAsync: true,
+            requires: [NativeRequirement.MENTION],
+        }),
+        execute: (runtimeContext, args) => implementations.GetMentionedMembers(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
             name: "HasRole",
             kind: NativeEntryKind.QUERY,
             parameters: [
@@ -268,6 +316,7 @@ module.exports = {
     NativeEntryKind,
     NativeSyntax,
     NativeContext,
+    NativeRequirement,
     NativeRegistry,
     CreateNativeRegistry,
 };

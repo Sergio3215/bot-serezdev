@@ -63,12 +63,37 @@ const LoadCustomCommandMap = async (nativeRegistry = defaultNativeRegistry) => {
     return summary;
 };
 
-const GetCustomCommandFromMap = (serverId, command) => {
+const FindCustomCommandInServerMap = (serverCommands, messageContent) => {
+    if (!(serverCommands instanceof Map) || typeof messageContent !== "string") {
+        return null;
+    }
+
+    let match = null;
+    let matchLength = -1;
+
+    for (const [command, compiledCommand] of serverCommands) {
+        if (
+            typeof command === "string"
+            && command.length > matchLength
+            && messageContent.includes(command)
+        ) {
+            match = compiledCommand;
+            matchLength = command.length;
+        }
+    }
+
+    return match;
+};
+
+const GetCustomCommandFromMap = (serverId, messageContent) => {
     if (!cacheState.ready) {
         return null;
     }
 
-    return cacheState.commands.get(serverId)?.get(command) ?? null;
+    return FindCustomCommandInServerMap(
+        cacheState.commands.get(serverId),
+        messageContent,
+    );
 };
 
 const IsCustomCommandCacheReady = () => cacheState.ready;
@@ -77,6 +102,7 @@ const GetCustomCommandCacheSummary = () => cacheState.summary;
 
 module.exports = {
     LoadCustomCommandMap,
+    FindCustomCommandInServerMap,
     GetCustomCommandFromMap,
     IsCustomCommandCacheReady,
     GetCustomCommandCacheSummary,

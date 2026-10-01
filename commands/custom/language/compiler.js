@@ -14,6 +14,7 @@ class Compiler {
         this.analysis = analysis;
         this.commandMetadata = commandMetadata;
         this.diagnostics = [];
+        this.requirements = new Set();
     }
 
     compile() {
@@ -21,6 +22,7 @@ class Compiler {
         const program = DeepFreeze({
             commandId: this.commandMetadata.id ?? null,
             serverId: this.commandMetadata.serverId ?? null,
+            requirements: Array.from(this.requirements),
             instructions,
         });
 
@@ -126,6 +128,10 @@ class Compiler {
                 "UNRESOLVED_NATIVE_CALL",
                 `No se pudo resolver la llamada ${node.callee.name}`,
             );
+        }
+
+        for (const requirement of nativeEntry?.metadata.requires ?? []) {
+            this.requirements.add(requirement);
         }
 
         return {
