@@ -958,6 +958,22 @@ class CustomCommand {
         });
     }
 
+    async GetChangeSignature() {
+        const signature = await prisma.customCommand.aggregate({
+            _count: {
+                _all: true,
+            },
+            _max: {
+                updatedAt: true,
+            },
+        });
+
+        return {
+            count: signature._count._all,
+            lastUpdatedAt: signature._max.updatedAt?.toISOString() ?? null,
+        };
+    }
+
     async GetByCommand(serverId, command) {
         const customCommand = await prisma.customCommand.findUnique({
             where: {

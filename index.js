@@ -3,8 +3,9 @@ const { Consulting } = require('./gemini');
 const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
 const { LoadCustomCommandMap } = require('./commands/custom/index.js');
+const { CreateCustomCommandMapRefresher } = require('./commands/custom/refresh.js');
 const { RunCustomCommand } = require('./commands/custom/runner.js');
-const { Server, SettingWelcome, ContadorCommand, WelcomeCard } = require('./db/index.js');
+const { Server, SettingWelcome, ContadorCommand, WelcomeCard, CustomCommand } = require('./db/index.js');
 const { WelcomeCardRenderer } = require('./commands/util/welcomeCard.js');
 const { ManageInteraction } = require('./interaction/index.js');
 const { SlashCommands } = require('./slash command/index.js');
@@ -25,32 +26,15 @@ const settingWelcome = new SettingWelcome();
 const counterDb = new ContadorCommand();
 const welcomeCardDb = new WelcomeCard();
 const welcomeCard = new WelcomeCardRenderer();
+const customCommandDb = new CustomCommand();
+
+const customCommandMapRefresher = CreateCustomCommandMapRefresher({
+    getChangeSignature: () => customCommandDb.GetChangeSignature(),
+    loadCustomCommandMap: LoadCustomCommandMap,
+});
+const refreshCustomCommandMap = customCommandMapRefresher.refreshCustomCommandMap;
 
 let customCommandRefreshCron = null;
-let customCommandRefreshRunning = false;
-
-const refreshCustomCommandMap = async () => {
-    if (customCommandRefreshRunning) {
-        return;
-    }
-
-    customCommandRefreshRunning = true;
-
-    try {
-        const summary = await LoadCustomCommandMap();
-
-        if (summary.failed > 0) {
-            console.error(
-                'Custom commands excluded by compilation errors during refresh:',
-                summary.diagnostics
-            );
-        }
-    } catch (error) {
-        console.error('Error refreshing custom commands:', error);
-    } finally {
-        customCommandRefreshRunning = false;
-    }
-};
 
 const startCustomCommandRefreshCron = () => {
     if (customCommandRefreshCron !== null) {
@@ -105,21 +89,7 @@ client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
     SlashCommands(client);
 
-    try {
-        const customCommandSummary = await LoadCustomCommandMap();
-        console.log(
-            `Custom commands loaded: ${customCommandSummary.loaded}/${customCommandSummary.found}`
-        );
-
-        if (customCommandSummary.failed > 0) {
-            console.error(
-                'Custom commands excluded by compilation errors:',
-                customCommandSummary.diagnostics
-            );
-        }
-    } catch (error) {
-        console.error('Error loading custom commands:', error);
-    }
+    await refreshCustomCommandMap();
 
     startCustomCommandRefreshCron();
 
