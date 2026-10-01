@@ -1,40 +1,83 @@
 const { CustomCommand } = require('../../db/index.js');
+const {
+    CompileCustomCommand,
+    NativeRegistry: defaultNativeRegistry,
+} = require('./language/index.js');
+const { DeepFreeze } = require('./language/native/types.js');
 
 const customCommandDb = new CustomCommand();
 
-// Cada servidor tiene su propio mapa de comandos.
-// Map<serverId, Map<command, CustomCommand>>
-const customCommandMap = new Map();
+let cacheState = Object.freeze({
+    ready: false,
+    loadedAt: null,
+    commands: new Map(),
+    summary: null,
+});
 
-const FillCustomCommandMap = (commands) => {
-    customCommandMap.clear();
+const AddCompiledCommand = (commandsMap, compiledCommand) => {
+    let serverCommands = commandsMap.get(compiledCommand.serverId);
 
-    for (const command of commands) {
-        let serverCommands = customCommandMap.get(command.serverId);
-
-        if (!serverCommands) {
-            serverCommands = new Map();
-            customCommandMap.set(command.serverId, serverCommands);
-        }
-
-        serverCommands.set(command.command, command);
+    if (!serverCommands) {
+        serverCommands = new Map();
+        commandsMap.set(compiledCommand.serverId, serverCommands);
     }
 
-    return commands.length;
+    serverCommands.set(compiledCommand.command, compiledCommand);
 };
 
-const LoadCustomCommandMap = async () => {
+const LoadCustomCommandMap = async (nativeRegistry = defaultNativeRegistry) => {
     const commands = await customCommandDb.GetEnabled();
-    return FillCustomCommandMap(commands);
+    const temporaryCommands = new Map();
+    const diagnostics = [];
+    let loaded = 0;
+
+    for (const command of commands) {
+        const compilation = CompileCustomCommand(command, nativeRegistry);
+
+        if (!compilation.ok) {
+            diagnostics.push({
+                commandId: command.id,
+                errors: compilation.diagnostics,
+            });
+            continue;
+        }
+
+        AddCompiledCommand(temporaryCommands, compilation.value.compiledCommand);
+        loaded += 1;
+    }
+
+    const summary = DeepFreeze({
+        found: commands.length,
+        loaded,
+        failed: commands.length - loaded,
+        diagnostics,
+    });
+
+    cacheState = Object.freeze({
+        ready: true,
+        loadedAt: new Date(),
+        commands: temporaryCommands,
+        summary,
+    });
+
+    return summary;
 };
 
 const GetCustomCommandFromMap = (serverId, command) => {
-    return customCommandMap.get(serverId)?.get(command) ?? null;
+    if (!cacheState.ready) {
+        return null;
+    }
+
+    return cacheState.commands.get(serverId)?.get(command) ?? null;
 };
 
+const IsCustomCommandCacheReady = () => cacheState.ready;
+
+const GetCustomCommandCacheSummary = () => cacheState.summary;
+
 module.exports = {
-    customCommandMap,
-    FillCustomCommandMap,
     LoadCustomCommandMap,
     GetCustomCommandFromMap,
+    IsCustomCommandCacheReady,
+    GetCustomCommandCacheSummary,
 };

@@ -3,6 +3,7 @@ const { Consulting } = require('./gemini');
 const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
 const { LoadCustomCommandMap } = require('./commands/custom/index.js');
+const { RunCustomCommand } = require('./commands/custom/runner.js');
 const { Server, SettingWelcome, ContadorCommand, WelcomeCard } = require('./db/index.js');
 const { WelcomeCardRenderer } = require('./commands/util/welcomeCard.js');
 const { ManageInteraction } = require('./interaction/index.js');
@@ -65,8 +66,17 @@ client.on('ready', async () => {
     SlashCommands(client);
 
     try {
-        const loadedCommands = await LoadCustomCommandMap();
-        console.log(`Custom commands loaded: ${loadedCommands}`);
+        const customCommandSummary = await LoadCustomCommandMap();
+        console.log(
+            `Custom commands loaded: ${customCommandSummary.loaded}/${customCommandSummary.found}`
+        );
+
+        if (customCommandSummary.failed > 0) {
+            console.error(
+                'Custom commands excluded by compilation errors:',
+                customCommandSummary.diagnostics
+            );
+        }
     } catch (error) {
         console.error('Error loading custom commands:', error);
     }
@@ -112,6 +122,7 @@ client.on('messageCreate', async (msg) => {
                 PermissionsBitField.Flags.ManageChannels
             );
         }
+        await RunCustomCommand(client, msg);
         commands(client, msg, ConsultingOpenAI, admin, isMod, userIsSubOrBooster, createCharacter);
     } catch (error) {
 
