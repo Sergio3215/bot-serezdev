@@ -228,3 +228,18 @@ model CustomCommand {
   @@unique([serverId, command])
   @@map("custom_command")
 }
+
+model ChannelRule {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  serverId     String
+  channelId    String
+  type         String
+  allowedTypes String[]
+  mode         String
+  enabled      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([serverId, channelId, type])
+  @@map("channel_rule")
+}

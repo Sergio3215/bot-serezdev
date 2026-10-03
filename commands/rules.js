@@ -25,13 +25,6 @@ const CreateRules = ({ contadorCommand, lib, logger = console }) => {
         let isCounterChannel = false;
 
         try {
-            // 💀 LA MORGUE 💀
-            if (msg.guild.id === "748652112485023854" && msg.channel.id === "1413026508276236351") {
-                if (!msg.content.includes("https://www.youtube.com/") && !msg.content.includes("https://youtu.be")) {
-                    await msg.delete();
-                }
-            }
-
             const counters = await contadorCommand.GetById(msg.guild.id);
             if (counters.length === 0 || counters[0].channelId !== msg.channel.id) {
                 return false;
@@ -88,17 +81,21 @@ const CreateRules = ({ contadorCommand, lib, logger = console }) => {
         }
     };
 
-    return (msg) => {
+    return (msg, options = {}) => {
         if (!msg?.guild?.id || !msg?.channel?.id) {
             return Promise.resolve(false);
         }
+
+        const shouldProcess = options?.shouldProcess ?? true;
 
         const key = `${msg.guild.id}:${msg.channel.id}`;
         const previous = queues.get(key) ?? Promise.resolve();
         const current = previous
             // Un fallo previo no puede dejar bloqueada para siempre la cola.
             .catch(() => undefined)
-            .then(() => processMessage(msg));
+            .then(async () => (
+                await shouldProcess ? processMessage(msg) : false
+            ));
 
         queues.set(key, current);
 

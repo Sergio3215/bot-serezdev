@@ -67,6 +67,28 @@ const CreateProcessor = (db, rewards = []) => CreateRules({
     logger: { error() {} },
 });
 
+test("una regla de canal rechazada no toca el contador ni altera el orden de la cola", async () => {
+    const db = CreateCounterDb({
+        "guild-1": { channelId: "channel-1", count: 0, modifiedBy: "" },
+    });
+    const rules = CreateProcessor(db);
+    let releaseRejectedMessage;
+    const rejectedMessage = new Promise((resolve) => {
+        releaseRejectedMessage = resolve;
+    });
+    const blocked = CreateMessage({ authorId: "user-a", content: "texto" });
+    const firstCount = CreateMessage({ authorId: "user-b", content: "1" });
+
+    const blockedWork = rules(blocked, { shouldProcess: rejectedMessage });
+    const countWork = rules(firstCount);
+    releaseRejectedMessage(false);
+
+    await Promise.all([blockedWork, countWork]);
+
+    assert.deepEqual(db.operations, ["get:guild-1", "update:guild-1:1"]);
+    assert.equal(db.states.get("guild-1").count, 1);
+});
+
 test("serializa lectura, validación y escritura para un mismo servidor/canal", async () => {
     const db = CreateCounterDb({
         "guild-1": { channelId: "channel-1", count: 0, modifiedBy: "" },

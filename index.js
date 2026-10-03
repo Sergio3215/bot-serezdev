@@ -6,6 +6,10 @@ const { Rules } = require('./commands/rules.js');
 const { LoadCustomCommandMap } = require('./commands/custom/index.js');
 const { CreateCustomCommandMapRefresher } = require('./commands/custom/refresh.js');
 const { RunCustomCommand } = require('./commands/custom/runner.js');
+const {
+    EnforceChannelRules,
+    RefreshChannelRuleCache,
+} = require('./commands/channelRules/index.js');
 const { Server, SettingWelcome, ContadorCommand, WelcomeCard, CustomCommand } = require('./db/index.js');
 const { WelcomeCardRenderer } = require('./commands/util/welcomeCard.js');
 const { ManageInteraction } = require('./interaction/index.js');
@@ -36,6 +40,7 @@ const customCommandMapRefresher = CreateCustomCommandMapRefresher({
 const refreshCustomCommandMap = customCommandMapRefresher.refreshCustomCommandMap;
 
 let customCommandRefreshCron = null;
+let channelRuleRefreshCron = null;
 
 const startCustomCommandRefreshCron = () => {
     if (customCommandRefreshCron !== null) {
@@ -45,6 +50,20 @@ const startCustomCommandRefreshCron = () => {
     customCommandRefreshCron = new CronJob(
         '*/10 * * * * *',
         refreshCustomCommandMap,
+        null,
+        true,
+        'America/Argentina/Buenos_Aires'
+    );
+};
+
+const startChannelRuleRefreshCron = () => {
+    if (channelRuleRefreshCron !== null) {
+        return;
+    }
+
+    channelRuleRefreshCron = new CronJob(
+        '*/10 * * * * *',
+        RefreshChannelRuleCache,
         null,
         true,
         'America/Argentina/Buenos_Aires'
@@ -91,8 +110,10 @@ client.on('ready', async () => {
     SlashCommands(client);
 
     await refreshCustomCommandMap();
+    await RefreshChannelRuleCache();
 
     startCustomCommandRefreshCron();
+    startChannelRuleRefreshCron();
 
     let dayMillseconds = 3600000 * 24;
     setInterval(function () {
@@ -125,9 +146,19 @@ client.on('messageCreate', async (msg) => {
     // Rules registra el mensaje en la cola del contador de forma síncrona. Se
     // guarda la promesa antes de cualquier await para conservar el orden real
     // en el que Discord emitió los eventos messageCreate.
-    const counterRule = Rules(msg);
+    const channelRuleResult = EnforceChannelRules(msg);
+    const counterRule = Rules(
+        msg,
+        { shouldProcess: channelRuleResult.then((result) => !result.handled) }
+    );
 
     try {
+        const resolvedChannelRule = await channelRuleResult;
+        if (resolvedChannelRule.handled) {
+            await counterRule;
+            return;
+        }
+
         await checkServer(msg.guild);
         let admin = false;
         let isMod = false;

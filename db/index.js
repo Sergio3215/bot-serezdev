@@ -1025,6 +1025,77 @@ class CustomCommand {
     }
 }
 
+class ChannelRule {
+    async Create(option) {
+        return await prisma.channelRule.create({
+            data: {
+                serverId: option.serverId,
+                channelId: option.channelId,
+                type: option.type,
+                allowedTypes: option.allowedTypes,
+                mode: option.mode,
+                enabled: option.enabled ?? true,
+            }
+        });
+    }
+
+    async GetById(id) {
+        return await prisma.channelRule.findUnique({
+            where: { id: id }
+        });
+    }
+
+    async GetByServerId(serverId) {
+        return await prisma.channelRule.findMany({
+            where: { serverId: serverId },
+            orderBy: { createdAt: "asc" }
+        });
+    }
+
+    async GetAll() {
+        return await prisma.channelRule.findMany();
+    }
+
+    async GetChangeSignature() {
+        const signature = await prisma.channelRule.aggregate({
+            _count: { _all: true },
+            _max: { updatedAt: true },
+        });
+
+        return {
+            count: signature._count._all,
+            lastUpdatedAt: signature._max.updatedAt?.toISOString() ?? null,
+        };
+    }
+
+    async Update(id, option) {
+        return await prisma.channelRule.update({
+            where: { id: id },
+            data: {
+                serverId: option.serverId,
+                channelId: option.channelId,
+                type: option.type,
+                allowedTypes: option.allowedTypes,
+                mode: option.mode,
+                ...(option.enabled === undefined ? {} : { enabled: option.enabled }),
+            }
+        });
+    }
+
+    async UpdateStatus(id, enabled) {
+        return await prisma.channelRule.update({
+            where: { id: id },
+            data: { enabled: enabled }
+        });
+    }
+
+    async Delete(id) {
+        return await prisma.channelRule.delete({
+            where: { id: id }
+        });
+    }
+}
+
 module.exports = {
     prisma,
     Server,
@@ -1044,5 +1115,6 @@ module.exports = {
     CloseChannel,
     Gifs,
     Interaction,
-    CustomCommand
+    CustomCommand,
+    ChannelRule
 };

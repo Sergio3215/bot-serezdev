@@ -7,6 +7,7 @@ const birthdaySetRoutes = require("./birthdaySet");
 const joinServerRoutes = require("./joinServer");
 const subscriptionRoutes = require("./subscriptions");
 const customCommandRoutes = require("./customCommand");
+const channelRuleRoutes = require("./channelRule");
 
 // 1. Compatibilidad directa para el frontend actual (/api/v1/getInteractions, /api/v1/addGif, etc.)
 router.use("/", gifRoutes);
@@ -25,5 +26,8 @@ router.use("/subscriptions", subscriptionRoutes);
 
 // Creación y administración de comandos personalizados por servidor.
 router.use("/customCommand", customCommandRoutes);
+
+// Reglas configurables aplicadas por canal en el runtime del bot.
+router.use("/channelRule", channelRuleRoutes);
 
 module.exports = router;
