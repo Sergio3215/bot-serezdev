@@ -1,6 +1,11 @@
 const { SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { generateImage, generateTextSystem } = require("../openaiScript.js");
+const {
+    DEFAULT_IMAGE_MODEL,
+    generateImage,
+    generateTextSystem,
+    getGeneratedImagePayload,
+} = require("../openaiScript.js");
 const { BirthdaySetup, Birthday, LoggChatBot, CloseChannel } = require("../db");
 const { Library } = require("../library");
 const { ChannelType, PermissionFlagsBits, MessageFlags } = require('discord.js');
@@ -146,6 +151,10 @@ class LibsCommands {
             Imagenes con 90% de exactitud.`;
 
             const img = await generateImage(prompt);
+            const imagePayload = getGeneratedImagePayload(
+                img,
+                `meme-${msg.id || Date.now()}.png`,
+            );
 
             clearInterval(pensando);
 
@@ -154,11 +163,12 @@ class LibsCommands {
             const embed_meme = new EmbedBuilder()
                 .setTitle("Meme generado por IA")
                 .setColor(color)
-                .setImage(img.data[0].url);
+                .setImage(imagePayload.imageUrl);
 
             await msgChat.edit({
                 content: null,
-                embeds: [embed_meme]
+                embeds: [embed_meme],
+                files: imagePayload.files,
             });
 
         } catch (error) {
@@ -201,7 +211,18 @@ class LibsCommands {
                 }
             }, 500);
 
-            const { nombre, raza, clase, nivel, mision, estadisticas, historia, imagen, error } = await createCharacter();
+            const {
+                nombre,
+                raza,
+                clase,
+                nivel,
+                mision,
+                estadisticas,
+                historia,
+                imagen,
+                imagenArchivos,
+                error,
+            } = await createCharacter();
 
             clearInterval(pensando);
 
@@ -270,7 +291,8 @@ class LibsCommands {
 
             await msgChat.edit({
                 content: null,
-                embeds: [embed]
+                embeds: [embed],
+                files: imagenArchivos,
             });
 
         } catch (error) {
@@ -686,8 +708,6 @@ Carisma: ${estadisticas.carisma}`)
             else {
                 const updateData = {
                     channelId: msg.options._hoistedOptions[0].value,
-                    modifiedBy: dataExisted[0].modifiedBy,
-                    count: dataExisted[0].count,
                 };
                 await contador_command.Update(msg.guild.id, updateData);
                 await msg.reply("Canal de contador de comandos actualizado correctamente.");
@@ -699,6 +719,13 @@ Carisma: ${estadisticas.carisma}`)
 
     async StreakCounter(msg, txt) {
         let color = this.#ColorRandom(Colors);
+        const rewardContent = `¡<@${msg.author.id}> ha desbloqueado un wallpaper exclusivo!`;
+
+        // Confirma el hito antes de llamar al generador: si la API de imágenes
+        // falla, el usuario igualmente ve que la recompensa fue desbloqueada.
+        const rewardMessage = await msg.reply({
+            content: `${txt}\n${rewardContent} Generando imagen...`
+        });
 
         const prompt = `Un solo monstruo coleccionable estilo anime chibi kawaii, completamente visible y centrado en la imagen.
 No agregues texto, marcos, bordes, fichas, íconos, ni otras criaturas.
@@ -709,18 +736,31 @@ Formato 16:9, alta resolución, enfoque limpio solo en el monstruo.
 Que sea wallpaper para el celular o computadora.
         `;
 
-        const img = await generateImage(prompt);
+        try {
+            const model = process.env.OPENAI_REWARD_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
+            const img = await generateImage(prompt, 1, model, "1536x1024");
+            const imagePayload = getGeneratedImagePayload(
+                img,
+                `recompensa-contador-${msg.id || Date.now()}.png`,
+            );
 
-        const embed = new EmbedBuilder()
-            .setTitle(txt)
-            // .setDescription("list of all commands")
-            .setColor(color)
-            .setImage(img.data[0].url)
+            const embed = new EmbedBuilder()
+                .setTitle(txt)
+                .setColor(color)
+                .setImage(imagePayload.imageUrl);
 
-        await msg.reply({
-            content: `¡<@${msg.author.id}> ha desbloqueado un wallpaper exclusivo! (Generado por IA)`,
-            embeds: [embed]
-        });
+            await rewardMessage.edit({
+                content: `${rewardContent} (Generado por IA)`,
+                embeds: [embed],
+                files: imagePayload.files,
+            });
+        } catch (error) {
+            console.error("[contador] No se pudo generar la recompensa visual:", error);
+            await rewardMessage.edit({
+                content: `${txt}\n${rewardContent} La imagen no pudo generarse, pero el desbloqueo quedó registrado.`,
+                embeds: [],
+            });
+        }
     }
 
     async SetupBirthdays(client, interaction) {

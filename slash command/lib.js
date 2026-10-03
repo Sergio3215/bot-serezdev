@@ -18,8 +18,8 @@ async function SlashLib(client, isMod, isAdmin, interaction) {
 
     if (interaction.commandName === 'contador') {
         if (isAdmin || isMod) {
-            libCommands.ContadorCommand(client, interaction);
-            setMetric("!contador", interaction);
+            await libCommands.ContadorCommand(client, interaction);
+            await setMetric("!contador", interaction);
         }
         else {
             await interaction.reply({ content: 'No tienes permisos para usar este comando.', ephemeral: true });

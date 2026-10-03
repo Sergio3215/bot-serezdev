@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node --test",
+    "test:image:real": "node scripts/verify-real-image.js",
     "dev": "nodemon index.js",
     "start": "node index.js",
     "dev:server": "nodemon ./server/index.js",

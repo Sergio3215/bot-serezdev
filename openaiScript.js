@@ -2,6 +2,7 @@ const OpenAI = require("openai");
 require("dotenv").config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const DEFAULT_IMAGE_MODEL = "gpt-image-2.5-flare";
 
 const ConsultingOpenAI = async (prompt) => {
 
@@ -145,6 +146,10 @@ const createCharacter = async () => {
         const promptImagen = `Un ${raza.toLowerCase()} ${clase.toLowerCase()}, estilo arte de fantasía medieval, con vestimenta y armas típicas, en un entorno épico, detalle realista, usado para el rolplay`;
 
         const image = await generateImage(promptImagen);
+        const imagePayload = getGeneratedImagePayload(
+            image,
+            `personaje-${Date.now()}.png`,
+        );
 
         return {
             nombre,
@@ -154,7 +159,8 @@ const createCharacter = async () => {
             mision,
             estadisticas,
             historia,
-            imagen: image.data[0].url,
+            imagen: imagePayload.imageUrl,
+            imagenArchivos: imagePayload.files,
             error: ''
         };
 
@@ -175,17 +181,48 @@ const generateTexto = async (promptText) => {
     });
 }
 
-const generateImage = async (prompt, number, model) => {
+const generateImage = async (prompt, number, model, size) => {
 
     const image = await openai.images.generate({
         prompt: prompt,
-        model: model || "dall-e-3",
+        model: model || process.env.OPENAI_IMAGE_MODEL || DEFAULT_IMAGE_MODEL,
         n: number || 1,
-        size: "1024x1024"
+        size: size || "1024x1024"
     });
 
     return image;
 }
+
+/**
+ * Normaliza las dos respuestas que puede entregar Images API para poder
+ * usarlas en un embed de Discord: URL heredada o contenido Base64 de GPT Image.
+ */
+const getGeneratedImagePayload = (response, fileName = `imagen-${Date.now()}.png`) => {
+    const generatedImage = response?.data?.[0];
+
+    if (!generatedImage) {
+        throw new Error("La API no devolvió una imagen");
+    }
+
+    if (generatedImage.url) {
+        return {
+            imageUrl: generatedImage.url,
+            files: [],
+        };
+    }
+
+    if (generatedImage.b64_json) {
+        return {
+            imageUrl: `attachment://${fileName}`,
+            files: [{
+                attachment: Buffer.from(generatedImage.b64_json, "base64"),
+                name: fileName,
+            }],
+        };
+    }
+
+    throw new Error("La API devolvió una imagen sin URL ni contenido Base64");
+};
 
 
 const generateTextSystem = async (promptText) => {
@@ -199,8 +236,10 @@ const generateTextSystem = async (promptText) => {
 }
 
 module.exports = {
+    DEFAULT_IMAGE_MODEL,
     ConsultingOpenAI,
     createCharacter,
     generateImage,
+    getGeneratedImagePayload,
     generateTextSystem
 };

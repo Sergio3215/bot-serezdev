@@ -390,16 +390,22 @@ class ContadorCommand {
     }
 
     async Update(serverId, option) {
+        const data = {
+            modifiedOn: new Date(),
+        };
+
+        // Las actualizaciones del canal y del estado del contador son
+        // parciales para que ninguna reescriba con una lectura vieja campos
+        // que no le corresponde modificar.
+        if (Object.hasOwn(option, "count")) data.count = option.count;
+        if (Object.hasOwn(option, "channelId")) data.channelId = option.channelId;
+        if (Object.hasOwn(option, "modifiedBy")) data.modifiedBy = option.modifiedBy;
+
         await prisma.ContadorCommand.update({
             where: {
                 serverId: serverId,
             },
-            data: {
-                count: option.count,
-                channelId: option.channelId,
-                modifiedBy: option.modifiedBy,
-                modifiedOn: new Date(),
-            }
+            data: data
         });
     }
 

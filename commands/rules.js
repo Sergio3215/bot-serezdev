@@ -1,88 +1,124 @@
 const { ContadorCommand } = require("../db");
 const LibsCommands = require("./lib");
 
-const contador_command = new ContadorCommand();
-const lib = new LibsCommands();
+const BOT_USER_ID = "1312903712238469170";
 
-const Rules = async (msg) => {
+/**
+ * Crea el procesador del contador.
+ *
+ * Cada instancia mantiene una cola independiente por servidor/canal. La
+ * función que se devuelve NO es async a propósito: registrar el trabajo en la
+ * cola ocurre de forma síncrona apenas Discord emite messageCreate, antes de
+ * que otro await pueda alterar el orden de llegada.
+ */
+const CreateRules = ({ contadorCommand, lib, logger = console }) => {
+    const queues = new Map();
 
-    //💀 LA MORGUE 💀
+    const resetCounter = async (counter) => {
+        await contadorCommand.Update(counter.serverId, {
+            modifiedBy: "",
+            count: 0,
+        });
+    };
 
-    //console.log(msg.channel.id); id: '1413026508276236351', name: '😆video-reaccion-en-stream😆'
-    //console.log(msg.guild); id: '748652112485023854', name: '💀 LA MORGUE 💀'
+    const processMessage = async (msg) => {
+        let isCounterChannel = false;
 
-    if (msg.guild.id == "748652112485023854") {
-        if (msg.channel.id == "1413026508276236351") {
-            if (!msg.content.includes("https://www.youtube.com/") && !msg.content.includes("https://youtu.be")) {
-                msg.delete();
+        try {
+            // 💀 LA MORGUE 💀
+            if (msg.guild.id === "748652112485023854" && msg.channel.id === "1413026508276236351") {
+                if (!msg.content.includes("https://www.youtube.com/") && !msg.content.includes("https://youtu.be")) {
+                    await msg.delete();
+                }
             }
-        }
-    }
 
-    const streakTime = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300];
+            const counters = await contadorCommand.GetById(msg.guild.id);
+            if (counters.length === 0 || counters[0].channelId !== msg.channel.id) {
+                return false;
+            }
 
-    // Rule para el contador de comandos
-    const ruleContador = await contador_command.GetById(msg.guild.id);
-    if (ruleContador.length !== 0) {
+            isCounterChannel = true;
+            const counter = counters[0];
 
-        if (ruleContador[0].channelId === msg.channel.id) {
-            try {
-                let number = parseInt(msg.content);
-                if (isNaN(number) && msg.author.id !== '1312903712238469170') throw new Error("No es un numero");
+            // Los mensajes automáticos no participan del contador. Esto evita
+            // que las respuestas del propio bot rompan la racha.
+            if (msg.author.bot || msg.author.id === BOT_USER_ID) {
+                return true;
+            }
 
-                if (ruleContador[0].modifiedBy === msg.author.id && msg.author.id !== '1312903712238469170') {
-                    const updateData = {
-                        channelId: ruleContador[0].channelId,
-                        modifiedBy: '',
-                        count: 0,
-                    };
+            const content = msg.content.trim();
+            const isInteger = /^(0|[1-9]\d*)$/.test(content);
+            const number = isInteger ? Number(content) : Number.NaN;
 
-                    await msg.react("❌");
-                    await contador_command.Update(msg.guild.id, updateData);
-
-                    await msg.channel.send("No puedes contar dos veces seguidas. Racha terminada.");
-                }
-                else if (msg.author.id !== '1312903712238469170') {
-                    if (number !== ruleContador[0].count + 1) {
-                        const updateData = {
-                            channelId: ruleContador[0].channelId,
-                            modifiedBy: '',
-                            count: 0,
-                        };
-
-                        await msg.react("❌");
-                        await contador_command.Update(msg.guild.id, updateData);
-
-                        await msg.channel.send("No puedes repetir el mismo numero o saltarte alguno. Racha terminada.");
-                    }
-                    else {
-                        await msg.react("✅");
-
-                        const updateData = {
-                            channelId: ruleContador[0].channelId,
-                            modifiedBy: msg.author.id,
-                            count: ruleContador[0].count + 1,
-                        };
-                        await contador_command.Update(msg.guild.id, updateData);
-
-                        streakTime.forEach(async (strk) => {
-                            if (number === strk) {
-                                const messageStrk = `¡Racha de ${strk} números Desbloqueado! 🎉`;
-                                lib.StreakCounter(msg, messageStrk);
-                            }
-                        });
-                    }
-                }
-
-            } catch (error) {
-                console.log("Error en la regla del contador de comandos:", error.message);
+            if (!Number.isSafeInteger(number)) {
+                await resetCounter(counter);
                 await msg.delete();
+                return true;
             }
-        }
-    }
 
-}
+            if (counter.modifiedBy === msg.author.id) {
+                await resetCounter(counter);
+                await msg.react("❌");
+                await msg.channel.send("No puedes contar dos veces seguidas. Racha terminada.");
+                return true;
+            }
+
+            if (number !== counter.count + 1) {
+                await resetCounter(counter);
+                await msg.react("❌");
+                await msg.channel.send("No puedes repetir el mismo numero o saltarte alguno. Racha terminada.");
+                return true;
+            }
+
+            await contadorCommand.Update(msg.guild.id, {
+                modifiedBy: msg.author.id,
+                count: number,
+            });
+            await msg.react("✅");
+
+            if (number % 20 === 0) {
+                const messageStreak = `¡Racha de ${number} números Desbloqueado! 🎉`;
+                await lib.StreakCounter(msg, messageStreak);
+            }
+
+            return true;
+        } catch (error) {
+            logger.error("Error en la regla del contador de comandos:", error);
+            return isCounterChannel;
+        }
+    };
+
+    return (msg) => {
+        if (!msg?.guild?.id || !msg?.channel?.id) {
+            return Promise.resolve(false);
+        }
+
+        const key = `${msg.guild.id}:${msg.channel.id}`;
+        const previous = queues.get(key) ?? Promise.resolve();
+        const current = previous
+            // Un fallo previo no puede dejar bloqueada para siempre la cola.
+            .catch(() => undefined)
+            .then(() => processMessage(msg));
+
+        queues.set(key, current);
+
+        // Sólo elimina la entrada si sigue siendo el último trabajo de la cola;
+        // si ya llegó otro mensaje, ese nuevo trabajo conserva la referencia.
+        void current.finally(() => {
+            if (queues.get(key) === current) {
+                queues.delete(key);
+            }
+        }).catch(() => undefined);
+
+        return current;
+    };
+};
+
+const contadorCommand = new ContadorCommand();
+const lib = new LibsCommands();
+const Rules = CreateRules({ contadorCommand, lib });
 
 module.exports = {
-    Rules
+    CreateRules,
+    Rules,
 };

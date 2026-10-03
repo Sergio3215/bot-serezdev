@@ -1,15 +1,12 @@
-const { Server, SettingWelcome, MetricCommands, ContadorCommand } = require("../db/index.js");
+const { Server, SettingWelcome, MetricCommands } = require("../db/index.js");
 const { Library } = require("../library/index.js");
 const LibsCommands = require("./lib.js");
-const { Rules } = require("./rules.js");
 const { Battle } = require("./social/Battle/index.js");
 const { Romance } = require("./social/Romance/index.js");
 const { Saludos } = require("./social/Saludos/index.js");
 const { Terror } = require("./social/Terror/index.js");
 const { Twitch } = require("./social/Twitch/index.js");
 const { Social } = require("./social/index.js");
-
-const contador_command = new ContadorCommand();
 
 const ServerDb = new Server();
 let libCommands = new LibsCommands();
@@ -51,7 +48,7 @@ const setMetric = async (command, msg) => {
     }
 }
 
-const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster, createCharacter) => {
+const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooster, createCharacter, isCounterChannel = false) => {
 
     //375805687529209857 Streamcord
     //276060004262477825 Koya
@@ -62,14 +59,7 @@ const commands = async (client, msg, Consulting, admin, isMod, userIsSubOrBooste
     }
 
 
-    const ruleContador = await contador_command.GetById(msg.guild.id);
-    //Set Rules
-
-    Rules(msg);
-
-    if (ruleContador.length !== 0) {
-        if (ruleContador[0].channelId === msg.channel.id) return;
-    }
+    if (isCounterChannel) return;
 
 
     //Project bot smart

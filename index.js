@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js')
 const { Consulting } = require('./gemini');
 const { ConsultingOpenAI, createCharacter } = require('./openaiScript.js');
 const { commands, checkServer } = require('./commands/index.js');
+const { Rules } = require('./commands/rules.js');
 const { LoadCustomCommandMap } = require('./commands/custom/index.js');
 const { CreateCustomCommandMapRefresher } = require('./commands/custom/refresh.js');
 const { RunCustomCommand } = require('./commands/custom/runner.js');
@@ -121,8 +122,13 @@ client.on('ready', async () => {
 
 client.on('messageCreate', async (msg) => {
     console.log(`Message received: ${msg.content} from ${msg.guild.name}`);
+    // Rules registra el mensaje en la cola del contador de forma síncrona. Se
+    // guarda la promesa antes de cualquier await para conservar el orden real
+    // en el que Discord emitió los eventos messageCreate.
+    const counterRule = Rules(msg);
+
     try {
-        checkServer(msg.guild);
+        await checkServer(msg.guild);
         let admin = false;
         let isMod = false;
         if (msg != null) {
@@ -135,9 +141,10 @@ client.on('messageCreate', async (msg) => {
             );
         }
         await RunCustomCommand(client, msg);
-        commands(client, msg, ConsultingOpenAI, admin, isMod, userIsSubOrBooster, createCharacter);
+        const isCounterChannel = await counterRule;
+        await commands(client, msg, ConsultingOpenAI, admin, isMod, userIsSubOrBooster, createCharacter, isCounterChannel);
     } catch (error) {
-
+        console.error('Error al manejar el mensaje:', error);
     }
 });
 
