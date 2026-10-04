@@ -1,4 +1,4 @@
-const { SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand } = require("../db/index.js");
+const { SettingWelcome, buttonFollowing, aceptRules, setTicket, ContadorCommand, CustomCommand } = require("../db/index.js");
 const { EmbedBuilder, Colors, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const {
     DEFAULT_IMAGE_MODEL,
@@ -15,11 +15,63 @@ const btnfollow = new buttonFollowing();
 const acept_rules = new aceptRules();
 const set_ticket = new setTicket();
 const contador_command = new ContadorCommand();
+const custom_command = new CustomCommand();
 let birthday_setup = new BirthdaySetup();
 let birthday = new Birthday();
 let functions_on_discord = new Library();
 let loggChatBot = new LoggChatBot();
 let closeChannel = new CloseChannel();
+
+const EMBED_TEXT_LIMIT = 6000;
+const EMBED_FIELD_LIMIT = 25;
+const EMBED_FIELD_VALUE_LIMIT = 1024;
+const CUSTOM_COMMAND_TITLE = "Comandos personalizados";
+
+const GetEmbedTextLength = (embed) => {
+    const data = embed.toJSON();
+
+    return (data.title?.length ?? 0)
+        + (data.description?.length ?? 0)
+        + (data.author?.name?.length ?? 0)
+        + (data.footer?.text?.length ?? 0)
+        + (data.fields ?? []).reduce(
+            (total, field) => total + field.name.length + field.value.length,
+            0,
+        );
+};
+
+const CreateCustomCommandFields = (commandNames, characterBudget) => {
+    const fields = [];
+    let usedCharacters = 0;
+
+    for (const commandName of commandNames) {
+        const field = fields.at(-1);
+        const separator = field?.value ? "\n" : "";
+
+        if (
+            field
+            && field.value.length + separator.length + commandName.length <= EMBED_FIELD_VALUE_LIMIT
+            && usedCharacters + separator.length + commandName.length <= characterBudget
+        ) {
+            field.value += `${separator}${commandName}`;
+            usedCharacters += separator.length + commandName.length;
+            continue;
+        }
+
+        if (fields.length >= EMBED_FIELD_LIMIT) break;
+
+        const fieldName = fields.length === 0 ? "Comandos" : "Continuación";
+        const visibleName = commandName.slice(0, EMBED_FIELD_VALUE_LIMIT);
+        const requiredCharacters = fieldName.length + visibleName.length;
+
+        if (usedCharacters + requiredCharacters > characterBudget) break;
+
+        fields.push({ name: fieldName, value: visibleName });
+        usedCharacters += requiredCharacters;
+    }
+
+    return fields;
+};
 
 class LibsCommands {
 
@@ -646,6 +698,24 @@ Carisma: ${estadisticas.carisma}`)
             { name: '!cerrar', value: "Comando para cerrar el chat de un canal de texto. Solo administradores pueden usarlo" },
         ]
 
+        let customCommands = [];
+        try {
+            const serverCommands = await custom_command.GetByServerId(msg.guild.id);
+            customCommands = serverCommands
+                .filter((command) => (
+                    command.serverId === msg.guild.id
+                    && command.enabled === true
+                    && typeof command.command === "string"
+                    && command.command.trim().length > 0
+                ))
+                .map((command) => {
+                    const commandName = command.command.trim();
+                    return commandName.startsWith("!") ? commandName : `!${commandName}`;
+                });
+        } catch (error) {
+            console.error("Error al obtener los comandos personalizados:", error);
+        }
+
         const embed_user = new EmbedBuilder()
             .setTitle("Lista de Comandos para Usuarios")
             // .setDescription("list of all commands")
@@ -682,6 +752,26 @@ Carisma: ${estadisticas.carisma}`)
 
         if (isMod || isAdmin) {
             embedAll.push(embed_mod_admin)
+        }
+
+        if (customCommands.length > 0) {
+            const existingCharacters = embedAll.reduce(
+                (total, embed) => total + GetEmbedTextLength(embed),
+                0,
+            );
+            const fields = CreateCustomCommandFields(
+                customCommands,
+                EMBED_TEXT_LIMIT - existingCharacters - CUSTOM_COMMAND_TITLE.length,
+            );
+
+            if (fields.length > 0) {
+                const embed_custom = new EmbedBuilder()
+                    .setTitle(CUSTOM_COMMAND_TITLE)
+                    .setColor(Colors.Blue)
+                    .addFields(fields);
+
+                embedAll.push(embed_custom);
+            }
         }
 
 
