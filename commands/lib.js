@@ -26,6 +26,9 @@ const EMBED_TEXT_LIMIT = 6000;
 const EMBED_FIELD_LIMIT = 25;
 const EMBED_FIELD_VALUE_LIMIT = 1024;
 const CUSTOM_COMMAND_TITLE = "Comandos personalizados";
+const CUSTOM_COMMAND_DESCRIPTION_LIMIT = 100;
+const EMPTY_DESCRIPTION_FALLBACK = "\u200B";
+const descriptionGenerationJobs = new Map();
 
 const GetEmbedTextLength = (embed) => {
     const data = embed.toJSON();
@@ -75,8 +78,14 @@ const CreateCustomCommandFields = (commandNames, characterBudget) => {
 
 class LibsCommands {
 
-    constructor() {
-
+    constructor({
+        customCommandDb = custom_command,
+        generateTextSystem: textGenerator = generateTextSystem,
+        logger = console,
+    } = {}) {
+        this.customCommandDb = customCommandDb;
+        this.generateTextSystem = textGenerator;
+        this.logger = logger;
     }
     //Role Play
     #SubirNivel = () => {
@@ -700,21 +709,81 @@ Carisma: ${estadisticas.carisma}`)
 
         let customCommands = [];
         try {
-            const serverCommands = await custom_command.GetByServerId(msg.guild.id);
+            const serverCommands = await this.customCommandDb.GetByServerId(msg.guild.id);
             customCommands = serverCommands
                 .filter((command) => (
                     command.serverId === msg.guild.id
                     && command.enabled === true
                     && typeof command.command === "string"
                     && command.command.trim().length > 0
-                ))
-                .map((command) => {
-                    const commandName = command.command.trim();
-                    return commandName.startsWith("!") ? commandName : `!${commandName}`;
-                });
+                ));
         } catch (error) {
-            console.error("Error al obtener los comandos personalizados:", error);
+            this.logger.error("Error al obtener los comandos personalizados:", error);
         }
+
+        for (const command of customCommands) {
+            if (command.description == null) {
+                const generationKey = command.id ?? `${command.serverId}:${command.command}`;
+
+                try {
+                    let generationJob = descriptionGenerationJobs.get(generationKey);
+
+                    if (!generationJob) {
+                        generationJob = (async () => {
+                            const prompt = `Analizá este comando personalizado de Discord y describí brevemente qué hace.
+
+Requisitos:
+- español
+- máximo 100 caracteres
+- una sola frase
+- no mencionar código ni implementación
+- devolver únicamente la descripción
+
+Código:
+${command.code}`;
+                            const response = await this.generateTextSystem(prompt);
+                            const generatedDescription = response
+                                ?.choices?.[0]?.message?.content?.trim();
+
+                            if (!generatedDescription) {
+                                throw new Error("OpenAI no devolvió una descripción válida");
+                            }
+
+                            const description = generatedDescription.slice(
+                                0,
+                                CUSTOM_COMMAND_DESCRIPTION_LIMIT,
+                            );
+                            await this.customCommandDb.UpdateDescription(command.id, description);
+                            return description;
+                        })().finally(() => {
+                            descriptionGenerationJobs.delete(generationKey);
+                        });
+
+                        descriptionGenerationJobs.set(generationKey, generationJob);
+                    }
+
+                    command.description = await generationJob;
+                } catch (error) {
+                    this.logger.error(
+                        `Error al generar la descripción del comando ${command.command}:`,
+                        error,
+                    );
+                }
+            }
+        }
+
+        const customCommandEntries = customCommands.map((command) => {
+            const commandName = command.command.trim();
+            const visibleCommand = commandName.startsWith("!")
+                ? commandName
+                : `!${commandName}`;
+            const description = typeof command.description === "string"
+                && command.description.length > 0
+                ? command.description
+                : EMPTY_DESCRIPTION_FALLBACK;
+
+            return `${visibleCommand}\n${description}`;
+        });
 
         const embed_user = new EmbedBuilder()
             .setTitle("Lista de Comandos para Usuarios")
@@ -754,13 +823,13 @@ Carisma: ${estadisticas.carisma}`)
             embedAll.push(embed_mod_admin)
         }
 
-        if (customCommands.length > 0) {
+        if (customCommandEntries.length > 0) {
             const existingCharacters = embedAll.reduce(
                 (total, embed) => total + GetEmbedTextLength(embed),
                 0,
             );
             const fields = CreateCustomCommandFields(
-                customCommands,
+                customCommandEntries,
                 EMBED_TEXT_LIMIT - existingCharacters - CUSTOM_COMMAND_TITLE.length,
             );
 

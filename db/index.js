@@ -935,6 +935,7 @@ class CustomCommand {
                 serverId: option.serverId,
                 command: option.command,
                 code: option.code,
+                description: option.description ?? null,
                 enabled: option.enabled ?? true,
             }
         });
@@ -1001,6 +1002,18 @@ class CustomCommand {
             data: {
                 command: option.command,
                 code: option.code,
+                ...(option.description === undefined ? {} : { description: option.description }),
+            }
+        });
+    }
+
+    async UpdateDescription(id, description) {
+        return await prisma.customCommand.update({
+            where: {
+                id: id,
+            },
+            data: {
+                description: description,
             }
         });
     }

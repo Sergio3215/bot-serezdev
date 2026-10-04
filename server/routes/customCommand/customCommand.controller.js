@@ -1,9 +1,29 @@
 const { CustomCommand } = require("../../../db/index");
 
 const defaultCustomCommandDb = new CustomCommand();
+const DESCRIPTION_MAX_LENGTH = 100;
 
 const isRequiredString = (value) =>
     typeof value === "string" && value.trim().length > 0;
+
+const validateDescription = (description) => {
+    if (description === undefined || description === null) {
+        return { value: description };
+    }
+
+    if (typeof description !== "string") {
+        return { error: "La descripción debe ser texto" };
+    }
+
+    const value = description.trim();
+    if (value.length > DESCRIPTION_MAX_LENGTH) {
+        return {
+            error: `La descripción no puede superar los ${DESCRIPTION_MAX_LENGTH} caracteres`,
+        };
+    }
+
+    return { value };
+};
 
 function sendPersistenceError(res, error) {
     if (error.code === "P2002") {
@@ -44,7 +64,7 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
     };
 
     const createCustomCommand = async (req, res) => {
-        const { serverId, command, code, enabled } = req.body;
+        const { serverId, command, code, description, enabled } = req.body;
 
         if (!isRequiredString(serverId)) {
             return res.status(400).json({ message: "El id del servidor es requerido" });
@@ -62,11 +82,17 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
             return res.status(400).json({ message: "El estado del comando es inválido" });
         }
 
+        const descriptionValidation = validateDescription(description);
+        if (descriptionValidation.error) {
+            return res.status(400).json({ message: descriptionValidation.error });
+        }
+
         try {
             const created = await customCommandDb.Create({
                 serverId,
                 command,
                 code,
+                description: descriptionValidation.value,
                 enabled,
             });
 
@@ -81,7 +107,7 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
 
     const updateCustomCommand = async (req, res) => {
         const { id } = req.params;
-        const { command, code } = req.body;
+        const { command, code, description } = req.body;
 
         if (!isRequiredString(id)) {
             return res.status(400).json({ message: "El id del comando es requerido" });
@@ -95,8 +121,17 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
             return res.status(400).json({ message: "El código embebido es requerido" });
         }
 
+        const descriptionValidation = validateDescription(description);
+        if (descriptionValidation.error) {
+            return res.status(400).json({ message: descriptionValidation.error });
+        }
+
         try {
-            const updated = await customCommandDb.Update(id, { command, code });
+            const updated = await customCommandDb.Update(id, {
+                command,
+                code,
+                description: descriptionValidation.value,
+            });
 
             return res.status(200).json({
                 message: "Comando personalizado editado con éxito",
@@ -166,4 +201,5 @@ const controller = createCustomCommandController();
 module.exports = {
     ...controller,
     createCustomCommandController,
+    validateDescription,
 };

@@ -221,6 +221,7 @@ model CustomCommand {
   serverId  String
   command   String
   code      String
+  description String?
   enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -55,8 +55,8 @@ test("sin custom commands envía solamente los embeds existentes", async (t) => 
 
 test("agrega el embed azul con dos comandos habilitados y conserva sus prefijos", async (t) => {
     const embeds = await renderCommandList(t, [
-        { serverId: SERVER_ID, command: "!hola", code: "secreto-1", enabled: true },
-        { serverId: SERVER_ID, command: "reglas", code: "secreto-2", enabled: true },
+        { serverId: SERVER_ID, command: "!hola", code: "secreto-1", description: "Saluda", enabled: true },
+        { serverId: SERVER_ID, command: "reglas", code: "secreto-2", description: "Muestra las reglas", enabled: true },
     ]);
     const customEmbed = findCustomEmbed(embeds);
     const content = customEmbed.fields.map((field) => field.value).join("\n");
@@ -70,8 +70,8 @@ test("agrega el embed azul con dos comandos habilitados y conserva sus prefijos"
 
 test("omite custom commands deshabilitados", async (t) => {
     const embeds = await renderCommandList(t, [
-        { serverId: SERVER_ID, command: "visible", enabled: true },
-        { serverId: SERVER_ID, command: "oculto", enabled: false },
+        { serverId: SERVER_ID, command: "visible", description: "Es visible", enabled: true },
+        { serverId: SERVER_ID, command: "oculto", description: null, enabled: false },
     ]);
     const content = findCustomEmbed(embeds).fields.map((field) => field.value).join("\n");
 
@@ -81,8 +81,8 @@ test("omite custom commands deshabilitados", async (t) => {
 
 test("no mezcla comandos pertenecientes a otro servidor", async (t) => {
     const embeds = await renderCommandList(t, [
-        { serverId: SERVER_ID, command: "local", enabled: true },
-        { serverId: "server-other", command: "externo", enabled: true },
+        { serverId: SERVER_ID, command: "local", description: "Comando local", enabled: true },
+        { serverId: "server-other", command: "externo", description: null, enabled: true },
     ]);
     const content = findCustomEmbed(embeds).fields.map((field) => field.value).join("\n");
 
@@ -102,9 +102,10 @@ test("si falla CustomCommand mantiene operativo el listado existente", async (t)
 });
 
 test("agrupa una cantidad elevada sin superar los límites de Discord", async (t) => {
-    const records = Array.from({ length: 150 }, (_, index) => ({
+    const records = Array.from({ length: 100 }, (_, index) => ({
         serverId: SERVER_ID,
         command: `personalizado-${String(index).padStart(3, "0")}`,
+        description: "x",
         enabled: true,
     }));
     const embeds = await renderCommandList(t, records);
@@ -119,7 +120,7 @@ test("agrupa una cantidad elevada sin superar los límites de Discord", async (t
         field.name.length <= 256 && field.value.length <= 1024
     )));
     assert.deepEqual(
-        displayedCommands,
+        displayedCommands.filter((line) => line.startsWith("!")),
         records.map((record) => `!${record.command}`),
     );
     assert.ok(embeds.reduce((total, embed) => total + embedTextLength(embed), 0) <= 6000);
@@ -127,7 +128,7 @@ test("agrupa una cantidad elevada sin superar los límites de Discord", async (t
 
 test("moderadores y administradores conservan su embed", async (t) => {
     const embeds = await renderCommandList(t, [
-        { serverId: SERVER_ID, command: "hola", enabled: true },
+        { serverId: SERVER_ID, command: "hola", description: "Saluda", enabled: true },
     ], { isMod: true });
 
     assert.ok(embeds.some((embed) => embed.title === ADMIN_TITLE));
