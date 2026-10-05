@@ -1,4 +1,8 @@
 const { CustomCommand } = require("../../../db/index");
+const {
+    PreviewCustomCommand,
+    ValidatePreviewInput,
+} = require("../../../commands/custom/preview.js");
 
 const defaultCustomCommandDb = new CustomCommand();
 const DESCRIPTION_MAX_LENGTH = 100;
@@ -121,7 +125,10 @@ function sendPersistenceError(res, error) {
     });
 }
 
-function createCustomCommandController(customCommandDb = defaultCustomCommandDb) {
+function createCustomCommandController(
+    customCommandDb = defaultCustomCommandDb,
+    previewCustomCommand = PreviewCustomCommand,
+) {
     const getCustomCommands = async (req, res) => {
         const { serverId } = req.query;
 
@@ -300,12 +307,38 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
         }
     };
 
+    const previewCustomCommandRequest = async (req, res) => {
+        const { serverId, code, message, mention } = req.body ?? {};
+
+        const validation = ValidatePreviewInput({ serverId, code, message });
+        if (validation.error) {
+            return res.status(400).json({ message: validation.error });
+        }
+
+        try {
+            const preview = await previewCustomCommand({
+                serverId,
+                code,
+                message,
+                mention: mention === true,
+            });
+
+            return res.status(200).json({ data: preview });
+        } catch (error) {
+            console.error("No se pudo probar el comando personalizado", error);
+            return res.status(500).json({
+                message: "No se pudo probar el comando personalizado"
+            });
+        }
+    };
+
     return {
         getCustomCommands,
         createCustomCommand,
         updateCustomCommand,
         updateCustomCommandStatus,
         deleteCustomCommand,
+        previewCustomCommand: previewCustomCommandRequest,
     };
 }
 
