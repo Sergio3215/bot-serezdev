@@ -16,6 +16,8 @@ const REPLY_EMBED_KEYS = Object.freeze(["message", ...EMBED_ATTRIBUTE_KEYS]);
 const SNOWFLAKE_PATTERN = /^\d{17,20}$/;
 const USER_MENTION_PATTERN = /<@!?(\d{17,20})>/g;
 const COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+const INTEGER_STRING_PATTERN = /^[+-]?\d+$/;
+const DECIMAL_STRING_PATTERN = /^[+-]?\d+(?:\.\d+)?$/;
 
 const AssertConfig = (config, functionName) => {
     if (config === null || typeof config !== "object" || Array.isArray(config)) {
@@ -255,6 +257,59 @@ const length = (value) => {
         throw new TypeError("length requiere un String o un Array");
     }
     return value.length;
+};
+
+const string = (value) => {
+    if (typeof value === "string") return value;
+    if (typeof value === "boolean") return value ? "true" : "false";
+    if (typeof value === "number" && Number.isFinite(value)) return value.toString();
+    throw new TypeError("string requiere un String, Number o Boolean válido");
+};
+
+const int = (value) => {
+    let numericValue;
+
+    if (typeof value === "number") {
+        numericValue = value;
+    } else if (typeof value === "string" && INTEGER_STRING_PATTERN.test(value)) {
+        numericValue = Number(value);
+    } else {
+        throw new TypeError("int requiere un Number finito o un String integer válido");
+    }
+
+    if (!Number.isFinite(numericValue)) {
+        throw new TypeError("int no puede convertir un valor no finito");
+    }
+
+    const result = Number.isInteger(numericValue)
+        ? numericValue
+        : Math.trunc(numericValue);
+    return Object.is(result, -0) ? 0 : result;
+};
+
+const decimal = (value) => {
+    let numericValue;
+
+    if (typeof value === "number") {
+        numericValue = value;
+    } else if (typeof value === "string" && DECIMAL_STRING_PATTERN.test(value)) {
+        numericValue = Number(value);
+    } else {
+        throw new TypeError("decimal requiere un Number finito o un String decimal válido");
+    }
+
+    if (!Number.isFinite(numericValue)) {
+        throw new TypeError("decimal no puede convertir un valor no finito");
+    }
+
+    return numericValue;
+};
+
+const bool = (value) => {
+    if (typeof value === "boolean") return value;
+    if (value === "true") return true;
+    if (value === "false") return false;
+    throw new TypeError('bool requiere un Boolean o el String exacto "true" o "false"');
 };
 
 const CreateMemberValue = (guildMember) => Object.freeze({
@@ -543,6 +598,10 @@ module.exports = {
     upper,
     lower,
     length,
+    string,
+    int,
+    decimal,
+    bool,
     GetMember,
     GetMembers,
     GetAuthor,

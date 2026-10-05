@@ -192,6 +192,58 @@ class NativeRegistry {
 const CreateNativeDefinitions = (implementations) => [
     {
         metadata: CreateMetadata({
+            name: "string",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter(
+                "value",
+                UnionOf(NativeTypes.String, NativeTypes.Number, NativeTypes.Boolean),
+            )],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.string(...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "int",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter(
+                "value",
+                UnionOf(NativeTypes.Number, NativeTypes.String),
+            )],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.int(...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "decimal",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter(
+                "value",
+                UnionOf(NativeTypes.Number, NativeTypes.String),
+            )],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.decimal(...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "bool",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter(
+                "value",
+                UnionOf(NativeTypes.Boolean, NativeTypes.String),
+            )],
+            returns: ReturnType(NativeTypes.Boolean, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.bool(...args),
+    },
+    {
+        metadata: CreateMetadata({
             name: "random",
             kind: NativeEntryKind.QUERY,
             parameters: [],
