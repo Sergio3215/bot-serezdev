@@ -126,6 +126,137 @@ const Role = (roleId) => {
     return Object.freeze({ id: roleId });
 };
 
+const NativeService = (runtimeContext, name, fallback) => {
+    const service = runtimeContext?.nativeServices?.[name];
+    if (service !== undefined && typeof service !== "function") {
+        throw new TypeError(`El servicio nativo ${name} es inválido`);
+    }
+    return service ?? fallback;
+};
+
+const RandomValue = (runtimeContext) => {
+    const value = NativeService(runtimeContext, "random", Math.random)();
+    if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value >= 1) {
+        throw new TypeError("La fuente aleatoria debe devolver un número entre 0 inclusive y 1 exclusivo");
+    }
+    return value;
+};
+
+const TimestampValue = (runtimeContext) => {
+    const value = NativeService(runtimeContext, "now", Date.now)();
+    if (!Number.isInteger(value) || !Number.isFinite(value)) {
+        throw new TypeError("La fuente de tiempo debe devolver un timestamp entero en milisegundos");
+    }
+    return value;
+};
+
+const random = (runtimeContext) => RandomValue(runtimeContext);
+
+const randomRange = (runtimeContext, min, max) => {
+    if (!Number.isSafeInteger(min) || !Number.isSafeInteger(max)) {
+        throw new TypeError("randomRange requiere dos enteros seguros");
+    }
+    if (min > max) {
+        throw new RangeError("randomRange requiere que min sea menor o igual que max");
+    }
+    if (min === max) return min;
+
+    const range = max - min + 1;
+    if (!Number.isSafeInteger(range)) {
+        throw new RangeError("El rango de randomRange es demasiado grande");
+    }
+    return min + Math.floor(RandomValue(runtimeContext) * range);
+};
+
+const choose = (runtimeContext, values) => {
+    if (!Array.isArray(values)) {
+        throw new TypeError("choose requiere un array");
+    }
+    if (values.length === 0) {
+        throw new RangeError("choose requiere un array no vacío");
+    }
+    return values[Math.floor(RandomValue(runtimeContext) * values.length)];
+};
+
+const now = (runtimeContext) => TimestampValue(runtimeContext);
+
+const date = (runtimeContext) => new Date(TimestampValue(runtimeContext))
+    .toISOString()
+    .slice(0, 10);
+
+const time = (runtimeContext) => new Date(TimestampValue(runtimeContext))
+    .toISOString()
+    .slice(11, 19);
+
+const username = (runtimeContext) => {
+    const value = runtimeContext?.sourceMessage?.author?.username;
+    if (typeof value !== "string" || value.length === 0) {
+        throw new TypeError("No existe un username de autor disponible");
+    }
+    return value;
+};
+
+const displayName = (runtimeContext) => {
+    const value = runtimeContext?.authorMember?.displayName;
+    return typeof value === "string" && value.length > 0
+        ? value
+        : username(runtimeContext);
+};
+
+const userId = (runtimeContext) => {
+    const value = runtimeContext?.sourceMessage?.author?.id;
+    if (typeof value !== "string" || value.length === 0) {
+        throw new TypeError("No existe un identificador de autor disponible");
+    }
+    return value;
+};
+
+const channelId = (runtimeContext) => {
+    const value = runtimeContext?.channel?.id
+        ?? runtimeContext?.sourceMessage?.channel?.id;
+    if (typeof value !== "string" || value.length === 0) {
+        throw new TypeError("No existe un identificador de canal disponible");
+    }
+    return value;
+};
+
+const serverId = (runtimeContext) => {
+    const value = runtimeContext?.guild?.id;
+    if (typeof value !== "string" || value.length === 0) {
+        throw new TypeError("No existe un identificador de servidor disponible");
+    }
+    return value;
+};
+
+const memberCount = (runtimeContext) => {
+    const value = runtimeContext?.guild?.memberCount;
+    if (!Number.isInteger(value) || value < 0) {
+        throw new TypeError("No existe una cantidad de miembros válida disponible");
+    }
+    return value;
+};
+
+const upper = (value) => {
+    if (typeof value !== "string") {
+        throw new TypeError("upper requiere un String");
+    }
+    return value.toUpperCase();
+};
+
+const lower = (value) => {
+    if (typeof value !== "string") {
+        throw new TypeError("lower requiere un String");
+    }
+    return value.toLowerCase();
+};
+
+const length = (value) => {
+    if (typeof value !== "string" && !Array.isArray(value)) {
+        throw new TypeError("length requiere un String o un Array");
+    }
+    return value.length;
+};
+
 const CreateMemberValue = (guildMember) => Object.freeze({
     id: guildMember.id,
     displayName: guildMember.displayName,
@@ -397,6 +528,21 @@ const ReplyEmbed = async (runtimeContext, config) => {
 module.exports = {
     Channel,
     Role,
+    random,
+    randomRange,
+    choose,
+    now,
+    date,
+    time,
+    username,
+    displayName,
+    userId,
+    channelId,
+    serverId,
+    memberCount,
+    upper,
+    lower,
+    length,
     GetMember,
     GetMembers,
     GetAuthor,

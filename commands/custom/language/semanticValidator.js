@@ -73,6 +73,10 @@ const IsAssignable = (actual, expected) => {
         return true;
     }
 
+    if (IsNamedType(actual, "Any") || IsNamedType(expected, "Any")) {
+        return true;
+    }
+
     if (expected.kind === TypeKind.UNION) {
         return expected.types.some((type) => IsAssignable(actual, type));
     }
@@ -364,19 +368,27 @@ class SemanticValidator {
             );
         }
 
-        node.arguments.forEach((argument, index) => {
+        const argumentTypes = node.arguments.map((argument, index) => {
             const actualType = this.inferExpression(argument);
             const parameter = entry.metadata.parameters[index];
             if (parameter) {
                 this.validateValueAgainstType(argument, actualType, parameter.type, parameter.name);
                 this.validateLiteralConstraints(argument, parameter, parameter.name);
             }
+            return actualType;
         });
 
         this.nativeCalls.set(node, entry);
+        const elementTypeParameter = entry.metadata.returns.elementTypeOfParameter;
+        const returnType = elementTypeParameter === undefined
+            ? entry.metadata.returns.type
+            : argumentTypes[elementTypeParameter]?.kind === TypeKind.ARRAY
+                ? argumentTypes[elementTypeParameter].elementType
+                : entry.metadata.returns.type;
+
         return entry.metadata.returns.nullable
-            ? UnionOf(entry.metadata.returns.type, NativeTypes.Null)
-            : entry.metadata.returns.type;
+            ? UnionOf(returnType, NativeTypes.Null)
+            : returnType;
     }
 
     inferObjectExpression(node) {

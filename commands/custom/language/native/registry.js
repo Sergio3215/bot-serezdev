@@ -1,4 +1,11 @@
-const { NativeTypes, ArrayOf, DeepFreeze, IsType } = require("./types.js");
+const {
+    NativeTypes,
+    ArrayOf,
+    UnionOf,
+    DeepFreeze,
+    IsType,
+    TypeKind,
+} = require("./types.js");
 const DefaultImplementations = require("./implementations.js");
 
 const NativeEntryKind = Object.freeze({
@@ -32,6 +39,9 @@ const ReturnType = (type, options = {}) => ({
     type,
     nullable: options.nullable ?? false,
     readOnly: options.readOnly ?? false,
+    ...(options.elementTypeOfParameter === undefined
+        ? {}
+        : { elementTypeOfParameter: options.elementTypeOfParameter }),
 });
 
 const CreateMetadata = ({
@@ -86,6 +96,17 @@ const ValidateMetadata = (metadata) => {
 
     if (!metadata.returns || !IsType(metadata.returns.type)) {
         throw new TypeError(`El retorno de ${metadata.name} es inválido`);
+    }
+
+    if (metadata.returns.elementTypeOfParameter !== undefined) {
+        const parameterIndex = metadata.returns.elementTypeOfParameter;
+        if (
+            !Number.isInteger(parameterIndex)
+            || parameterIndex < 0
+            || metadata.parameters[parameterIndex]?.type?.kind !== TypeKind.ARRAY
+        ) {
+            throw new TypeError(`El retorno genérico de ${metadata.name} es inválido`);
+        }
     }
 
     if (
@@ -169,6 +190,165 @@ class NativeRegistry {
 }
 
 const CreateNativeDefinitions = (implementations) => [
+    {
+        metadata: CreateMetadata({
+            name: "random",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.random(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "randomRange",
+            kind: NativeEntryKind.QUERY,
+            parameters: [
+                Parameter("min", NativeTypes.Number),
+                Parameter("max", NativeTypes.Number),
+            ],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.randomRange(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "choose",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter("values", ArrayOf(NativeTypes.Any, { readOnly: true }))],
+            returns: ReturnType(NativeTypes.Any, {
+                readOnly: true,
+                elementTypeOfParameter: 0,
+            }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.choose(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "now",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.now(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "date",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.date(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "time",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.time(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "username",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.username(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "displayName",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.displayName(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "userId",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.userId(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "channelId",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.channelId(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "serverId",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.serverId(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "memberCount",
+            kind: NativeEntryKind.QUERY,
+            parameters: [],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (runtimeContext, args) => implementations.memberCount(runtimeContext, ...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "upper",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter("value", NativeTypes.String)],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.upper(...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "lower",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter("value", NativeTypes.String)],
+            returns: ReturnType(NativeTypes.String, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.lower(...args),
+    },
+    {
+        metadata: CreateMetadata({
+            name: "length",
+            kind: NativeEntryKind.QUERY,
+            parameters: [Parameter(
+                "value",
+                UnionOf(NativeTypes.String, ArrayOf(NativeTypes.Any, { readOnly: true })),
+            )],
+            returns: ReturnType(NativeTypes.Number, { readOnly: true }),
+            isAsync: false,
+        }),
+        execute: (_runtimeContext, args) => implementations.length(...args),
+    },
     {
         metadata: CreateMetadata({
             name: "Channel",

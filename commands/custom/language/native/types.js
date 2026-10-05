@@ -49,6 +49,7 @@ const NumberType = Scalar("Number");
 const BooleanType = Scalar("Boolean");
 const NullType = Scalar("Null");
 const VoidType = Scalar("Void");
+const AnyType = Scalar("Any");
 
 const ChannelReferenceType = ObjectType("ChannelReference", {
     id: {
@@ -213,6 +214,7 @@ const NativeTypes = Object.freeze({
     Boolean: BooleanType,
     Null: NullType,
     Void: VoidType,
+    Any: AnyType,
     ChannelReference: ChannelReferenceType,
     RoleReference: RoleReferenceType,
     Member: MemberType,
