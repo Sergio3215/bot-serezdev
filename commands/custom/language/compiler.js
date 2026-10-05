@@ -199,10 +199,22 @@ const CompileCustomCommand = (
     );
     if (!compiled.ok) return { ok: false, value: { compiledCommand: null }, diagnostics: compiled.diagnostics };
 
+    const validTriggerTypes = new Set(["exact", "startsWith", "endsWith", "include"]);
+    const triggerType = validTriggerTypes.has(customCommand.triggerType)
+        ? customCommand.triggerType
+        : "include";
+    const allowedRoleIds = Array.isArray(customCommand.allowedRoleIds)
+        ? [...new Set(customCommand.allowedRoleIds.filter(
+            (roleId) => typeof roleId === "string" && roleId.length > 0,
+        ))]
+        : [];
+
     const compiledCommand = DeepFreeze({
         id: customCommand.id,
         serverId: customCommand.serverId,
         command: customCommand.command,
+        triggerType,
+        allowedRoleIds,
         updatedAt: customCommand.updatedAt,
         program: compiled.value.program,
     });

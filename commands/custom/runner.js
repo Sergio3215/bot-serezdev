@@ -11,6 +11,14 @@ const {
 
 const MissingMentionMessage = "Tenés que mencionar a alguien para usar este comando.";
 
+const NormalizeAllowedRoleIds = (allowedRoleIds) => (
+    Array.isArray(allowedRoleIds)
+        ? [...new Set(allowedRoleIds.filter(
+            (roleId) => typeof roleId === "string" && roleId.length > 0,
+        ))]
+        : []
+);
+
 const ResolveMessageAuthorMember = async (msg) => {
     const authorId = msg?.author?.id;
 
@@ -62,8 +70,29 @@ const PrepareRequiredContext = async (compiledCommand, runtimeContext) => {
     };
 };
 
-const ExecuteCompiledCustomCommand = async (client, msg, compiledCommand) => {
-    const authorMember = await ResolveMessageAuthorMember(msg);
+const HasCustomCommandPermission = (msg, compiledCommand, authorMember) => {
+    const allowedRoleIds = NormalizeAllowedRoleIds(compiledCommand?.allowedRoleIds);
+    if (allowedRoleIds.length === 0) return true;
+
+    const guildRoles = msg?.guild?.roles?.cache;
+    if (!guildRoles || typeof guildRoles.has !== "function") return false;
+
+    const effectiveRoleIds = allowedRoleIds.filter((roleId) => guildRoles.has(roleId));
+    if (effectiveRoleIds.length === 0) return true;
+
+    const memberRoles = authorMember?.roles?.cache;
+    if (!memberRoles || typeof memberRoles.has !== "function") return false;
+
+    return effectiveRoleIds.some((roleId) => memberRoles.has(roleId));
+};
+
+const ExecuteCompiledCustomCommand = async (
+    client,
+    msg,
+    compiledCommand,
+    resolvedAuthorMember = null,
+) => {
+    const authorMember = resolvedAuthorMember ?? await ResolveMessageAuthorMember(msg);
     if (authorMember === null) {
         return false;
     }
@@ -102,7 +131,8 @@ const RunCustomCommandInternal = async (client, msg) => {
         !IsCustomCommandCacheReady()
         || !msg?.guild?.id
         || typeof msg.content !== "string"
-        || msg.author?.id === client?.user?.id
+        || msg.author?.bot === true
+        || msg.webhookId != null
     ) {
         return false;
     }
@@ -112,7 +142,14 @@ const RunCustomCommandInternal = async (client, msg) => {
         return false;
     }
 
-    return ExecuteCompiledCustomCommand(client, msg, compiledCommand);
+    const authorMember = await ResolveMessageAuthorMember(msg);
+    if (authorMember === null) return false;
+
+    if (!HasCustomCommandPermission(msg, compiledCommand, authorMember)) {
+        return false;
+    }
+
+    return ExecuteCompiledCustomCommand(client, msg, compiledCommand, authorMember);
 };
 
 const RunCustomCommand = async (client, msg) => {
@@ -126,7 +163,10 @@ const RunCustomCommand = async (client, msg) => {
 
 module.exports = {
     RunCustomCommand,
+    RunCustomCommandInternal,
     ResolveMessageAuthorMember,
+    HasCustomCommandPermission,
+    NormalizeAllowedRoleIds,
     PrepareRequiredContext,
     ExecuteCompiledCustomCommand,
     MissingMentionMessage,

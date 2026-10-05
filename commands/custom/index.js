@@ -69,16 +69,53 @@ const FindCustomCommandInServerMap = (serverCommands, messageContent) => {
     }
 
     let match = null;
+    let matchPriority = -1;
     let matchLength = -1;
+    let matchId = null;
+
+    const priorities = {
+        exact: 3,
+        startsWith: 2,
+        endsWith: 2,
+        include: 1,
+    };
 
     for (const [command, compiledCommand] of serverCommands) {
+        const commandValue = typeof compiledCommand?.command === "string"
+            ? compiledCommand.command
+            : command;
+        const triggerType = Object.hasOwn(priorities, compiledCommand?.triggerType)
+            ? compiledCommand.triggerType
+            : "include";
+
+        if (typeof commandValue !== "string") continue;
+
+        const matches = (
+            (triggerType === "exact" && messageContent === commandValue)
+            || (triggerType === "startsWith" && messageContent.startsWith(commandValue))
+            || (triggerType === "endsWith" && messageContent.endsWith(commandValue))
+            || (triggerType === "include" && messageContent.includes(commandValue))
+        );
+
+        if (!matches) continue;
+
+        const priority = priorities[triggerType];
+        const candidateId = String(compiledCommand?.id ?? commandValue);
+        const winsTie = (
+            priority === matchPriority
+            && commandValue.length === matchLength
+            && (matchId === null || candidateId < matchId)
+        );
+
         if (
-            typeof command === "string"
-            && command.length > matchLength
-            && messageContent.includes(command)
+            priority > matchPriority
+            || (priority === matchPriority && commandValue.length > matchLength)
+            || winsTie
         ) {
             match = compiledCommand;
-            matchLength = command.length;
+            matchPriority = priority;
+            matchLength = commandValue.length;
+            matchId = candidateId;
         }
     }
 

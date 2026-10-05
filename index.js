@@ -6,11 +6,20 @@ const { Rules } = require('./commands/rules.js');
 const { LoadCustomCommandMap } = require('./commands/custom/index.js');
 const { CreateCustomCommandMapRefresher } = require('./commands/custom/refresh.js');
 const { RunCustomCommand } = require('./commands/custom/runner.js');
+const { CreateScheduledTaskRegistry } = require('./commands/scheduledTasks/index.js');
+const { CreateScheduledTaskRefresher } = require('./commands/scheduledTasks/refresh.js');
 const {
     EnforceChannelRules,
     RefreshChannelRuleCache,
 } = require('./commands/channelRules/index.js');
-const { Server, SettingWelcome, ContadorCommand, WelcomeCard, CustomCommand } = require('./db/index.js');
+const {
+    Server,
+    SettingWelcome,
+    ContadorCommand,
+    WelcomeCard,
+    CustomCommand,
+    ScheduledTask,
+} = require('./db/index.js');
 const { WelcomeCardRenderer } = require('./commands/util/welcomeCard.js');
 const { ManageInteraction } = require('./interaction/index.js');
 const { SlashCommands } = require('./slash command/index.js');
@@ -32,6 +41,7 @@ const counterDb = new ContadorCommand();
 const welcomeCardDb = new WelcomeCard();
 const welcomeCard = new WelcomeCardRenderer();
 const customCommandDb = new CustomCommand();
+const scheduledTaskDb = new ScheduledTask();
 
 const customCommandMapRefresher = CreateCustomCommandMapRefresher({
     getChangeSignature: () => customCommandDb.GetChangeSignature(),
@@ -41,6 +51,8 @@ const refreshCustomCommandMap = customCommandMapRefresher.refreshCustomCommandMa
 
 let customCommandRefreshCron = null;
 let channelRuleRefreshCron = null;
+let scheduledTaskRefreshCron = null;
+let refreshScheduledTasks = null;
 
 const startCustomCommandRefreshCron = () => {
     if (customCommandRefreshCron !== null) {
@@ -70,6 +82,20 @@ const startChannelRuleRefreshCron = () => {
     );
 };
 
+const startScheduledTaskRefreshCron = () => {
+    if (scheduledTaskRefreshCron !== null || refreshScheduledTasks === null) {
+        return;
+    }
+
+    scheduledTaskRefreshCron = new CronJob(
+        '*/10 * * * * *',
+        refreshScheduledTasks,
+        null,
+        true,
+        'America/Argentina/Buenos_Aires'
+    );
+};
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -85,6 +111,16 @@ const client = new Client({
         GatewayIntentBits.AutoModerationExecution
     ]
 });
+
+const scheduledTaskRegistry = CreateScheduledTaskRegistry({
+    client,
+    getEnabledTasks: () => scheduledTaskDb.GetEnabled(),
+});
+const scheduledTaskRefresher = CreateScheduledTaskRefresher({
+    getChangeSignature: () => scheduledTaskDb.GetChangeSignature(),
+    reconcileScheduledTasks: scheduledTaskRegistry.reconcileScheduledTasks,
+});
+refreshScheduledTasks = scheduledTaskRefresher.refreshScheduledTasks;
 
 //Send the message
 async function sendMessage() {
@@ -111,9 +147,11 @@ client.on('ready', async () => {
 
     await refreshCustomCommandMap();
     await RefreshChannelRuleCache();
+    await refreshScheduledTasks();
 
     startCustomCommandRefreshCron();
     startChannelRuleRefreshCron();
+    startScheduledTaskRefreshCron();
 
     let dayMillseconds = 3600000 * 24;
     setInterval(function () {

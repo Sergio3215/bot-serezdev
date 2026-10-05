@@ -216,18 +216,50 @@ model Subscription {
   updatedAt          DateTime           @updatedAt
 }
 
+enum CustomCommandTriggerType {
+  exact
+  startsWith
+  endsWith
+  include
+}
+
 model CustomCommand {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  serverId  String
-  command   String
-  code      String
-  description String?
-  enabled   Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String                   @id @default(auto()) @map("_id") @db.ObjectId
+  serverId       String
+  command        String
+  triggerType    CustomCommandTriggerType @default(include)
+  code           String
+  description    String?
+  allowedRoleIds String[]                 @default([])
+  enabled        Boolean                  @default(true)
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
 
   @@unique([serverId, command])
   @@map("custom_command")
+}
+
+enum ScheduledTaskScheduleType {
+  daily
+  weekly
+}
+
+model ScheduledTask {
+  id           String                    @id @default(auto()) @map("_id") @db.ObjectId
+  serverId     String
+  name         String
+  channelId    String
+  content      String
+  scheduleType ScheduledTaskScheduleType
+  time         String
+  weekdays     Int[]                     @default([])
+  timezone     String
+  enabled      Boolean                   @default(true)
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+
+  @@index([serverId])
+  @@map("scheduled_task")
 }
 
 model ChannelRule {

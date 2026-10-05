@@ -2,6 +2,14 @@ const { CustomCommand } = require("../../../db/index");
 
 const defaultCustomCommandDb = new CustomCommand();
 const DESCRIPTION_MAX_LENGTH = 100;
+const ALLOWED_ROLE_IDS_MAX_LENGTH = 50;
+const VALID_TRIGGER_TYPES = Object.freeze([
+    "exact",
+    "startsWith",
+    "endsWith",
+    "include",
+]);
+const SNOWFLAKE_PATTERN = /^\d{17,20}$/;
 
 const isRequiredString = (value) =>
     typeof value === "string" && value.trim().length > 0;
@@ -23,6 +31,75 @@ const validateDescription = (description) => {
     }
 
     return { value };
+};
+
+const validateTriggerType = (triggerType) => {
+    const value = triggerType ?? "include";
+
+    if (!VALID_TRIGGER_TYPES.includes(value)) {
+        return { error: "El tipo de trigger es inválido" };
+    }
+
+    return { value };
+};
+
+const validateAllowedRoleIds = (allowedRoleIds) => {
+    const value = allowedRoleIds ?? [];
+
+    if (!Array.isArray(value)) {
+        return { error: "Los roles permitidos deben ser un array" };
+    }
+
+    if (
+        value.some((roleId) => (
+            typeof roleId !== "string"
+            || roleId.length === 0
+            || roleId.trim() !== roleId
+            || !SNOWFLAKE_PATTERN.test(roleId)
+        ))
+    ) {
+        return { error: "Cada rol permitido debe ser un snowflake válido" };
+    }
+
+    const normalized = [...new Set(value)];
+    if (normalized.length > ALLOWED_ROLE_IDS_MAX_LENGTH) {
+        return {
+            error: `No se pueden configurar más de ${ALLOWED_ROLE_IDS_MAX_LENGTH} roles`,
+        };
+    }
+
+    return { value: normalized };
+};
+
+const validateCustomCommandAccess = ({ triggerType, allowedRoleIds }) => {
+    const triggerValidation = validateTriggerType(triggerType);
+    if (triggerValidation.error) return triggerValidation;
+
+    const rolesValidation = validateAllowedRoleIds(allowedRoleIds);
+    if (rolesValidation.error) return rolesValidation;
+
+    return {
+        value: {
+            triggerType: triggerValidation.value,
+            allowedRoleIds: rolesValidation.value,
+        },
+    };
+};
+
+const normalizeCustomCommandRecord = (command) => {
+    if (!command || typeof command !== "object") return command;
+
+    return {
+        ...command,
+        triggerType: VALID_TRIGGER_TYPES.includes(command.triggerType)
+            ? command.triggerType
+            : "include",
+        allowedRoleIds: Array.isArray(command.allowedRoleIds)
+            ? [...new Set(command.allowedRoleIds.filter(
+                (roleId) => typeof roleId === "string" && roleId.length > 0,
+            ))]
+            : [],
+    };
 };
 
 function sendPersistenceError(res, error) {
@@ -54,7 +131,9 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
 
         try {
             const commands = await customCommandDb.GetByServerId(serverId);
-            return res.status(200).json({ data: commands });
+            return res.status(200).json({
+                data: commands.map(normalizeCustomCommandRecord),
+            });
         } catch (error) {
             console.error("No se pudieron obtener los comandos personalizados", error);
             return res.status(500).json({
@@ -64,7 +143,15 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
     };
 
     const createCustomCommand = async (req, res) => {
-        const { serverId, command, code, description, enabled } = req.body;
+        const {
+            serverId,
+            command,
+            triggerType,
+            code,
+            description,
+            allowedRoleIds,
+            enabled,
+        } = req.body;
 
         if (!isRequiredString(serverId)) {
             return res.status(400).json({ message: "El id del servidor es requerido" });
@@ -87,18 +174,28 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
             return res.status(400).json({ message: descriptionValidation.error });
         }
 
+        const accessValidation = validateCustomCommandAccess({
+            triggerType,
+            allowedRoleIds,
+        });
+        if (accessValidation.error) {
+            return res.status(400).json({ message: accessValidation.error });
+        }
+
         try {
             const created = await customCommandDb.Create({
                 serverId,
                 command,
+                triggerType: accessValidation.value.triggerType,
                 code,
                 description: descriptionValidation.value,
+                allowedRoleIds: accessValidation.value.allowedRoleIds,
                 enabled,
             });
 
             return res.status(201).json({
                 message: "Comando personalizado creado con éxito",
-                data: created,
+                data: normalizeCustomCommandRecord(created),
             });
         } catch (error) {
             return sendPersistenceError(res, error);
@@ -107,7 +204,13 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
 
     const updateCustomCommand = async (req, res) => {
         const { id } = req.params;
-        const { command, code, description } = req.body;
+        const {
+            command,
+            triggerType,
+            code,
+            description,
+            allowedRoleIds,
+        } = req.body;
 
         if (!isRequiredString(id)) {
             return res.status(400).json({ message: "El id del comando es requerido" });
@@ -126,16 +229,26 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
             return res.status(400).json({ message: descriptionValidation.error });
         }
 
+        const accessValidation = validateCustomCommandAccess({
+            triggerType,
+            allowedRoleIds,
+        });
+        if (accessValidation.error) {
+            return res.status(400).json({ message: accessValidation.error });
+        }
+
         try {
             const updated = await customCommandDb.Update(id, {
                 command,
+                triggerType: accessValidation.value.triggerType,
                 code,
                 description: descriptionValidation.value,
+                allowedRoleIds: accessValidation.value.allowedRoleIds,
             });
 
             return res.status(200).json({
                 message: "Comando personalizado editado con éxito",
-                data: updated,
+                data: normalizeCustomCommandRecord(updated),
             });
         } catch (error) {
             return sendPersistenceError(res, error);
@@ -161,7 +274,7 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
                 message: enabled
                     ? "Comando personalizado activado con éxito"
                     : "Comando personalizado desactivado con éxito",
-                data: updated,
+                data: normalizeCustomCommandRecord(updated),
             });
         } catch (error) {
             return sendPersistenceError(res, error);
@@ -180,7 +293,7 @@ function createCustomCommandController(customCommandDb = defaultCustomCommandDb)
 
             return res.status(200).json({
                 message: "Comando personalizado borrado con éxito",
-                data: deleted,
+                data: normalizeCustomCommandRecord(deleted),
             });
         } catch (error) {
             return sendPersistenceError(res, error);
@@ -202,4 +315,10 @@ module.exports = {
     ...controller,
     createCustomCommandController,
     validateDescription,
+    validateTriggerType,
+    validateAllowedRoleIds,
+    validateCustomCommandAccess,
+    normalizeCustomCommandRecord,
+    VALID_TRIGGER_TYPES,
+    ALLOWED_ROLE_IDS_MAX_LENGTH,
 };

@@ -934,8 +934,12 @@ class CustomCommand {
             data: {
                 serverId: option.serverId,
                 command: option.command,
+                triggerType: option.triggerType ?? "include",
                 code: option.code,
                 description: option.description ?? null,
+                allowedRoleIds: Array.isArray(option.allowedRoleIds)
+                    ? option.allowedRoleIds
+                    : [],
                 enabled: option.enabled ?? true,
             }
         });
@@ -1001,8 +1005,12 @@ class CustomCommand {
             },
             data: {
                 command: option.command,
+                triggerType: option.triggerType ?? "include",
                 code: option.code,
                 ...(option.description === undefined ? {} : { description: option.description }),
+                allowedRoleIds: Array.isArray(option.allowedRoleIds)
+                    ? option.allowedRoleIds
+                    : [],
             }
         });
     }
@@ -1034,6 +1042,77 @@ class CustomCommand {
             where: {
                 id: id,
             }
+        });
+    }
+}
+
+class ScheduledTask {
+    async Create(option) {
+        return await prisma.scheduledTask.create({
+            data: {
+                serverId: option.serverId,
+                name: option.name,
+                channelId: option.channelId,
+                content: option.content,
+                scheduleType: option.scheduleType,
+                time: option.time,
+                weekdays: option.weekdays ?? [],
+                timezone: option.timezone,
+                enabled: option.enabled ?? true,
+            }
+        });
+    }
+
+    async GetByServerId(serverId) {
+        return await prisma.scheduledTask.findMany({
+            where: { serverId: serverId },
+            orderBy: { createdAt: "asc" },
+        });
+    }
+
+    async GetEnabled() {
+        return await prisma.scheduledTask.findMany({
+            where: { enabled: true },
+        });
+    }
+
+    async GetChangeSignature() {
+        const signature = await prisma.scheduledTask.aggregate({
+            _count: { _all: true },
+            _max: { updatedAt: true },
+        });
+
+        return {
+            count: signature._count._all,
+            lastUpdatedAt: signature._max.updatedAt?.toISOString() ?? null,
+        };
+    }
+
+    async Update(id, option) {
+        return await prisma.scheduledTask.update({
+            where: { id: id },
+            data: {
+                name: option.name,
+                channelId: option.channelId,
+                content: option.content,
+                scheduleType: option.scheduleType,
+                time: option.time,
+                weekdays: option.weekdays ?? [],
+                timezone: option.timezone,
+            }
+        });
+    }
+
+    async UpdateStatus(id, enabled) {
+        return await prisma.scheduledTask.update({
+            where: { id: id },
+            data: { enabled: enabled }
+        });
+    }
+
+    async Delete(id) {
+        return await prisma.scheduledTask.delete({
+            where: { id: id }
         });
     }
 }
@@ -1129,5 +1208,6 @@ module.exports = {
     Gifs,
     Interaction,
     CustomCommand,
+    ScheduledTask,
     ChannelRule
 };
