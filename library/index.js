@@ -103,7 +103,6 @@ class RUNTIME_BOT {
 
             bd_servers.map(async (bds) => {
                 const guild = await client.guilds.fetch(bds.serverId);
-                // console.log(typeof (guild));
                 let users = await birthday.GetById(guild.id);
 
                 // El diseño de la imagen es uno por servidor: se lee una sola vez
@@ -113,17 +112,13 @@ class RUNTIME_BOT {
                     return null;
                 });
 
-                // console.log(users);
                 users.map(async (user) => {
-                    // console.log('start');
                     const { id, day, month, userId, age } = user;
                     const dateUser = new Date(`2025-${month}-${day}T00:00:00Z`);
                     const date = new Date();
                     const dev = process.env.DEV == 'TRUE';
 
                     const dayUser = dev ? dateUser.getDate() + 1 : dateUser.getDate();
-
-                    // console.log(dayUser, date.getDate());
 
                     if (dayUser == date.getDate() && dateUser.getMonth() == date.getMonth()) {
                         const channel = await guild.channels.fetch(bds.channelId);
@@ -155,7 +150,6 @@ class RUNTIME_BOT {
                                 age: age + 1,
                             });
                         }
-                        // console.log(bds);
                     }
                     else {
                         console.log('not match')

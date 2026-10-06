@@ -7,9 +7,6 @@ const util = new Util();
 
 const syncGif = async (req, res) => {
     try {
-        // if (!process.env.ReSync) {
-        //     return res.status(401).send("No se permite volver a re usar este endpoint");
-        // }
 
         // Este proceso no tiene el cliente de discord.js, así que la lista de
         // servidores sale de la API REST. El sync en sí es el mismo que usan el
@@ -47,7 +44,6 @@ const getInteractions = async (req, res) => {
 const getInteractionByName = async (req, res) => {
     try {
         const { name, serverId } = req.query;
-        // console.log(name);
 
         const interaction = await db_interaction.getInteractionByNameAndServer(name, serverId);
         res.json({ data: interaction });
@@ -75,8 +71,6 @@ const addGif = async (req, res) => {
 
         const gifs = await db_gif.getGifsByInteraction(serverId, inter);
         const order = (gifs && gifs.length > 0 && gifs[0].order !== undefined) ? gifs[0].order + 1 : 1;
-
-        // console.log(order);
 
         await db_gif.createGiftByInteractionId(order, serverId, url, inter);
 

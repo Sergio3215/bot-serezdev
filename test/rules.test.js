@@ -89,6 +89,47 @@ test("una regla de canal rechazada no toca el contador ni altera el orden de la 
     assert.equal(db.states.get("guild-1").count, 1);
 });
 
+test("un servidor sin contador devuelve false", async () => {
+    const db = CreateCounterDb({});
+    const rules = CreateProcessor(db);
+
+    const result = await rules(CreateMessage({ authorId: "user-a", content: "1" }));
+
+    assert.equal(result, false);
+    assert.deepEqual(db.operations, ["get:guild-1"]);
+});
+
+test("un mensaje en otro canal devuelve false sin modificar el contador", async () => {
+    const db = CreateCounterDb({
+        "guild-1": { channelId: "channel-1", count: 4, modifiedBy: "user-a" },
+    });
+    const rules = CreateProcessor(db);
+
+    const result = await rules(CreateMessage({
+        channelId: "channel-other",
+        authorId: "user-b",
+        content: "5",
+    }));
+
+    assert.equal(result, false);
+    assert.equal(db.states.get("guild-1").count, 4);
+});
+
+test("un mensaje de bot en el canal contador no rompe la racha", async () => {
+    const db = CreateCounterDb({
+        "guild-1": { channelId: "channel-1", count: 4, modifiedBy: "user-a" },
+    });
+    const rules = CreateProcessor(db);
+    const message = CreateMessage({ authorId: "bot", content: "texto" });
+    message.author.bot = true;
+
+    const result = await rules(message);
+
+    assert.equal(result, true);
+    assert.equal(db.states.get("guild-1").count, 4);
+    assert.deepEqual(message.reactions, []);
+});
+
 test("serializa lectura, validación y escritura para un mismo servidor/canal", async () => {
     const db = CreateCounterDb({
         "guild-1": { channelId: "channel-1", count: 0, modifiedBy: "" },
@@ -183,6 +224,24 @@ test("un fallo al reaccionar no revierte el estado ni bloquea la cola", async ()
     assert.deepEqual(two.reactions, ["✅"]);
 });
 
+test("un fallo al enviar el aviso de error no deja muerta la cola", async () => {
+    const db = CreateCounterDb({
+        "guild-1": { channelId: "channel-1", count: 5, modifiedBy: "user-a" },
+    });
+    const rules = CreateProcessor(db);
+    const breaker = CreateMessage({ authorId: "user-a", content: "6" });
+    breaker.channel.send = async () => {
+        throw new Error("Missing Permissions");
+    };
+    const restart = CreateMessage({ authorId: "user-b", content: "1" });
+
+    await Promise.all([rules(breaker), rules(restart)]);
+
+    assert.equal(db.states.get("guild-1").count, 1);
+    assert.equal(db.states.get("guild-1").modifiedBy, "user-b");
+    assert.deepEqual(restart.reactions, ["\u2705"]);
+});
+
 test("un valor no entero también resetea la racha", async () => {
     const db = CreateCounterDb({
         "guild-1": { channelId: "channel-1", count: 7, modifiedBy: "user-a" },
@@ -238,6 +297,47 @@ test("dos contadores distintos avanzan en paralelo", async () => {
     await Promise.all([first, second]);
 });
 
+test("dos canales del mismo servidor comparten cola durante una reconfiguración", async () => {
+    const state = {
+        serverId: "guild-1",
+        channelId: "channel-old",
+        count: 0,
+        modifiedBy: "",
+    };
+    let activeReads = 0;
+    let maximumActiveReads = 0;
+    const db = {
+        async GetById() {
+            activeReads += 1;
+            maximumActiveReads = Math.max(maximumActiveReads, activeReads);
+            await delay(5);
+            activeReads -= 1;
+            return [{ ...state }];
+        },
+        async Update(serverId, data) {
+            Object.assign(state, data);
+            if (data.count === 1) state.channelId = "channel-new";
+        },
+    };
+    const rules = CreateProcessor(db);
+    const oldChannel = CreateMessage({
+        channelId: "channel-old",
+        authorId: "user-a",
+        content: "1",
+    });
+    const newChannel = CreateMessage({
+        channelId: "channel-new",
+        authorId: "user-b",
+        content: "2",
+    });
+
+    await Promise.all([rules(oldChannel), rules(newChannel)]);
+
+    assert.equal(maximumActiveReads, 1);
+    assert.equal(state.count, 2);
+    assert.equal(state.modifiedBy, "user-b");
+});
+
 test("desbloquea recompensas cada 20 números, también después de 300", async () => {
     const db = CreateCounterDb({
         "guild-1": { channelId: "channel-1", count: 319, modifiedBy: "user-a" },
@@ -264,4 +364,26 @@ test("desbloquea la primera recompensa exactamente al llegar a 20", async () => 
     assert.equal(db.states.get("guild-1").count, 20);
     assert.equal(rewards.length, 1);
     assert.match(rewards[0].text, /20/);
+});
+
+test("un fallo de recompensa no corrompe el contador ni bloquea mensajes futuros", async () => {
+    const db = CreateCounterDb({
+        "guild-1": { channelId: "channel-1", count: 19, modifiedBy: "user-a" },
+    });
+    const rules = CreateRules({
+        contadorCommand: db,
+        lib: {
+            async StreakCounter() {
+                throw new Error("reward unavailable");
+            },
+        },
+        logger: { error() {} },
+    });
+    const twenty = CreateMessage({ authorId: "user-b", content: "20" });
+    const twentyOne = CreateMessage({ authorId: "user-c", content: "21" });
+
+    await Promise.all([rules(twenty), rules(twentyOne)]);
+
+    assert.equal(db.states.get("guild-1").count, 21);
+    assert.equal(db.states.get("guild-1").modifiedBy, "user-c");
 });

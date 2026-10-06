@@ -30,12 +30,8 @@ class Terror {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} le esta persiguiendo a ${reciverName}`)
-                // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir[0].url)
-            // .addFields(
-            //     comandos_helper
-            // )
             await msg.reply({
                 embeds: [embed]
             });
@@ -69,12 +65,8 @@ class Terror {
 
             const embed = new EmbedBuilder()
                 .setTitle(str)
-                // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir[0].url)
-            // .addFields(
-            //     comandos_helper
-            // )
             await msg.reply({
                 embeds: [embed]
             });
@@ -103,12 +95,8 @@ class Terror {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} quiere intimidar a ${reciverName}`)
-                // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir[0].url)
-            // .addFields(
-            //     comandos_helper
-            // )
             await msg.reply({
                 embeds: [embed]
             });
@@ -124,8 +112,6 @@ class Terror {
             let llorar = Math.floor(Math.random() * count);
             let dir = gif.filter(g => g.order == llorar + 1);
 
-            // console.log(llorar);
-
             const guild = await client.guilds.cache.get(msg.guild.id);
             let member = await guild.members.fetch(msg.author.id);
 
@@ -135,12 +121,8 @@ class Terror {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${memberName} empezo a llorar`)
-                // .setDescription("list of all commands")
                 .setColor(color)
                 .setImage(dir[0].url)
-            // .addFields(
-            //     comandos_helper
-            // )
             await msg.reply({
                 embeds: [embed]
             });

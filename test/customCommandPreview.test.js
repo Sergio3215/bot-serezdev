@@ -392,3 +392,67 @@ test("previews simultáneos son independientes", async () => {
     assert.deepEqual(results[2].actions, []);
     assert.equal(results[2].stage, "runtime");
 });
+
+test("el preview no llama a la API de Discord ni hace pedidos HTTP", async (t) => {
+    const calls = [];
+    t.mock.method(globalThis, "fetch", async (...args) => {
+        calls.push({ method: "fetch", args });
+        throw new Error("El preview no debe hacer pedidos HTTP");
+    });
+    t.mock.method(Discord.REST.prototype, "request", async (...args) => {
+        calls.push({ method: "REST.request", args });
+        throw new Error("El preview no debe llamar a la API de Discord");
+    });
+    const discordCalls = SpyOnDiscord(t);
+
+    const result = await Preview([
+        `AddRole(GetAuthor(), Role("${ROLE_ID}"))`,
+        `SendMessage({ channel: Channel("${CHANNEL_ID}"), message: "hola" })`,
+        'SendEmbed({ title: "t" })',
+        'ReplyEmbed({ description: "d" })',
+        'ReplyMessage({ message: displayName() + " " + string(memberCount()) })',
+        "for (const member of GetMentionedMembers()) {",
+        `    AddRole(member, Role("${ROLE_ID}"))`,
+        "}",
+    ].join("\n"), { mention: true });
+
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.actions.map((action) => action.type), [
+        "AddRole",
+        "SendMessage",
+        "SendEmbed",
+        "ReplyEmbed",
+        "ReplyMessage",
+        "AddRole",
+    ]);
+    assert.deepEqual(calls, []);
+    assert.deepEqual(discordCalls, []);
+});
+
+test("el preview no usa la capa de datos de comandos personalizados", async (t) => {
+    const { CustomCommand } = require("../db/index.js");
+    const calls = [];
+    for (const name of Object.getOwnPropertyNames(CustomCommand.prototype)) {
+        if (name === "constructor" || typeof CustomCommand.prototype[name] !== "function") continue;
+        t.mock.method(CustomCommand.prototype, name, async (...args) => {
+            calls.push({ name, args });
+            throw new Error("La base de datos no debe usarse en el preview");
+        });
+    }
+
+    const result = await Preview(`AddRole(GetAuthor(), Role("${ROLE_ID}"))\nReplyMessage({ message: "ok" })`);
+
+    assert.equal(result.ok, true);
+    assert.deepEqual(calls, []);
+});
+
+test("un Member es una instantánea: AddRole no cambia HasRole en la misma ejecución, igual que en Discord", async () => {
+    const result = await Preview([
+        "const autor = GetAuthor()",
+        `AddRole(autor, Role("${ROLE_ID}"))`,
+        `ReplyMessage({ message: string(HasRole(autor, Role("${ROLE_ID}"))) + string(length(autor.roles)) })`,
+    ].join("\n"));
+
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.actions.at(-1), { type: "ReplyMessage", message: "false0" });
+});

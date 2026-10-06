@@ -26,6 +26,10 @@ const { SlashCommands } = require('./slash command/index.js');
 const { SlashLib } = require('./slash command/lib.js');
 const { LibAutocomplete } = require('./slash command/lib-autocomplete.js');
 const { RUNTIME_BOT } = require('./library/index.js');
+const {
+    CreateCounterInactivityProcessor,
+    StartCounterInactivityScheduler,
+} = require('./commands/counter/inactivity.js');
 
 const { CronJob } = require('cron');
 
@@ -53,6 +57,7 @@ let customCommandRefreshCron = null;
 let channelRuleRefreshCron = null;
 let scheduledTaskRefreshCron = null;
 let refreshScheduledTasks = null;
+let counterInactivityInterval = null;
 
 const startCustomCommandRefreshCron = () => {
     if (customCommandRefreshCron !== null) {
@@ -121,25 +126,20 @@ const scheduledTaskRefresher = CreateScheduledTaskRefresher({
     reconcileScheduledTasks: scheduledTaskRegistry.reconcileScheduledTasks,
 });
 refreshScheduledTasks = scheduledTaskRefresher.refreshScheduledTasks;
+const counterInactivityProcessor = CreateCounterInactivityProcessor({
+    counterDb,
+    client,
+    logger: console,
+});
 
-//Send the message
-async function sendMessage() {
-    const count = await counterDb.Get();
-    count.map(async co => {
-        const lastDay = Math.floor((new Date() - co.modifiedOn) / (1000 * 60 * 60 * 24));
+const startCounterInactivityScheduler = () => {
+    if (counterInactivityInterval !== null) return;
 
-        if (lastDay >= 30) {
-            const updateData = {
-                channelId: co.channelId,
-                modifiedBy: '',
-                count: 0,
-            };
-            await contador_command.Update(co.serverId, updateData);
-
-            await msg.channel.send("Se ha terminado la racha del contador por inactividad de 30 dias.");
-        }
+    counterInactivityInterval = StartCounterInactivityScheduler({
+        run: counterInactivityProcessor.run,
+        logger: console,
     });
-}
+};
 
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -152,11 +152,7 @@ client.on('ready', async () => {
     startCustomCommandRefreshCron();
     startChannelRuleRefreshCron();
     startScheduledTaskRefreshCron();
-
-    let dayMillseconds = 3600000 * 24;
-    setInterval(function () {
-        sendMessage();
-    }, dayMillseconds);
+    startCounterInactivityScheduler();
 
     const cron = new CronJob('0 0 0 * * *',
         () => {
@@ -226,8 +222,6 @@ client.on('interactionCreate', async (interaction) => {
                 PermissionsBitField.Flags.ManageMessages,
                 PermissionsBitField.Flags.ManageChannels
             );
-        // console.log('Comando de barra invocado:', interaction.commandName);
-        // console.log('Comando invocado:', interaction.isChatInputCommand());
         if (interaction.isChatInputCommand() ||
             interaction.isUserContextMenuCommand() ||
             interaction.isMessageContextMenuCommand()) {

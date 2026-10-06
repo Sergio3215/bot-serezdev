@@ -6,8 +6,9 @@ const BOT_USER_ID = "1312903712238469170";
 /**
  * Crea el procesador del contador.
  *
- * Cada instancia mantiene una cola independiente por servidor/canal. La
- * función que se devuelve NO es async a propósito: registrar el trabajo en la
+ * Cada instancia mantiene una cola independiente por servidor. Prisma guarda
+ * un único contador por serverId, incluso si un administrador cambia el canal.
+ * La función que se devuelve NO es async a propósito: registrar el trabajo en la
  * cola ocurre de forma síncrona apenas Discord emite messageCreate, antes de
  * que otro await pueda alterar el orden de llegada.
  */
@@ -88,7 +89,7 @@ const CreateRules = ({ contadorCommand, lib, logger = console }) => {
 
         const shouldProcess = options?.shouldProcess ?? true;
 
-        const key = `${msg.guild.id}:${msg.channel.id}`;
+        const key = msg.guild.id;
         const previous = queues.get(key) ?? Promise.resolve();
         const current = previous
             // Un fallo previo no puede dejar bloqueada para siempre la cola.

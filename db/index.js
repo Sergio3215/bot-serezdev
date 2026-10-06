@@ -65,10 +65,6 @@ class buttonFollowing {
         });
     }
 
-    // async Get() {
-    //     return await prisma.profile.findMany();
-    // }
-
     async GetById(id) {
         return await prisma.buttonFollowing.findMany({
             where: {
@@ -106,10 +102,6 @@ class aceptRules {
 
         });
     }
-
-    // async Get() {
-    //     return await prisma.profile.findMany();
-    // }
 
     async GetById(id) {
         return await prisma.aceptRules.findMany({
@@ -150,10 +142,6 @@ class SettingWelcome {
         });
     }
 
-    // async Get() {
-    //     return await prisma.profile.findMany();
-    // }
-
     async GetById(serverId) {
         return await prisma.settingWelcome.findMany({
             where: {
@@ -163,7 +151,6 @@ class SettingWelcome {
     }
 
     async Update(options) {
-        // console.log(options);
         await prisma.settingWelcome.update({
             where: {
                 id: options.id
@@ -192,10 +179,6 @@ class setTicket {
 
         });
     }
-
-    // async Get() {
-    //     return await prisma.profile.findMany();
-    // }
 
     async GetById(id) {
         return await prisma.setTicket.findMany({
@@ -233,10 +216,6 @@ class statusTicket {
 
         });
     }
-
-    // async Get() {
-    //     return await prisma.profile.findMany();
-    // }
 
     async GetById(id) {
         return await prisma.statusTicket.findMany({
@@ -307,10 +286,6 @@ class Ticket {
         });
     }
 
-    // async Get() {
-    //     return await prisma.Tickets.findMany();
-    // }
-
     async GetById(id) {
         return await prisma.Tickets.findMany({
             where: {
@@ -373,12 +348,13 @@ class MetricCommands {
 }
 
 class ContadorCommand {
-    constructor() {
-
+    constructor({ client = prisma, now = () => new Date() } = {}) {
+        this.client = client;
+        this.now = now;
     }
 
     async Create(option) {
-        await prisma.ContadorCommand.create({
+        await this.client.ContadorCommand.create({
             data: {
                 serverId: option.serverId,
                 serverName: option.serverName,
@@ -391,7 +367,9 @@ class ContadorCommand {
 
     async Update(serverId, option) {
         const data = {
-            modifiedOn: new Date(),
+            // modifiedOn representa la última mutación relevante. Contar,
+            // resetear o reconfigurar el canal reinicia la ventana de 30 días.
+            modifiedOn: this.now(),
         };
 
         // Las actualizaciones del canal y del estado del contador son
@@ -401,7 +379,7 @@ class ContadorCommand {
         if (Object.hasOwn(option, "channelId")) data.channelId = option.channelId;
         if (Object.hasOwn(option, "modifiedBy")) data.modifiedBy = option.modifiedBy;
 
-        await prisma.ContadorCommand.update({
+        await this.client.ContadorCommand.update({
             where: {
                 serverId: serverId,
             },
@@ -409,8 +387,25 @@ class ContadorCommand {
         });
     }
 
+    async ResetIfInactive(serverId, cutoff, resetAt = this.now()) {
+        const result = await this.client.ContadorCommand.updateMany({
+            where: {
+                serverId: serverId,
+                count: { gt: 0 },
+                modifiedOn: { lte: cutoff },
+            },
+            data: {
+                count: 0,
+                modifiedBy: "",
+                modifiedOn: resetAt,
+            },
+        });
+
+        return result.count > 0;
+    }
+
     async GetById(serverId) {
-        return await prisma.ContadorCommand.findMany({
+        return await this.client.ContadorCommand.findMany({
             where: {
                 serverId: serverId,
             }
@@ -418,7 +413,7 @@ class ContadorCommand {
     }
 
     async Get() {
-        return await prisma.ContadorCommand.findMany();
+        return await this.client.ContadorCommand.findMany();
     }
 }
 

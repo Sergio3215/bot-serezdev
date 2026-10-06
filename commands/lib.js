@@ -14,7 +14,7 @@ const settingWelcome = new SettingWelcome();
 const btnfollow = new buttonFollowing();
 const acept_rules = new aceptRules();
 const set_ticket = new setTicket();
-const contador_command = new ContadorCommand();
+const defaultCounterDb = new ContadorCommand();
 const custom_command = new CustomCommand();
 let birthday_setup = new BirthdaySetup();
 let birthday = new Birthday();
@@ -29,6 +29,44 @@ const CUSTOM_COMMAND_TITLE = "Comandos personalizados";
 const CUSTOM_COMMAND_DESCRIPTION_LIMIT = 100;
 const EMPTY_DESCRIPTION_FALLBACK = "\u200B";
 const descriptionGenerationJobs = new Map();
+const COUNTER_CHANNEL_ID_PATTERN = /^\d{17,20}$/;
+const COUNTER_CHANNEL_PERMISSIONS = [
+    PermissionFlagsBits.ViewChannel,
+    PermissionFlagsBits.SendMessages,
+    PermissionFlagsBits.AddReactions,
+    PermissionFlagsBits.ReadMessageHistory,
+];
+
+const ReplyToInteraction = async (interaction, payload) => {
+    if (interaction.deferred && typeof interaction.editReply === "function") {
+        return await interaction.editReply(payload);
+    }
+    if (interaction.replied && typeof interaction.followUp === "function") {
+        return await interaction.followUp(payload);
+    }
+    return await interaction.reply(payload);
+};
+
+const ResolveCounterChannel = async (client, interaction, channelId) => {
+    if (!COUNTER_CHANNEL_ID_PATTERN.test(channelId ?? "")) return null;
+
+    const guild = interaction.guild;
+    const cached = guild?.channels?.cache?.get?.(channelId);
+    const channel = cached ?? await guild?.channels?.fetch?.(channelId).catch(() => null);
+
+    if (!channel) return null;
+    if ((channel.guildId ?? channel.guild?.id) !== guild.id) return null;
+    if (channel.type !== ChannelType.GuildText) return null;
+    if (typeof channel.isTextBased === "function" && !channel.isTextBased()) return null;
+    if (typeof channel.send !== "function") return null;
+
+    if (typeof channel.permissionsFor === "function") {
+        const permissions = channel.permissionsFor(client?.user);
+        if (!permissions?.has?.(COUNTER_CHANNEL_PERMISSIONS)) return null;
+    }
+
+    return channel;
+};
 
 const GetEmbedTextLength = (embed) => {
     const data = embed.toJSON();
@@ -80,10 +118,12 @@ class LibsCommands {
 
     constructor({
         customCommandDb = custom_command,
+        counterDb = defaultCounterDb,
         generateTextSystem: textGenerator = generateTextSystem,
         logger = console,
     } = {}) {
         this.customCommandDb = customCommandDb;
+        this.counterDb = counterDb;
         this.generateTextSystem = textGenerator;
         this.logger = logger;
     }
@@ -195,7 +235,6 @@ class LibsCommands {
                     content: "La imagen solicitada no pudo ser generada",
                 });
                 clearInterval(pensando);
-                // return msgChat.edit("no se creo el pj");
             }
         }, 500);
 
@@ -246,12 +285,6 @@ class LibsCommands {
     async Personaje(msg, createCharacter, userIsSubOrBooster) {
         try {
 
-            // const member = await msg.guild.members.fetch(msg.author.id);
-
-            // if (!(await userIsSubOrBooster(member))) {
-            //     return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
-            // }
-
             let msgChat = await msg.channel.send("Pensando");
 
 
@@ -268,7 +301,6 @@ class LibsCommands {
                 }
                 catch {
                     clearInterval(pensando);
-                    // return msgChat.edit("no se creo el pj");
                 }
             }, 500);
 
@@ -298,7 +330,6 @@ class LibsCommands {
                 }
                 catch {
                     clearInterval(cargando);
-                    // return msgChat.edit("no se creo el pj");
                 }
             }, 100);
 
@@ -340,13 +371,6 @@ class LibsCommands {
                             `)
                 .setColor(color)
                 .setImage(imagen)
-            // .addFields(
-            //     comandos_helper
-            // )
-
-            // await msg.reply({
-            //     embeds: [embed]
-            // });
 
             clearInterval(cargando);
 
@@ -362,12 +386,6 @@ class LibsCommands {
     }
 
     async Nivel(msg, userIsSubOrBooster) {
-
-        // const member = await msg.guild.members.fetch(msg.author.id);
-
-        // if (!(await userIsSubOrBooster(member))) {
-        //     return msg.reply("Este comando solo es para subs de Twitch o boosters del servidor.");
-        // }
 
         const estadisticas = this.#SubirNivel();
 
@@ -603,7 +621,6 @@ Carisma: ${estadisticas.carisma}`)
                 console.error(error);
                 msg.reply('Debe enviarse el comando con el  request [request] y el canal [pending]');
             }
-            // const channel = msg.guild.channels.cache.get(channelId);
         }
         else {
             msg.reply('No es un canal o rol valido');
@@ -787,7 +804,6 @@ ${command.code}`;
 
         const embed_user = new EmbedBuilder()
             .setTitle("Lista de Comandos para Usuarios")
-            // .setDescription("list of all commands")
             .setColor(Colors.DarkAqua)
             .addFields(
                 comandos_helper
@@ -795,7 +811,6 @@ ${command.code}`;
 
         const embed_rol = new EmbedBuilder()
             .setTitle("Lista de Comandos para Rol Play")
-            // .setDescription("list of all commands")
             .setColor(Colors.DarkBlue)
             .addFields(
                 command_rolplay
@@ -803,7 +818,6 @@ ${command.code}`;
 
         const embed_boosters = new EmbedBuilder()
             .setTitle("Lista de Comandos para Subscriptores de Twitch y Server Boosters")
-            // .setDescription("list of all commands")
             .setColor(Colors.Gold)
             .addFields(
                 command_boosters
@@ -811,7 +825,6 @@ ${command.code}`;
 
         const embed_mod_admin = new EmbedBuilder()
             .setTitle("Lista de Comandos para Administradores y Moderadores")
-            // .setDescription("list of all commands")
             .setColor(Colors.Red)
             .addFields(
                 commands_admins
@@ -851,28 +864,55 @@ ${command.code}`;
 
     async ContadorCommand(client, msg) {
         try {
-            const dataExisted = await contador_command.GetById(msg.guild.id);
-            console.log(dataExisted, msg.options._hoistedOptions[0].value);
+            const channelId = msg.options.getString("canal", true);
+            const channel = await ResolveCounterChannel(client, msg, channelId);
+            if (!channel) {
+                await ReplyToInteraction(msg, {
+                    content: "El canal seleccionado no es válido o el bot no tiene acceso suficiente.",
+                    flags: MessageFlags.Ephemeral,
+                });
+                return false;
+            }
+
+            const dataExisted = await this.counterDb.GetById(msg.guild.id);
 
             if (dataExisted.length == 0) {
                 const newData = {
                     serverId: msg.guild.id,
                     serverName: msg.guild.name,
                     modifiedBy: '',
-                    channelId: msg.options._hoistedOptions[0].value,
+                    channelId: channel.id,
                 };
-                await contador_command.Create(newData);
+                await this.counterDb.Create(newData);
                 await msg.reply("Canal de contador de comandos establecido correctamente.");
             }
             else {
                 const updateData = {
-                    channelId: msg.options._hoistedOptions[0].value,
+                    channelId: channel.id,
                 };
-                await contador_command.Update(msg.guild.id, updateData);
+                // Reconfigurar conserva la racha, pero Update renueva modifiedOn:
+                // el cambio administrativo inicia un nuevo período de inactividad.
+                await this.counterDb.Update(msg.guild.id, updateData);
                 await msg.reply("Canal de contador de comandos actualizado correctamente.");
             }
+            return true;
         } catch (error) {
-            console.log(error);
+            this.logger.error("[counter] No se pudo configurar el contador", {
+                serverId: msg?.guild?.id,
+                operation: "configure-counter",
+            }, error);
+            try {
+                await ReplyToInteraction(msg, {
+                    content: "No se pudo configurar el contador. Inténtalo nuevamente.",
+                    flags: MessageFlags.Ephemeral,
+                });
+            } catch (replyError) {
+                this.logger.error("[counter] No se pudo responder el error de configuración", {
+                    serverId: msg?.guild?.id,
+                    operation: "reply-counter-configuration-error",
+                }, replyError);
+            }
+            return false;
         }
     }
 
@@ -1059,7 +1099,6 @@ Que sea wallpaper para el celular o computadora.
             await interaction.reply({ content: `El Cumpleaños de <@${userId}> es el ${usr[0].day}/${usr[0].month}.` });
         }
 
-        // await interaction.reply({ content: 'Comando en construcción.' });
     }
 
     async BotChat(client, msg) {
@@ -1081,8 +1120,6 @@ Que sea wallpaper para el celular o computadora.
         })
 
         const data = await ftch.json();
-
-        // console.log(data);
 
         await loggChatBot.Create({
             serverId: msg.guildId,
@@ -1112,8 +1149,6 @@ Que sea wallpaper para el celular o computadora.
         });
 
         resultAffinity = resultAffinity / users.length + 1;
-
-        // console.log(resultAffinity);
 
         if (users.length > 0) {
 
@@ -1163,7 +1198,6 @@ Que sea wallpaper para el celular o computadora.
                                 MENSAJE A RESPONDER: ${msg.content}
                             `;
             try {
-                // console.log(prompt)
                 const response = await generateTextSystem(prompt);
                 const message = response.choices[0].message.content;
                 msg.reply(message);
@@ -1208,7 +1242,6 @@ Que sea wallpaper para el celular o computadora.
 
         const { data, errors } = await response.json();
         const deployment_id = data.deployments.edges[0].node.id;
-        // console.log(deployment_id);
 
         const response2 = await fetch("https://backboard.railway.com/graphql/v2", {
             method: "POST",
@@ -1227,8 +1260,6 @@ Que sea wallpaper para el celular o computadora.
         });
 
         const { data2, errors2 } = await response2.json();
-
-        // console.log(data2);
 
         await interaction.reply({ content: 'Bot reiniciado correctamente.', ephemeral: true });
     }
@@ -1264,7 +1295,6 @@ Que sea wallpaper para el celular o computadora.
                 serverName: msg.guild.name,
                 close: false
             });
-            // msg.reply('Canal cerrado correctamente.');
         }
         else {
             await closeChannel.Update(data[0].id, {
