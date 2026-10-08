@@ -9,6 +9,8 @@ const subscriptionRoutes = require("./subscriptions");
 const customCommandRoutes = require("./customCommand");
 const channelRuleRoutes = require("./channelRule");
 const scheduledTaskRoutes = require("./scheduledTask");
+const autoCleanMessageRoutes = require("./autoCleanMessage");
+const ghostMessageRoutes = require("./ghostMessage");
 
 // Gifs sin prefijo (/api/v1/getInteractions, ...) por compatibilidad; el panel usa /api/v1/gif/...
 router.use("/", gifRoutes);
@@ -31,5 +33,8 @@ router.use("/channelRule", channelRuleRoutes);
 
 // Mensajes recurrentes configurables por servidor.
 router.use("/scheduledTask", scheduledTaskRoutes);
+
+router.use("/autoCleanMessage", autoCleanMessageRoutes);
+router.use("/ghostMessage", ghostMessageRoutes);
 
 module.exports = router;

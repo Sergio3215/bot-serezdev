@@ -276,3 +276,40 @@ model ChannelRule {
   @@unique([serverId, channelId, type])
   @@map("channel_rule")
 }
+
+enum CleanupTimeUnit {
+  hours
+  days
+}
+
+model AutoCleanMessage {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  serverId       String
+  channelId      String
+  frequencyValue Float
+  frequencyUnit  CleanupTimeUnit
+  enabled        Boolean         @default(true)
+  nextRunAt      DateTime
+  lastRunAt      DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([serverId, channelId])
+  @@index([enabled, nextRunAt])
+  @@map("auto_clean_message")
+}
+
+model GhostMessage {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  serverId      String
+  channelId     String
+  lifetimeValue Float
+  lifetimeUnit  CleanupTimeUnit
+  enabled       Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([serverId, channelId])
+  @@index([enabled])
+  @@map("ghost_message")
+}

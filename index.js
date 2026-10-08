@@ -30,6 +30,18 @@ const {
     CreateCounterInactivityProcessor,
     StartCounterInactivityScheduler,
 } = require('./commands/counter/inactivity.js');
+const {
+    AutoCleanMessageRepository,
+    CreateAutoCleanMessageRuntime,
+    CreateAutoCleanMessageRefresher,
+    StartAutoCleanMessageScheduler,
+} = require('./commands/autoCleanMessage/index.js');
+const {
+    GhostMessageRepository,
+    CreateGhostMessageRuntime,
+    CreateGhostMessageRefresher,
+    StartGhostMessageSweeper,
+} = require('./commands/ghostMessage/index.js');
 
 const { CronJob } = require('cron');
 
@@ -46,6 +58,8 @@ const welcomeCardDb = new WelcomeCard();
 const welcomeCard = new WelcomeCardRenderer();
 const customCommandDb = new CustomCommand();
 const scheduledTaskDb = new ScheduledTask();
+const autoCleanMessageDb = new AutoCleanMessageRepository();
+const ghostMessageDb = new GhostMessageRepository();
 
 const customCommandMapRefresher = CreateCustomCommandMapRefresher({
     getChangeSignature: () => customCommandDb.GetChangeSignature(),
@@ -58,6 +72,8 @@ let channelRuleRefreshCron = null;
 let scheduledTaskRefreshCron = null;
 let refreshScheduledTasks = null;
 let counterInactivityInterval = null;
+let autoCleanMessageRefreshCron = null;
+let ghostMessageRefreshCron = null;
 
 const startCustomCommandRefreshCron = () => {
     if (customCommandRefreshCron !== null) {
@@ -131,6 +147,53 @@ const counterInactivityProcessor = CreateCounterInactivityProcessor({
     client,
     logger: console,
 });
+const autoCleanMessageRuntime = CreateAutoCleanMessageRuntime({
+    client,
+    repository: autoCleanMessageDb,
+    logger: console,
+});
+const autoCleanMessageRefresher = CreateAutoCleanMessageRefresher({
+    getChangeSignature: () => autoCleanMessageDb.GetChangeSignature(),
+    getEnabledConfigurations: () => autoCleanMessageDb.GetEnabled(),
+    reconcile: autoCleanMessageRuntime.reconcile,
+    logger: console,
+});
+const autoCleanMessageScheduler = StartAutoCleanMessageScheduler({
+    runDue: autoCleanMessageRuntime.runDue,
+    logger: console,
+});
+const ghostMessageRuntime = CreateGhostMessageRuntime({ client, logger: console });
+const ghostMessageRefresher = CreateGhostMessageRefresher({
+    getChangeSignature: () => ghostMessageDb.GetChangeSignature(),
+    getEnabledConfigurations: () => ghostMessageDb.GetEnabled(),
+    reconcile: ghostMessageRuntime.reconcile,
+    logger: console,
+});
+const ghostMessageSweeper = StartGhostMessageSweeper({
+    runSweep: ghostMessageRuntime.runSweep,
+    logger: console,
+});
+
+const startMessageCleanupRefreshCrons = () => {
+    if (autoCleanMessageRefreshCron === null) {
+        autoCleanMessageRefreshCron = new CronJob(
+            '*/10 * * * * *',
+            autoCleanMessageRefresher.refresh,
+            null,
+            true,
+            'America/Argentina/Buenos_Aires'
+        );
+    }
+    if (ghostMessageRefreshCron === null) {
+        ghostMessageRefreshCron = new CronJob(
+            '*/10 * * * * *',
+            ghostMessageRefresher.refresh,
+            null,
+            true,
+            'America/Argentina/Buenos_Aires'
+        );
+    }
+};
 
 const startCounterInactivityScheduler = () => {
     if (counterInactivityInterval !== null) return;
@@ -148,11 +211,21 @@ client.on('ready', async () => {
     await refreshCustomCommandMap();
     await RefreshChannelRuleCache();
     await refreshScheduledTasks();
+    await autoCleanMessageRefresher.refresh();
+    await ghostMessageRefresher.refresh();
 
     startCustomCommandRefreshCron();
     startChannelRuleRefreshCron();
     startScheduledTaskRefreshCron();
     startCounterInactivityScheduler();
+    startMessageCleanupRefreshCrons();
+    autoCleanMessageScheduler.start();
+    ghostMessageSweeper.start();
+
+    // Una pasada al arrancar atiende una ejecución vencida durante el downtime
+    // una sola vez; las siguientes fechas se calculan desde su finalización.
+    await autoCleanMessageScheduler.runSafely();
+    await ghostMessageSweeper.runSafely();
 
     const cron = new CronJob('0 0 0 * * *',
         () => {
